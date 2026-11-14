@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://correradar-andalucia.github.io/sitemap.xml
