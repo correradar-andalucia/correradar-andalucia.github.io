@@ -5,9 +5,25 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
-from captacion import parse_fadmes, parse_dorsalchip, cruzando_links, parse_cruzando_detail, dorsal_links, dorsal_detail, parse_faa
+from captacion import parse_fadmes, parse_dorsalchip, cruzando_links, parse_cruzando_detail, dorsal_links, dorsal_detail, parse_faa,gcc_links,parse_gcc_detail
 
 class CaptacionTests(unittest.TestCase):
+    def test_gcc_links_unicos(self):
+        page='<a href="/index.php/trail-cxm/xv-trail-las-palomas">Trail</a><a href="/index.php/trail-cxm/xv-trail-las-palomas">Duplicado</a>'
+        self.assertEqual(len(gcc_links(page)),1)
+
+    def test_gcc_fecha_lugar_y_modalidad(self):
+        page='<main><h1>XV Trail Las Palomas</h1><p>Fecha inicio 12-12-2026 9:00 - 17:00</p></main>'
+        race=parse_gcc_detail(page,"https://gccsportevents.es/index.php/trail-cxm/xv-trail-las-palomas",date(2026,11,15))
+        self.assertIsNotNone(race)
+        self.assertEqual(race["fecha"],"2026-12-12")
+        self.assertEqual(race["localidad"],"Zahara de la Sierra")
+        self.assertEqual(race["provincia"],"Cádiz")
+
+    def test_gcc_descarta_senderismo(self):
+        page='<main><h1>Ruta de Senderismo Montoro</h1><p>Fecha inicio 12-12-2026 9:00</p></main>'
+        self.assertIsNone(parse_gcc_detail(page,"https://gccsportevents.es/index.php/trail-cxm/ruta",date(2026,11,15)))
+
     def test_faa_fechas_y_municipios_verificables(self):
         text='<div>PRÓXIMAS CARRERAS:</div><h2>22 NOVIEMBRE 2026</h2><h1>Cross Archidona</h1><h2>28 NOVIEMBRE 2026</h2><h1>Antequera Trail</h1><h2>5 DICIEMBRE 2026</h2><h1>Alcaldesa Perpetua</h1>'
         rows=parse_faa(text,date(2026,11,15))
