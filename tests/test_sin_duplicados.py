@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
 from deduplicacion import combine,verify_unique,same_event,conflicting_date
 from captacion_extra import runnink,gesconchip,diputacion_granada,diputacion_huelva
+from captacion import is_allowed_url
 from datetime import date
 
 def race(name="Trail Sierra Alhaurín el Grande Homenaje a Mori",
@@ -85,6 +86,18 @@ class Deduplicacion(unittest.TestCase):
         b=race("Carrera B");b["slug"]="igual"
         with self.assertRaisesRegex(ValueError,"BLOQUEADA"):
             verify_unique([a,b])
+
+class DominiosLectura(unittest.TestCase):
+    def test_dominios_nuevos_permitidos(self):
+        for host in ("www.runnink.com","gesconchip.es","www.dipgra.es","www.diphuelva.es"):
+            with self.subTest(host=host):
+                self.assertTrue(is_allowed_url("https://"+host+"/"))
+
+    def test_no_se_accede_a_otros_dominios(self):
+        for url in ("http://www.runnink.com/","https://evil.example.com/",
+                    "https://www.runnink.com.evil.com/","file:///etc/passwd"):
+            with self.subTest(url=url):
+                self.assertFalse(is_allowed_url(url))
 
 class NuevosLectores(unittest.TestCase):
     def test_diputacion_granada_fechas_y_sedes(self):
