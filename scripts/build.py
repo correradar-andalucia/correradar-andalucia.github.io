@@ -170,10 +170,14 @@ def sitemap(races):
     return ET.tostring(root,encoding='unicode',xml_declaration=True)
 
 def main():
-    from multifuente import seed_races, combine
+    from multifuente import seed_races
+    from deduplicacion import combine, verify_unique
     from captacion import collect
     candidatas_en_vivo, informe_captacion = collect()
-    races=combine(transform(load_csv()), seed_races()+candidatas_en_vivo, slugify, km_parse)
+    races, auditoria = combine(transform(load_csv()), seed_races()+candidatas_en_vivo,
+                               slugify, km_parse, with_audit=True)
+    verify_unique(races)
+    print("AUDITORÍA DUPLICADOS:",json.dumps(auditoria,ensure_ascii=False))
     print("Captación multifuente:", json.dumps(informe_captacion, ensure_ascii=False))
     if OUT.exists():shutil.rmtree(OUT)
     OUT.mkdir()
@@ -184,6 +188,7 @@ def main():
     (OUT/'data').mkdir()
     (OUT/'data'/'carreras.json').write_text(json.dumps({'actualizado':dt.date.today().strftime('%d/%m/%Y'),'carreras':races},ensure_ascii=False,separators=(',',':')),encoding='utf8')
     (OUT/'data'/'estado_fuentes.json').write_text(json.dumps(informe_captacion,ensure_ascii=False,indent=2),encoding='utf8')
+    (OUT/'data'/'auditoria_duplicados.json').write_text(json.dumps(auditoria,ensure_ascii=False,indent=2),encoding='utf8')
     catalogo = ROOT/'config'/'catalogo_fuentes_maestra.json'
     if catalogo.exists():
         fuentes = json.loads(catalogo.read_text(encoding='utf-8'))

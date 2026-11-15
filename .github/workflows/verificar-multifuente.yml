@@ -30,3 +30,14 @@ jobs:
           test -s _site/data/carreras.json
           test -s _site/data/estado_fuentes.json
           test -s _site/data/fuentes.json
+          test -s _site/data/auditoria_duplicados.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          races=json.loads(Path('_site/data/carreras.json').read_text())['carreras']
+          audit=json.loads(Path('_site/data/auditoria_duplicados.json').read_text())
+          assert audit['urls_unicas'], 'Hay URLs duplicadas'
+          assert len(races)==audit['fichas_finales']
+          assert len({r['slug'] for r in races})==len(races)
+          print('AUDITORÍA OK:',len(races),'fichas sin duplicados')
+          PY
