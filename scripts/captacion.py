@@ -5,6 +5,9 @@ No se eluden bloqueos, robots ni controles de acceso.
 from __future__ import annotations
 from datetime import date, datetime
 from html.parser import HTMLParser
+from functools import lru_cache
+from html import unescape
+import time
 from urllib.parse import urlparse, urljoin, unquote
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
@@ -17,6 +20,7 @@ USER_AGENT = "CorreRadarAndaluciaBot/0.1 (+mailto:correradarandalucia@gmail.com)
 SOURCES = {
     "fadmes": "https://fadmes.es/calendario-fam/",
     "dorsalchip": "https://dorsalchip.es/view/Inicio.aspx",
+    "cruzandolameta": "https://www.cruzandolameta.es/pruebas/",
 }
 PROVINCES = {"ALMERIA":"Almería","CADIZ":"Cádiz","CORDOBA":"Córdoba",
              "GRANADA":"Granada","HUELVA":"Huelva","JAEN":"Jaén",
@@ -139,6 +143,84 @@ def parse_dorsalchip(html,today=None):
         found.append({"fecha":day.isoformat(),"nombre":name,"localidad":city,"provincia":province,
                       "modalidad":modality,"distancia":"","fuente":url,"enlace":url,"origen":"dorsalchip"})
     return found
+
+
+MONTHS = {s:i+1 for i,s in enumerate(
+    ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"])}
+
+class RaceText(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.words=[];self.heading=[];self.in_h1=False;self.hidden=0
+    def handle_starttag(self,tag,attrs):
+        if tag in ("script","style"):self.hidden+=1
+        if tag=="h1":self.in_h1=True
+    def handle_endtag(self,tag):
+        if tag in ("script","style") and self.hidden:self.hidden-=1
+        if tag=="h1":self.in_h1=False
+    def handle_data(self,data):
+        if self.hidden:return
+        t=compact(data)
+        if t:self.words.append(t)
+        if t and self.in_h1:self.heading.append(t)
+
+def cruzando_links(page):
+    p=CalendarParser();p.feed(page)
+    urls=[];seen=set()
+    for a in p.anchors:
+        target=urljoin(SOURCES["cruzandolameta"],a["href"])
+        parsed=urlparse(target)
+        if parsed.hostname!="www.cruzandolameta.es":continue
+        if not re.fullmatch(r"/pruebas/[a-z0-9-]+/?",parsed.path):continue
+        if target not in seen:
+            seen.add(target);urls.append(target)
+    return urls[:18]
+
+def parse_cruzando_detail(page,source_url,today=None):
+    today=today or date.today()
+    parser=RaceText();parser.feed(page)
+    name=compact(" ".join(parser.heading))
+    if not name or len(name)>170 or SKIP.search(name):return None
+    full=compact(" ".join(parser.words))
+    pos=full.find(name)
+    primary=full[pos+len(name):] if pos>=0 else full
+    primary=re.split(r"También te puede interesar|Más pruebas en",primary,maxsplit=1,flags=re.I)[0]
+    if re.search(r"\bcancelad[ao]s?\b|\banulad[ao]s?\b",primary[:600],re.I):return None
+    m=re.search(r"\b(\d{1,2})\s+de\s+("+ "|".join(MONTHS.keys())+
+                r")\s+de\s+(20\d\d)\b",primary[:650],re.I)
+    if m:
+        try:d=date(int(m[3]),MONTHS[m[2].lower()],int(m[1]))
+        except ValueError:return None
+    else:
+        d=get_date(primary[:650])
+    if not d or d<today or d.year>today.year+2:return None
+    key=canon(name)
+    category=("HIBRIDA" if re.search(r"HYROX|DEKA",key) else
+              "OCR" if re.search(r"\bOCR\b|OBSTACUL",key) else
+              "ULTRA" if "ULTRA" in key else
+              "TRAIL" if re.search(r"TRAIL|CXM|MONTANA|SILVESTRAIL",key) else
+              "CROSS" if "CROSS" in key else "RUNNING")
+    if category=="RUNNING" and not re.search(
+            r"CARRERA|MARATON|FONDO|SUBIDA|RUNNING|SAN SILVESTRE|RELEVOS",key):
+        return None
+    located=primary[:1100]
+    province=None
+    for p in PROVINCES.values():
+        if re.search(r"\("+re.escape(p)+r"\)",located,re.I):
+            province=p;break
+    if province is None:return None
+    loc=re.search(r"(.{2,110}?)\s*\("+re.escape(province)+r"\)",located,re.I)
+    if not loc:return None
+    place=compact(loc.group(1))
+    # Preservar el lugar explícito; no convertir un pabellón en municipio inventado.
+    for marker in ("Dónde", "Localización", "Lugar", "Salida"):
+        if marker in place:place=place.split(marker)[-1].strip(" :·")
+    place=place[-100:].strip(" ,;·")
+    if not place or len(place)<2:return None
+    return {"fecha":d.isoformat(),"nombre":name,"localidad":place,"provincia":province,
+            "modalidad":category,"distancia":"","enlace":source_url,
+            "fuente":source_url,"origen":"cruzandolameta"}
+
 
 def fetch_if_permitted(url):
     parsed=urlparse(url)
