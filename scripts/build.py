@@ -144,13 +144,14 @@ def detail_page(r):
     fmt=f'{date.day} de {MONTHS[date.month-1]} de {date.year}'
     city=', '.join(filter(None,[r['localidad'],r['provincia']]))
     title=f'{r["nombre"]} — {fmt} | CorreRadar Andalucía'
-    desc=f'Información de {r["nombre"]} en {city}: fecha, distancia, desnivel, precio e inscripción oficial.'[:155]
+    desc=f'Información de {r["nombre"]} en {city}: fecha y detalles orientativos; confirma en el organizador.'[:155]
     path=f'/carreras/{r["slug"]}/'
     entries=[('Fecha',fmt),('Localidad',city),('Modalidad','Asfalto' if r['modalidad']=='RUNNING' else r['modalidad'].title()),('Distancia',r['distancia']),('Desnivel',r['desnivel']),('Precio',r['precio']),('Bolsa del corredor',r['bolsa']),('Estado',r['estado']),('Última verificación',r['verificado'])]
     lines='\n'.join(f'<div class="detail-line"><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>' for k,v in entries if v)
     buttons=''
-    if r['enlace']:buttons+=f'<a href="{esc(r["enlace"])}" rel="noopener noreferrer" target="_blank">Ir a la inscripción oficial ↗</a>'
-    if r.get('fuente'):buttons+=f'<a class="secondary" href="{esc(r["fuente"])}" rel="noopener noreferrer" target="_blank">Fuente de verificación ↗</a>'
+    provisional=('confirmar' in norm(r.get('estado')) or 'cotejada' in norm(r.get('estado')))
+    if r['enlace']:buttons+=f'<a href="{esc(r["enlace"])}" rel="noopener noreferrer" target="_blank">{("Comprobar en la fuente ↗" if provisional else "Ir a la inscripción oficial ↗")}</a>'
+    if r.get('fuente') and r['fuente']!=r.get('enlace'):buttons+=f'<a class="secondary" href="{esc(r["fuente"])}" rel="noopener noreferrer" target="_blank">Fuente de verificación ↗</a>'
     if r['track']:buttons+=f'<a class="secondary" href="{esc(r["track"])}" rel="noopener noreferrer" target="_blank">Ver track ↗</a>'
     if not buttons:buttons='<p>Enlaces oficiales pendientes de verificación.</p>'
     ld={'@context':'https://schema.org','@type':'SportsEvent','name':r['nombre'],'startDate':r['fecha'],
