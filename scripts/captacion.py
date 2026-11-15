@@ -25,6 +25,8 @@ SOURCES = {
     "gcc": "https://gccsportevents.es/index.php",
     "runnink": "https://www.runnink.com/inscripciones/",
     "gesconchip": "https://gesconchip.es/app/proximas-pruebas",
+    "dipgra": "https://www.dipgra.es/servicios/areas/deportes/deporte-competicion/circuito-provincial-campo-a-traves/",
+    "diphuelva": "https://www.diphuelva.es/deportes/contenidos/Circuitos-Carreras-Atleticas-2026/",
 }
 PROVINCES = {"ALMERIA":"Almería","CADIZ":"Cádiz","CORDOBA":"Córdoba",
              "GRANADA":"Granada","HUELVA":"Huelva","JAEN":"Jaén",
@@ -379,7 +381,8 @@ def gcc_links(page):
         href=urljoin(SOURCES["gcc"],a["href"])
         parts=urlparse(href)
         if parts.scheme!="https" or parts.hostname not in ("gccsportevents.es","www.gccsportevents.es",
-            "www.runnink.com","runnink.com","gesconchip.es","www.gesconchip.es"):
+            "www.runnink.com","runnink.com","gesconchip.es","www.gesconchip.es",
+            "www.dipgra.es","dipgra.es","www.diphuelva.es","diphuelva.es"):
             continue
         if not re.fullmatch(r"/index\.php/(trail-cxm|atletismo-ruta-cross)/[a-z0-9-]+",parts.path,re.I):
             continue
@@ -452,7 +455,13 @@ def collect(today=None):
     for name,url in SOURCES.items():
         try:
             page=fetch_if_permitted(url)
-            if name=="runnink":
+            if name=="dipgra":
+                from captacion_extra import diputacion_granada
+                rows=diputacion_granada(page,today)
+            elif name=="diphuelva":
+                from captacion_extra import diputacion_huelva
+                rows=diputacion_huelva(page,today)
+            elif name=="runnink":
                 from captacion_extra import runnink
                 rows=runnink(page,today)
             elif name=="gesconchip":
