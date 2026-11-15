@@ -5,7 +5,7 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
-from captacion import parse_fadmes, parse_dorsalchip, cruzando_links, parse_cruzando_detail
+from captacion import parse_fadmes, parse_dorsalchip, cruzando_links, parse_cruzando_detail, dorsal_links, dorsal_detail
 
 class CaptacionTests(unittest.TestCase):
     def test_tabla_cxm(self):
@@ -34,6 +34,25 @@ class CaptacionTests(unittest.TestCase):
         self.assertEqual(len(data),1)
         self.assertEqual(data[0]["nombre"],"7 Ecomaratón La Donaira")
         self.assertEqual(data[0]["localidad"],"El Gastor")
+
+    def test_dorsal_enlaces_de_ficha(self):
+        page='<a href="/carrera/2026/11/21/7_Ecomaraton_La_Donaira.aspx">Detalles</a>'
+        links=dorsal_links(page,date(2026,11,15))
+        self.assertEqual(len(links),1)
+        self.assertTrue(links[0].endswith("7_Ecomaraton_La_Donaira.aspx"))
+
+    def test_dorsal_ficha_por_campos_explicitos(self):
+        page='<main><div>7 Ecomaratón La Donaira</div><div>21/11/2026</div><div>El Gastor</div><div>Cádiz</div></main>'
+        link='https://dorsalchip.es/carrera/2026/11/21/7_Ecomaraton_La_Donaira.aspx'
+        row=dorsal_detail(page,link,date(2026,11,15))
+        self.assertIsNotNone(row)
+        self.assertEqual(row["localidad"],"El Gastor")
+        self.assertEqual(row["provincia"],"Cádiz")
+        self.assertEqual(row["fecha"],"2026-11-21")
+
+    def test_dorsal_descarta_triatlon(self):
+        page='<main><div>XV Triatlón Indoor</div><div>21/11/2026</div><div>Torremolinos</div><div>Málaga</div></main>'
+        self.assertIsNone(dorsal_detail(page,'https://dorsalchip.es/carrera/2026/11/21/Triatlon.aspx',date(2026,11,15)))
 
     def test_dorsal_sin_localidad_se_descarta(self):
         data=parse_dorsalchip('<a href="/carrera/2026/12/02/trail.aspx">02/12/2026 Gran Trail</a>',date(2026,11,15))
