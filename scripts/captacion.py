@@ -279,6 +279,11 @@ def collect(today=None):
                     except Exception:
                         pass
                     time.sleep(0.3)
+            if name=="dorsalchip" and not rows:
+                p=CalendarParser();p.feed(page)
+                sample=[{"href":a["href"],"partes":a["parts"][:4],"texto":a["text"][:160]}
+                        for a in p.anchors if "/carrera/" in a["href"].lower()][:5]
+                print("DIAGNÓSTICO DORSALCHIP (enlaces públicos):",repr(sample))
             events.extend(rows)
             report["fuentes"][name]={"estado":"leida","candidatas":len(rows),"url":url}
         except Exception as exc:
