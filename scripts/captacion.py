@@ -11,6 +11,7 @@ from urllib.error import HTTPError
 from urllib.robotparser import RobotFileParser
 import re
 import unicodedata
+import os
 
 USER_AGENT = "CorreRadarAndaluciaBot/0.1 (+mailto:correradarandalucia@gmail.com)"
 SOURCES = {
@@ -151,6 +152,9 @@ def fetch_if_permitted(url):
 def collect(today=None):
     today=today or date.today()
     events=[];report={"consultado":today.isoformat(),"fuentes":{}}
+    if os.environ.get('CORRERADAR_FETCH')=='0':
+        report['modo']='Prueba local sin conexión'
+        return events,report
     for name,url in SOURCES.items():
         try:
             page=fetch_if_permitted(url)
