@@ -32,8 +32,9 @@ def norm(value):
 
 def seed_races(today=None):
     today = today or dt.date.today()
-    if not SEED_DATE <= today <= SEED_DATE + dt.timedelta(days=SEED_DAYS):
+    if today < SEED_DATE:
         return []
+    needs_review = today > SEED_DATE + dt.timedelta(days=SEED_DAYS)
     if not FILE.exists():
         return []
     result = []
@@ -58,7 +59,9 @@ def seed_races(today=None):
                     "provincia": province, "distancia": (r.get("distancia") or "").strip(),
                     "km": 0, "modalidad": modality, "desnivel": "", "precio": "",
                     "bolsa": "", "track": "", "enlace": source_url, "fuente": source_url,
-                    "estado": "Cotejada · confirmar en fuente", "verificado": SEED_DATE.isoformat(),
+                    "estado": ("Cotejada · RECONFIRMAR fecha" if needs_review
+                               else "Cotejada · confirmar en fuente"),
+                    "verificado": SEED_DATE.isoformat(),
                     "origen": source,
                 })
             except (ValueError, KeyError):
