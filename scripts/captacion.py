@@ -428,11 +428,21 @@ def parse_gcc_detail(page,url,today=None):
             "enlace":url,"fuente":url,"origen":"gcc"}
 
 
+ALLOWED_HOSTS = frozenset((
+    "fadmes.es", "dorsalchip.es", "www.cruzandolameta.es",
+    "atletismofaa.es", "gccsportevents.es", "www.gccsportevents.es",
+    "www.runnink.com", "runnink.com",
+    "gesconchip.es", "www.gesconchip.es",
+    "www.dipgra.es", "dipgra.es",
+    "www.diphuelva.es", "diphuelva.es",
+))
+def is_allowed_url(url):
+    parsed=urlparse(url)
+    return parsed.scheme=="https" and parsed.hostname in ALLOWED_HOSTS
+
 def fetch_if_permitted(url):
     parsed=urlparse(url)
-    if parsed.scheme!="https" or parsed.hostname not in (
-            "fadmes.es","dorsalchip.es","www.cruzandolameta.es","atletismofaa.es",
-            "gccsportevents.es","www.gccsportevents.es"):
+    if not is_allowed_url(url):
         raise ValueError("URL no autorizada para este lector")
     robot=get_robots(parsed.hostname)
     if not robot.can_fetch(USER_AGENT,url):
