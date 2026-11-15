@@ -5,9 +5,21 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
-from captacion import parse_fadmes, parse_dorsalchip, cruzando_links, parse_cruzando_detail, dorsal_links, dorsal_detail
+from captacion import parse_fadmes, parse_dorsalchip, cruzando_links, parse_cruzando_detail, dorsal_links, dorsal_detail, parse_faa
 
 class CaptacionTests(unittest.TestCase):
+    def test_faa_fechas_y_municipios_verificables(self):
+        text='<div>PRÓXIMAS CARRERAS:</div><h2>22 NOVIEMBRE 2026</h2><h1>Cross Archidona</h1><h2>28 NOVIEMBRE 2026</h2><h1>Antequera Trail</h1><h2>5 DICIEMBRE 2026</h2><h1>Alcaldesa Perpetua</h1>'
+        rows=parse_faa(text,date(2026,11,15))
+        self.assertEqual(len(rows),2)
+        self.assertEqual(rows[0]["localidad"],"Archidona")
+        self.assertEqual(rows[0]["modalidad"],"CROSS")
+        self.assertEqual(rows[1]["localidad"],"Antequera")
+
+    def test_faa_fechas_pasadas(self):
+        page='<div>PRÓXIMAS CARRERAS</div><h2>22 NOVIEMBRE 2026</h2><h1>Cross Archidona</h1>'
+        self.assertEqual(parse_faa(page,date(2026,12,1)),[])
+
     def test_tabla_cxm(self):
         page="""<table>
           <tr><th>Inicio</th><th>Fin</th><th>Tipo</th><th>Nombre</th><th>Prueba</th><th>Localidad</th><th>Provincia</th></tr>
