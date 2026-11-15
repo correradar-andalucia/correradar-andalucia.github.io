@@ -12,7 +12,8 @@ import re
 import unicodedata
 
 STOPWORDS = {"de","del","la","las","el","los","y","en","a","al","por","para",
-             "carrera","popular","municipal","circuito","provincial","prueba"}
+             "carrera","popular","municipal","circuito","provincial","prueba",
+             "trail","cxm","cross"}
 EDITION = re.compile(r"^(?:[ivxlcdm]{1,8}|[0-9]{1,3}[ªº]?)\s+(?=[a-záéíóúñ])",re.I)
 DIST = re.compile(r"(?<!\d)(\d{1,3}(?:[.,]\d{1,3})?)\s*(?:km|kms|k\b)",re.I)
 
