@@ -131,7 +131,7 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
     rows=[(True,r) for r in approved]+[(False,r) for r in candidates]
     results=[];locks=[];seen=set()
     audit={"entradas_aprobadas":len(approved),"candidatas_entrantes":len(candidates),
-           "duplicados_fusionados":0,"fechas_en_conflicto":0,
+           "duplicados_fusionados":0,"fechas_en_conflicto":0,"distancias_en_conflicto":0,
            "ejemplos_duplicados":[],"ejemplos_conflictos":[]}
     for is_approved,item in rows:
         r=dict(item)
@@ -156,6 +156,24 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
             if not locks[match_idx] and not matches.get("distancia") and not is_approved and r.get("distancia"):
                 matches["distancia"]=r["distancia"]
                 matches["km"]=km_parse(r["distancia"])
+            continue
+        # Una discrepancia de distancia respecto a una ficha APROBADA no debe
+        # generar una segunda ficha: retener la aprobada y registrar el conflicto.
+        protected=next((old for idx,old in enumerate(results) if locks[idx]
+                        and old.get("fecha")==r.get("fecha")
+                        and same_place(old,r)
+                        and old.get("modalidad")==r.get("modalidad")
+                        and similarity(old.get("nombre"),r.get("nombre"))
+                        and distance_set(old) and distance_set(r)
+                        and not (distance_set(old)&distance_set(r))),None)
+        if protected is not None and not is_approved:
+            audit["distancias_en_conflicto"]+=1
+            if len(audit["ejemplos_conflictos"])<30:
+                audit["ejemplos_conflictos"].append({"nombre":r.get("nombre"),
+                    "fecha":r.get("fecha"),"municipio":r.get("localidad"),
+                    "motivo":"Distancia distinta de la carrera aprobada",
+                    "fuente":r.get("fuente")})
+            record_sources(protected,r)
             continue
         different=next((old for old in results if conflicting_date(old,r)),None)
         if different is not None and not is_approved:
