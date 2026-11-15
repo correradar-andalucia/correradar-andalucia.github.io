@@ -240,6 +240,50 @@ def get_robots(host):
         raise RuntimeError("No fue posible consultar robots.txt: "+type(ex).__name__) from ex
     return robot
 
+
+def dorsal_links(page,today=None):
+    today=today or date.today()
+    p=CalendarParser();p.feed(page)
+    found=[];seen=set()
+    for a in p.anchors:
+        url=urljoin(SOURCES["dorsalchip"],a["href"])
+        u=urlparse(url)
+        if u.hostname not in ("dorsalchip.es","www.dorsalchip.es"):continue
+        match=re.match(r"^/carrera/(20\d\d)/\d{1,2}/\d{1,2}/[^/]+\.aspx$",u.path,re.I)
+        if not match or int(match[1])<today.year:continue
+        if url in seen:continue
+        seen.add(url);found.append(url)
+    # El listado incluye pruebas ya celebradas; el tramo final presenta las más recientes.
+    return found[-60:]
+
+def dorsal_detail(page,link,today=None):
+    today=today or date.today()
+    p=RaceText();p.feed(page)
+    texts=p.words
+    for i,t in enumerate(texts[:100]):
+        if not re.fullmatch(r"\d{1,2}/\d{1,2}/20\d\d",t):continue
+        d=get_date(t)
+        if not d or d<today or d.year>today.year+2:continue
+        if i<1 or i+2>=len(texts):continue
+        name=compact(texts[i-1]);city=compact(texts[i+1]);province=PROVINCES.get(canon(texts[i+2]))
+        if not name or not city or not province or len(name)>170 or len(city)>100:continue
+        if SKIP.search(name):continue
+        if re.search(r"\b(?:marcha\s+solidaria|traves[ií]a\s+a\s+nado|preinscripci[oó]n)\b",name,re.I):continue
+        key=canon(name)
+        if not re.search(r"CARRERA|TRAIL|CXM|RUN|CROSS|ULTRA|MARATON|SAN SILVESTRE|OBSTACUL|OCR|DEKA|HYROX|FONDO|VERTICAL|RESISTENCIA|SUBIDA",key):
+            continue
+        mode=("HIBRIDA" if "HYROX" in key or "DEKA" in key else
+              "OCR" if "OBSTACUL" in key or "OCR" in key else
+              "ULTRA" if "ULTRA" in key else
+              "TRAIL" if re.search(r"TRAIL|CXM|MONTANA",key) else
+              "CROSS" if "CROSS" in key else "RUNNING")
+        if re.search(r"\b(?:CANCELADA|CANCELADO|ANULADA|APLAZADA)\b",canon(" ".join(texts[i-2:i+6]))):
+            continue
+        return {"fecha":d.isoformat(),"nombre":name,"localidad":city,"provincia":province,
+                "modalidad":mode,"distancia":"","fuente":link,"enlace":link,"origen":"dorsalchip"}
+    return None
+
+
 def fetch_if_permitted(url):
     parsed=urlparse(url)
     if parsed.scheme!="https" or parsed.hostname not in (
@@ -269,7 +313,14 @@ def collect(today=None):
             if name=="fadmes":
                 rows=parse_fadmes(page,today)
             elif name=="dorsalchip":
-                rows=parse_dorsalchip(page,today)
+                rows=[];links=dorsal_links(page,today)
+                for detail in links:
+                    try:
+                        candidate=dorsal_detail(fetch_if_permitted(detail),detail,today)
+                        if candidate:rows.append(candidate)
+                    except Exception:
+                        pass
+                    time.sleep(0.2)
             else:
                 rows=[];links=cruzando_links(page)
                 for detail in links:
@@ -279,11 +330,6 @@ def collect(today=None):
                     except Exception:
                         pass
                     time.sleep(0.3)
-            if name=="dorsalchip" and not rows:
-                p=CalendarParser();p.feed(page)
-                sample=[{"href":a["href"],"partes":a["parts"][:4],"texto":a["text"][:160]}
-                        for a in p.anchors if "/carrera/" in a["href"].lower()][:5]
-                print("DIAGNÓSTICO DORSALCHIP (enlaces públicos):",repr(sample))
             events.extend(rows)
             report["fuentes"][name]={"estado":"leida","candidatas":len(rows),"url":url}
         except Exception as exc:
