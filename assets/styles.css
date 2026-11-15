@@ -3,3 +3,8 @@
 .footer-links{display:flex;gap:14px 20px;flex-wrap:wrap;width:100%;font-size:13px;color:#c6d6ce}.footer-links a:hover,.legal-copy a:hover{color:var(--lime);text-decoration:underline}.legal-main{max-width:850px;padding:65px 0 90px;min-height:65vh}.legal-main h1{font-size:clamp(36px,6vw,60px);letter-spacing:-.055em;line-height:1.1}.legal-copy{color:#c3d1cc;font-size:15px;line-height:1.8}.legal-copy h2{color:#f0f8f0;font-size:21px;margin-top:30px}.legal-copy a{color:var(--lime);text-decoration:underline;text-underline-offset:3px}.legal-copy .notice{border-left:3px solid var(--orange);background:#24271e;padding:12px 18px}.legal-copy ul{padding-left:23px}.legal-copy li{margin-bottom:9px}
 
 .prelaunch{padding:12px 20px;background:#22302b;border-top:1px solid #3d5142;border-bottom:1px solid #3d5142;text-align:center;font-size:12px;font-weight:650;color:#d7e6d7;letter-spacing:.035em}.prelaunch a{color:#c8ff43;text-decoration:underline;text-underline-offset:2px}.tag.ultra,.tag.resistencia{background:#513a30;color:#ffc27a}.tag.ocr,.tag.hibrida{background:#2a3e59;color:#a9daff}.tag.especial{background:#40354e;color:#e5c3ff}@media(max-width:620px){.prelaunch{font-size:11px;line-height:1.6;padding:9px 15px}}
+
+/* CorreRadar: cuatro filtros y procedencia visible por carrera. */
+@media(min-width:621px){.select-row{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.tag.source-tag{background:#253a3a;color:#b7dad5;border:1px solid #416061}
+@media(max-width:620px){.select-row>.select-wrap:last-child{grid-column:auto}}
