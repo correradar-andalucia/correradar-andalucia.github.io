@@ -5,7 +5,7 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
-from captacion import parse_fadmes, parse_dorsalchip
+from captacion import parse_fadmes, parse_dorsalchip, cruzando_links, parse_cruzando_detail
 
 class CaptacionTests(unittest.TestCase):
     def test_tabla_cxm(self):
@@ -38,6 +38,21 @@ class CaptacionTests(unittest.TestCase):
     def test_dorsal_sin_localidad_se_descarta(self):
         data=parse_dorsalchip('<a href="/carrera/2026/12/02/trail.aspx">02/12/2026 Gran Trail</a>',date(2026,11,15))
         self.assertEqual(data,[])
+
+    def test_cruzando_enlaces_unicos(self):
+        html='<a href="/pruebas/iv-carrera-atarfe/">Carrera</a><a href="/pruebas/iv-carrera-atarfe/">Repetida</a><a href="/pruebas/">Menú</a>'
+        self.assertEqual(len(cruzando_links(html)),1)
+
+    def test_cruzando_ficha_con_fecha_y_provincia(self):
+        url="https://www.cruzandolameta.es/pruebas/iv-carrera-atarfe/"
+        html='<main><h1>IV CARRERA SAN SILVESTRE ATARFE 2026</h1><p>Domingo, 20 de diciembre de 2026</p><p>Pabellón de Atarfe (Granada)</p><p>Running</p></main>'
+        row=parse_cruzando_detail(html,url,date(2026,11,15))
+        self.assertEqual(row["fecha"],"2026-12-20")
+        self.assertEqual(row["provincia"],"Granada")
+
+    def test_cruzando_ciclismo_excluido(self):
+        html='<main><h1>V CLÁSICA BTT DE GRANADA</h1><p>21 de noviembre de 2026, Granada (Granada)</p></main>'
+        self.assertIsNone(parse_cruzando_detail(html,"https://www.cruzandolameta.es/pruebas/btt/",date(2026,11,15)))
 
     def test_datos_pasados_se_descartan(self):
         html='<table><tr><td>14/11/2026</td><td></td><td>CxM</td><td>Trail</td><td></td><td>Motril</td><td>GRANADA</td></tr></table>'
