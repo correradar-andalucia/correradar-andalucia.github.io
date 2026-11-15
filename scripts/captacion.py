@@ -21,6 +21,7 @@ SOURCES = {
     "fadmes": "https://fadmes.es/calendario-fam/",
     "dorsalchip": "https://dorsalchip.es/view/Inicio.aspx",
     "cruzandolameta": "https://www.cruzandolameta.es/pruebas/",
+    "faa": "https://atletismofaa.es/carreraspopulares/",
 }
 PROVINCES = {"ALMERIA":"Almería","CADIZ":"Cádiz","CORDOBA":"Córdoba",
              "GRANADA":"Granada","HUELVA":"Huelva","JAEN":"Jaén",
@@ -284,10 +285,77 @@ def dorsal_detail(page,link,today=None):
     return None
 
 
+
+# Municipio y provincia explícitamente identificados, sin extrapolar fechas.
+FAA_PLACES = {
+    "VALLE DE ABDALAJIS":("Valle de Abdalajís","Málaga"),
+    "VILLANUEVA DEL TRABUCO":("Villanueva del Trabuco","Málaga"),
+    "AGUILARENSE":("Aguilar de la Frontera","Córdoba"),
+    "TORRE DEL MAR":("Torre del Mar","Málaga"),
+    "CROSS ALGARROBO":("Algarrobo","Málaga"),
+    "ESTEPONA":("Estepona","Málaga"),
+    "CARTAYA":("Cartaya","Huelva"),
+    "ARCHIDONA":("Archidona","Málaga"),
+    "ANTEQUERA":("Antequera","Málaga"),
+    "BENAMEJI":("Benamejí","Córdoba"),
+    "ARDALES":("Ardales","Málaga"),
+    "AYAMONTE":("Ayamonte","Huelva"),
+    "CARTAMA":("Cártama","Málaga"),
+    "ALORA":("Álora","Málaga"),
+    "PURULLENA":("Purullena","Granada"),
+    "TORROX":("Torrox","Málaga"),
+    "COMPETA":("Cómpeta","Málaga"),
+    "RUTE":("Rute","Córdoba"),
+    "VELEZ":("Vélez-Málaga","Málaga"),
+    "ESPERA":("Espera","Cádiz"),
+}
+FAA_MONTHS = {canon(m):n for n,m in enumerate(
+  ["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO",
+   "AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"],1)}
+FAA_DATE=re.compile(r"^(\d{1,2})(?:\s*[-/]\s*\d{1,2})?\s+([A-ZÁÉÍÓÚÑ]+)\s+(20\d\d)$",re.I)
+
+def parse_faa(page,today=None):
+    today=today or date.today()
+    parser=RaceText();parser.feed(page)
+    chunks=[compact(x) for x in parser.words if compact(x)]
+    start=next((i for i,t in enumerate(chunks) if "PROXIMAS CARRERAS" in canon(t)),None)
+    if start is None:return []
+    results=[];seen=set()
+    for i in range(start+1,min(len(chunks)-1,start+180)):
+        m=FAA_DATE.fullmatch(chunks[i])
+        if not m:continue
+        month=FAA_MONTHS.get(canon(m[2]))
+        if not month:continue
+        try:day=date(int(m[3]),month,int(m[1]))
+        except ValueError:continue
+        if day<today or day.year>today.year+2:continue
+        title=chunks[i+1]
+        if not title or len(title)>125 or FAA_DATE.fullmatch(title):continue
+        if canon(title) in {"RESULTADOS","INSCRIPCIONES","CARRERAS POPULARES"}:continue
+        if SKIP.search(title):continue
+        upper=canon(title)
+        matches=[]
+        for term,place in FAA_PLACES.items():
+            if re.search(r"(?<![A-Z])"+re.escape(term)+r"(?![A-Z])",upper):
+                matches.append((len(term),place))
+        if not matches:continue
+        _,(city,prov)=max(matches,key=lambda x:x[0])
+        identity=(day.isoformat(),upper)
+        if identity in seen:continue
+        seen.add(identity)
+        typ=("ULTRA" if "ULTRA" in upper else
+             "TRAIL" if re.search("TRAIL|CXM|MONTANA",upper) else
+             "CROSS" if "CROSS" in upper else "RUNNING")
+        results.append({"fecha":day.isoformat(),"nombre":title,"localidad":city,
+                        "provincia":prov,"modalidad":typ,"distancia":"",
+                        "enlace":SOURCES["faa"],"fuente":SOURCES["faa"],"origen":"faa"})
+    return results
+
+
 def fetch_if_permitted(url):
     parsed=urlparse(url)
     if parsed.scheme!="https" or parsed.hostname not in (
-            "fadmes.es","dorsalchip.es","www.cruzandolameta.es"):
+            "fadmes.es","dorsalchip.es","www.cruzandolameta.es","atletismofaa.es"):
         raise ValueError("URL no autorizada para este lector")
     robot=get_robots(parsed.hostname)
     if not robot.can_fetch(USER_AGENT,url):
@@ -312,6 +380,8 @@ def collect(today=None):
             page=fetch_if_permitted(url)
             if name=="fadmes":
                 rows=parse_fadmes(page,today)
+            elif name=="faa":
+                rows=parse_faa(page,today)
             elif name=="dorsalchip":
                 rows=[];links=dorsal_links(page,today)
                 for detail in links:
