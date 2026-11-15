@@ -1,0 +1,349 @@
+{
+  "fecha_origen": "2026-11-15",
+  "nota": "Inventario recuperado de una plantilla histórica con 49 fuentes. No representa la hoja privada actual de 51 ni acredita acceso automático.",
+  "fuentes": [
+    {
+      "id": "F001",
+      "nombre": "FAA carreras populares",
+      "url": "https://atletismofaa.es/carreraspopulares/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F002",
+      "nombre": "Federación Andaluza de Atletismo",
+      "url": "https://atletismofaa.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F003",
+      "nombre": "FADMES carreras por montaña",
+      "url": "https://fadmes.es/carreras-por-montana-actividades/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F004",
+      "nombre": "FADMES calendario",
+      "url": "https://fadmes.es/calendario-fam/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F005",
+      "nombre": "RFEA",
+      "url": "https://atletismorfea.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F006",
+      "nombre": "FEDME",
+      "url": "https://fedme.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F007",
+      "nombre": "Diputación Almería populares",
+      "url": "https://carreraspopularesalmeria.com/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F008",
+      "nombre": "Diputación Cádiz deportes",
+      "url": "https://www.dipucadiz.es/deportes/circuitos-deportivos/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F009",
+      "nombre": "Diputación Huelva atletismo",
+      "url": "https://www.diphuelva.es/deportes/contenidos/Circuitos-Carreras-Atleticas-2026/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F010",
+      "nombre": "Diputación Jaén",
+      "url": "https://www.dipujaen.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F011",
+      "nombre": "Diputación Granada",
+      "url": "https://www.dipgra.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F012",
+      "nombre": "Diputación Córdoba",
+      "url": "https://www.dipucordoba.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F013",
+      "nombre": "Diputación Málaga",
+      "url": "https://www.malaga.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F014",
+      "nombre": "Diputación Sevilla",
+      "url": "https://www.dipusevilla.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F015",
+      "nombre": "101 km de La Legión",
+      "url": "https://lalegion101.com/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F016",
+      "nombre": "La Desértica",
+      "url": "https://www.ladesertica.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F017",
+      "nombre": "Cruzando la Meta",
+      "url": "https://www.cruzandolameta.es/pruebas/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F018",
+      "nombre": "Runnink",
+      "url": "https://www.runnink.com/inscripciones/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F019",
+      "nombre": "Gesconchip",
+      "url": "https://gesconchip.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F020",
+      "nombre": "Dorsalchip",
+      "url": "https://dorsalchip.es/view/Inicio.aspx",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F021",
+      "nombre": "Sportmaniacs",
+      "url": "https://www.sportmaniacs.com/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F022",
+      "nombre": "RockTheSport",
+      "url": "https://www.rockthesport.com/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F023",
+      "nombre": "Corredores Populares",
+      "url": "https://www.corredorespopulares.es/calendario/calendario.php",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F024",
+      "nombre": "Dorsal.pro",
+      "url": "https://www.dorsal.pro/carreras/provincias",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F025",
+      "nombre": "RUNNEA",
+      "url": "https://www.runnea.com/carreras-populares/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F026",
+      "nombre": "OCR federación",
+      "url": "https://www.osea.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F027",
+      "nombre": "Ayuntamientos de Andalucía",
+      "url": null,
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F028",
+      "nombre": "Clubes de atletismo y montaña",
+      "url": null,
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F029",
+      "nombre": "Boletines y agendas públicas",
+      "url": null,
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F030",
+      "nombre": "Junta de Andalucía municipios",
+      "url": "https://www.juntadeandalucia.es/datosabiertos/portal/dataset/datos-abiertos-municipios",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F031",
+      "nombre": "INE municipios",
+      "url": "https://www.ine.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F032",
+      "nombre": "Benemérita Trail",
+      "url": "https://benemeritatrail.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F033",
+      "nombre": "Ruta 091",
+      "url": "https://ruta091.es/carreras",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F034",
+      "nombre": "Guardia Civil participa",
+      "url": "https://web.guardiacivil.es/es/destacados/Comunicando_ciudadania/participa/index.html",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F035",
+      "nombre": "HYROX España",
+      "url": "https://hyrox.es/eventos/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F036",
+      "nombre": "DEKA Spartan",
+      "url": "https://es.spartan.com/es/race/find-race?what=DEKAFIT",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F037",
+      "nombre": "Liga Híbrida Andalucía",
+      "url": "https://www.ligahibridaandalucia.com/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F038",
+      "nombre": "CarrerasOCR",
+      "url": "https://carrerasocr.com/calendario/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F039",
+      "nombre": "OCR Diputación Granada",
+      "url": "https://www.carrerasobstaculosdipgra.com/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F040",
+      "nombre": "Global Tempo",
+      "url": "https://gateway.global-tempo.com/index.php",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F041",
+      "nombre": "Yomury",
+      "url": "https://yomurycronometraje.com/live-timing/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F042",
+      "nombre": "GCC Sport Events",
+      "url": "https://gccsportevents.com/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F043",
+      "nombre": "ChipSerena",
+      "url": "https://www.chipserena.es/ccd-home",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F044",
+      "nombre": "Ejército de Tierra agenda",
+      "url": "https://ejercito.defensa.gob.es/agenda/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F045",
+      "nombre": "UGR deportes",
+      "url": "https://deportes.ugr.es/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F046",
+      "nombre": "TecnoCrono",
+      "url": "https://inscripciones.tecnocrono.com/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F047",
+      "nombre": "HYROX Málaga 2026-27",
+      "url": "https://hyrox.es/eventos/hyrox-malaga-26-27/",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F048",
+      "nombre": "DEKA Torremolinos",
+      "url": "https://es.spartan.com/es/races/deka-torremolinos",
+      "estado": "catalogada",
+      "auto": false
+    },
+    {
+      "id": "F049",
+      "nombre": "HybridRaceMap Andalucía",
+      "url": "https://www.hybridracemap.com/comunidad/andalucia/",
+      "estado": "catalogada",
+      "auto": false
+    }
+  ]
+}
