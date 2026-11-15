@@ -5,7 +5,7 @@ No se eluden bloqueos, robots ni controles de acceso.
 from __future__ import annotations
 from datetime import date, datetime
 from html.parser import HTMLParser
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin, unquote
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 from urllib.robotparser import RobotFileParser
@@ -87,36 +87,57 @@ def parse_fadmes(html,today=None):
     return found
 
 def parse_dorsalchip(html,today=None):
+    """Acepta únicamente fichas con fecha, nombre y municipio inequívocos."""
     today=today or date.today()
-    p=CalendarParser();p.feed(html)
-    found=[]
-    for a in p.anchors:
-        href=urljoin(SOURCES["dorsalchip"],a["href"])
-        url=urlparse(href)
-        if url.hostname not in ("dorsalchip.es","www.dorsalchip.es") or not url.path.lower().endswith(".aspx"):continue
-        parts=[compact(s) for s in a["parts"] if compact(s)]
+    parser=CalendarParser();parser.feed(html)
+    found=[];seen=set()
+    for anchor in parser.anchors:
+        url=urljoin(SOURCES["dorsalchip"],anchor["href"])
+        parsed=urlparse(url)
+        if parsed.hostname not in ("dorsalchip.es","www.dorsalchip.es"):continue
+        if not re.match(r"^/carrera/20\d\d/\d{1,2}/\d{1,2}/[^/]+\.aspx$",parsed.path,re.I):continue
+        parts=[compact(p) for p in anchor["parts"] if compact(p)]
         if not parts:continue
-        d=get_date(parts[0]) or get_date(a["text"])
-        if not d or d<today or d.year>today.year+2:continue
-        # Solo usar fichas con campos separados explícitamente: no deducir un municipio del nombre.
-        loc_index=next((i for i,s in enumerate(parts) if re.search(r",\s*(Almería|Cádiz|Córdoba|Granada|Huelva|Jaén|Málaga|Sevilla)\s*$",s,re.I)),None)
-        if loc_index is None:continue
-        loc=parts[loc_index]
-        city,prov=loc.rsplit(",",1);province=PROVINCES.get(canon(prov))
-        name_parts=parts[:loc_index]
-        name=compact(" ".join(name_parts))
-        name=re.sub(r"^\d{1,2}/\d{1,2}/20\d\d\s*","",name)
-        name=re.sub(r"\s*Prueba cronometrada por dorsalChip.*$","",name,flags=re.I)
-        if not name or not province or not compact(city) or len(name)>170 or SKIP.search(name):continue
-        if re.search(r"\b(?:traves[ií]a\s+a\s+nado|marcha\s+solidaria)\b",name,re.I):continue
+        day=get_date(anchor["text"])
+        if not day or day<today or day.year>today.year+2:continue
+        loc_index=next((i for i,p in enumerate(parts) if re.fullmatch(
+            r".{2,90},\s*(Almería|Cádiz|Córdoba|Granada|Huelva|Jaén|Málaga|Sevilla)",p,re.I)),None)
+        name="";city="";province=""
+        if loc_index is not None and loc_index>0:
+            loc=parts[loc_index]
+            city,prov=loc.rsplit(",",1)
+            province=PROVINCES.get(canon(prov),"")
+            name=re.sub(r"^\d{1,2}/\d{1,2}/20\d\d\s*","",compact(" ".join(parts[:loc_index])))
+        if not name:
+            # Muchos enlaces incluyen nombre y localidad en un mismo nodo HTML.
+            # La ruta de la propia ficha permite separar con confianza el título.
+            stem=unquote(parsed.path.rsplit("/",1)[-1][:-5])
+            slug_words=[re.sub(r"[^A-Z0-9]","",canon(w)) for w in re.split(r"[_\-\s]+",stem)]
+            slug_words=[x for x in slug_words if x]
+            body=re.sub(r"^\d{1,2}/\d{1,2}/20\d\d\s*","",anchor["text"])
+            body=re.sub(r"\bPrueba cronometrada por dorsalChip\b.*$","",body,flags=re.I).strip()
+            words=body.split()
+            def token(w):return re.sub(r"[^A-Z0-9]","",canon(w))
+            if slug_words and len(words)>len(slug_words):
+                if [token(w) for w in words[:len(slug_words)]]==slug_words:
+                    remaining=compact(" ".join(words[len(slug_words):]))
+                    place=re.fullmatch(r"(.{2,90}),\s*(Almería|Cádiz|Córdoba|Granada|Huelva|Jaén|Málaga|Sevilla)",remaining,re.I)
+                    if place:
+                        name=compact(" ".join(words[:len(slug_words)]))
+                        city=compact(place.group(1))
+                        province=PROVINCES.get(canon(place.group(2)),"")
+        if not name or not city or not province or len(name)>170:continue
+        if SKIP.search(name) or re.search(r"\b(?:traves[ií]a\s+a\s+nado|marcha\s+solidaria)\b",name,re.I):continue
         key=canon(name)
         modality=("OCR" if re.search(r"\bOCR\b|OBSTACUL",key) else
                   "ULTRA" if "ULTRA" in key else
                   "TRAIL" if re.search(r"TRAIL|CXM|MONTANA",key) else
                   "CROSS" if "CROSS" in key else "RUNNING")
-        found.append({"fecha":d.isoformat(),"nombre":name,"localidad":compact(city),
-                      "provincia":province,"modalidad":modality,"distancia":"",
-                      "fuente":href,"enlace":href,"origen":"dorsalchip"})
+        identity=(day.isoformat(),canon(name),canon(city))
+        if identity in seen:continue
+        seen.add(identity)
+        found.append({"fecha":day.isoformat(),"nombre":name,"localidad":city,"provincia":province,
+                      "modalidad":modality,"distancia":"","fuente":url,"enlace":url,"origen":"dorsalchip"})
     return found
 
 def fetch_if_permitted(url):
