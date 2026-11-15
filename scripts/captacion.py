@@ -222,13 +222,11 @@ def parse_cruzando_detail(page,source_url,today=None):
             "fuente":source_url,"origen":"cruzandolameta"}
 
 
-def fetch_if_permitted(url):
-    parsed=urlparse(url)
-    if parsed.scheme!="https" or parsed.hostname not in ("fadmes.es","dorsalchip.es"):
-        raise ValueError("URL no autorizada para este lector")
-    root=f"{parsed.scheme}://{parsed.hostname}"
-    robots_url=root+"/robots.txt"
-    robot=RobotFileParser();robot.set_url(robots_url)
+@lru_cache(maxsize=8)
+def get_robots(host):
+    """Robots por dominio, nunca saltar un fallo de consulta salvo HTTP 404."""
+    robot=RobotFileParser()
+    robots_url="https://"+host+"/robots.txt"
     try:
         with urlopen(Request(robots_url,headers={"User-Agent":USER_AGENT}),timeout=12) as response:
             if response.getcode()!=200:raise RuntimeError("robots.txt no verificable")
@@ -236,11 +234,18 @@ def fetch_if_permitted(url):
             if len(lines)>250_000:raise RuntimeError("robots.txt demasiado grande")
         robot.parse(lines.decode("utf-8","replace").splitlines())
     except HTTPError as ex:
-        # 404 significa que no existe robots.txt; 401/403 deniegan y 5xx bloquean por precaución.
         if ex.code!=404:raise RuntimeError(f"robots.txt HTTP {ex.code}") from ex
         robot.parse([])
     except Exception as ex:
         raise RuntimeError("No fue posible consultar robots.txt: "+type(ex).__name__) from ex
+    return robot
+
+def fetch_if_permitted(url):
+    parsed=urlparse(url)
+    if parsed.scheme!="https" or parsed.hostname not in (
+            "fadmes.es","dorsalchip.es","www.cruzandolameta.es"):
+        raise ValueError("URL no autorizada para este lector")
+    robot=get_robots(parsed.hostname)
     if not robot.can_fetch(USER_AGENT,url):
         raise RuntimeError("robots.txt prohíbe la consulta")
     with urlopen(Request(url,headers={"User-Agent":USER_AGENT,"Accept":"text/html"}),timeout=18) as response:
@@ -261,7 +266,19 @@ def collect(today=None):
     for name,url in SOURCES.items():
         try:
             page=fetch_if_permitted(url)
-            rows=parse_fadmes(page,today) if name=="fadmes" else parse_dorsalchip(page,today)
+            if name=="fadmes":
+                rows=parse_fadmes(page,today)
+            elif name=="dorsalchip":
+                rows=parse_dorsalchip(page,today)
+            else:
+                rows=[];links=cruzando_links(page)
+                for detail in links:
+                    try:
+                        candidate=parse_cruzando_detail(fetch_if_permitted(detail),detail,today)
+                        if candidate:rows.append(candidate)
+                    except Exception:
+                        pass
+                    time.sleep(0.3)
             events.extend(rows)
             report["fuentes"][name]={"estado":"leida","candidatas":len(rows),"url":url}
         except Exception as exc:
