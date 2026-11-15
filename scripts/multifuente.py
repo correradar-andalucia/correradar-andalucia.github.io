@@ -77,7 +77,7 @@ def combine(approved, candidates, slugify, km_parse):
             if other != identity:
                 continue
             a = norm(existing["nombre"])
-            if a == name or difflib.SequenceMatcher(None, a, name).ratio() >= 0.88:
+            if a == name or difflib.SequenceMatcher(None, a, name).ratio() >= 0.82:
                 duplicate = True
                 break
         if duplicate:
