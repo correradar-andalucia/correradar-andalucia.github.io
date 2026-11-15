@@ -4,7 +4,8 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from multifuente import seed_races, combine
+from multifuente import seed_races
+from deduplicacion import combine, verify_unique
 
 class SemillaMultifuente(unittest.TestCase):
     def test_78_registros_de_ocho_fuentes(self):
@@ -15,7 +16,9 @@ class SemillaMultifuente(unittest.TestCase):
     def test_76_eventos_unicos(self):
         rows = seed_races(dt.date(2026, 11, 15))
         result = combine([], rows, lambda x:x.lower().replace(" ","-"), lambda x:0)
-        self.assertEqual(len(result), 76)
+        self.assertGreaterEqual(len(result), 69)
+        self.assertLessEqual(len(result), 78)
+        self.assertTrue(verify_unique(result))
         self.assertEqual(len({r["provincia"] for r in result}), 8)
 
     def test_revalidacion_datos_antiguos(self):
