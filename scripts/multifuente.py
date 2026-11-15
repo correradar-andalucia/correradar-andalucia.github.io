@@ -68,6 +68,7 @@ def seed_races(today=None):
 def combine(approved, candidates, slugify, km_parse):
     """Prioriza las aprobadas; fusiona duplicados muy parecidos por fecha y localidad."""
     result = list(approved)
+    seen_slugs = {r.get("slug") for r in result}
     for item in candidates:
         identity = (item["fecha"], norm(item["provincia"]), norm(item["localidad"]))
         name = norm(item["nombre"])
@@ -89,5 +90,8 @@ def combine(approved, candidates, slugify, km_parse):
         race.setdefault("verificado", dt.date.today().isoformat())
         race["km"] = km_parse(race["distancia"])
         race["slug"] = slugify(f"{race['nombre']}-{race['localidad']}-{race['fecha']}")
+        if race["slug"] in seen_slugs:
+            continue
+        seen_slugs.add(race["slug"])
         result.append(race)
     return sorted(result, key=lambda r: (r["fecha"], norm(r["nombre"])))
