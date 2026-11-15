@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
 from deduplicacion import combine,verify_unique,same_event,conflicting_date
-from captacion_extra import runnink,gesconchip
+from captacion_extra import runnink,gesconchip,diputacion_granada,diputacion_huelva
 from datetime import date
 
 def race(name="Trail Sierra Alhaurín el Grande Homenaje a Mori",
@@ -87,6 +87,20 @@ class Deduplicacion(unittest.TestCase):
             verify_unique([a,b])
 
 class NuevosLectores(unittest.TestCase):
+    def test_diputacion_granada_fechas_y_sedes(self):
+        html='<table><tr><td>FECHA</td><td>MUNICIPIO</td></tr><tr><td>13/12/2026</td><td>Lecrín</td></tr><tr><td>19/12/2026</td><td>La Zubia</td></tr></table>'
+        rows=diputacion_granada(html,date(2026,11,15))
+        self.assertEqual(len(rows),2)
+        self.assertEqual(rows[0]["modalidad"],"CROSS")
+        self.assertEqual(rows[0]["provincia"],"Granada")
+
+    def test_diputacion_huelva_calendario_2026_2027(self):
+        html='<h2>CARRERAS POPULARES</h2><p>Carrera Fin de Año - Moguer - 19/12/2026</p><p>Carrera Popular Vva. de los Castillejos - 03/01/2027</p><h2>CAMPO A TRAVÉS</h2><p>Cross Pinares de Cartaya - 22/11/2026</p>'
+        rows=diputacion_huelva(html,date(2026,11,15))
+        self.assertEqual(len(rows),3)
+        self.assertEqual({r["localidad"] for r in rows},{"Moguer","Villanueva de los Castillejos","Cartaya"})
+        self.assertEqual(len([r for r in rows if r["modalidad"]=="CROSS"]),1)
+
     def test_runnink_carreras_cadiz(self):
         html='''<div>Próximas carreras</div><section><b>Carrera Popular</b>
         <a href="/evento/xxx-carrera-popular-puerto-menesteo/121">XXX Carrera Popular Puerto Menesteo</a>
