@@ -22,6 +22,7 @@ SOURCES = {
     "dorsalchip": "https://dorsalchip.es/view/Inicio.aspx",
     "cruzandolameta": "https://www.cruzandolameta.es/pruebas/",
     "faa": "https://atletismofaa.es/carreraspopulares/",
+    "gcc": "https://gccsportevents.es/index.php",
 }
 PROVINCES = {"ALMERIA":"Almería","CADIZ":"Cádiz","CORDOBA":"Córdoba",
              "GRANADA":"Granada","HUELVA":"Huelva","JAEN":"Jaén",
@@ -352,10 +353,80 @@ def parse_faa(page,today=None):
     return results
 
 
+
+GCC_CITY_MAP = {
+    "LAS PALOMAS":("Zahara de la Sierra","Cádiz"),
+    "ILITURGITANA":("Andújar","Jaén"),
+    "CORDOBESA":("Córdoba","Córdoba"),
+    "EPORA TRAIL":("Montoro","Córdoba"),
+}
+GCC_KNOWN_CITIES = {
+    "CORDOBA":("Córdoba","Córdoba"),
+    "MONTORO":("Montoro","Córdoba"),
+    "ANDUJAR":("Andújar","Jaén"),
+    "ZAHARA DE LA SIERRA":("Zahara de la Sierra","Cádiz"),
+    "PEDRO ABAD":("Pedro Abad","Córdoba"),
+    "JAEN":("Jaén","Jaén"),
+    "TARIFA":("Tarifa","Cádiz"),
+}
+
+def gcc_links(page):
+    p=CalendarParser();p.feed(page)
+    seen=set();result=[]
+    for a in p.anchors:
+        href=urljoin(SOURCES["gcc"],a["href"])
+        parts=urlparse(href)
+        if parts.scheme!="https" or parts.hostname not in ("gccsportevents.es","www.gccsportevents.es"):
+            continue
+        if not re.fullmatch(r"/index\.php/(trail-cxm|atletismo-ruta-cross)/[a-z0-9-]+",parts.path,re.I):
+            continue
+        if href not in seen:
+            seen.add(href);result.append(href)
+    return result[:18]
+
+def parse_gcc_detail(page,url,today=None):
+    today=today or date.today()
+    p=RaceText();p.feed(page)
+    if not p.heading:return None
+    title=compact(" ".join(p.heading))
+    if len(title)>170 or len(title)<7 or SKIP.search(title):return None
+    upper=canon(title)
+    if not re.search(r"TRAIL|CXM|CROSS|CARRERA|SILVESTRE|RUNNING|ULTRA|MARATON|OBSTACUL|OCR",upper):
+        return None
+    full=compact(" ".join(p.words))
+    m=re.search(r"Fecha inicio\s+(\d{1,2}-\d{1,2}-20\d\d)",full,re.I)
+    if not m:return None
+    try:day=datetime.strptime(m.group(1),"%d-%m-%Y").date()
+    except ValueError:return None
+    if day<today or day.year>today.year+2:return None
+    city=None;province=None
+    loc=re.search(r"\bLugar\s+(.{2,80}?)(?=\s+(?:Fecha|Cierre|Cuota|Apertura|Plazas|Inscripci[oó]n|Guardar|Capacidad|Registrado)\b|$)",full,re.I)
+    if loc:
+        raw=canon(loc.group(1))
+        for tag,value in GCC_KNOWN_CITIES.items():
+            if tag in raw:
+                city,province=value
+                break
+    if not city:
+        for marker,value in GCC_CITY_MAP.items():
+            if marker in upper:
+                city,province=value
+                break
+    if not city or not province:return None
+    modality=("OCR" if "OBSTACUL" in upper or "OCR" in upper else
+              "ULTRA" if "ULTRA" in upper else
+              "TRAIL" if re.search(r"TRAIL|CXM|MONTANA",upper) else
+              "CROSS" if "CROSS" in upper else "RUNNING")
+    return {"fecha":day.isoformat(),"nombre":title,"localidad":city,
+            "provincia":province,"modalidad":modality,"distancia":"",
+            "enlace":url,"fuente":url,"origen":"gcc"}
+
+
 def fetch_if_permitted(url):
     parsed=urlparse(url)
     if parsed.scheme!="https" or parsed.hostname not in (
-            "fadmes.es","dorsalchip.es","www.cruzandolameta.es","atletismofaa.es"):
+            "fadmes.es","dorsalchip.es","www.cruzandolameta.es","atletismofaa.es",
+            "gccsportevents.es","www.gccsportevents.es"):
         raise ValueError("URL no autorizada para este lector")
     robot=get_robots(parsed.hostname)
     if not robot.can_fetch(USER_AGENT,url):
@@ -382,6 +453,15 @@ def collect(today=None):
                 rows=parse_fadmes(page,today)
             elif name=="faa":
                 rows=parse_faa(page,today)
+            elif name=="gcc":
+                rows=[]
+                for detail in gcc_links(page):
+                    try:
+                        candidate=parse_gcc_detail(fetch_if_permitted(detail),detail,today)
+                        if candidate:rows.append(candidate)
+                    except Exception:
+                        pass
+                    time.sleep(0.3)
             elif name=="dorsalchip":
                 rows=[];links=dorsal_links(page,today)
                 for detail in links:
