@@ -170,7 +170,10 @@ def sitemap(races):
 
 def main():
     from multifuente import seed_races, combine
-    races=combine(transform(load_csv()), seed_races(), slugify, km_parse)
+    from captacion import collect
+    candidatas_en_vivo, informe_captacion = collect()
+    races=combine(transform(load_csv()), seed_races()+candidatas_en_vivo, slugify, km_parse)
+    print("Captación multifuente:", json.dumps(informe_captacion, ensure_ascii=False))
     if OUT.exists():shutil.rmtree(OUT)
     OUT.mkdir()
     for filename in ['index.html','robots.txt']:
@@ -179,6 +182,7 @@ def main():
     (OUT/'.nojekyll').touch()
     (OUT/'data').mkdir()
     (OUT/'data'/'carreras.json').write_text(json.dumps({'actualizado':dt.date.today().strftime('%d/%m/%Y'),'carreras':races},ensure_ascii=False,separators=(',',':')),encoding='utf8')
+    (OUT/'data'/'estado_fuentes.json').write_text(json.dumps(informe_captacion,ensure_ascii=False,indent=2),encoding='utf8')
     for race in races:
         folder=OUT/'carreras'/race['slug'];folder.mkdir(parents=True)
         (folder/'index.html').write_text(detail_page(race),encoding='utf8')
