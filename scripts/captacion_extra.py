@@ -154,3 +154,82 @@ def gesconchip(page,today=None):
                     "provincia":province,"modalidad":kind,"distancia":"",
                     "enlace":url,"fuente":url,"origen":"gesconchip"})
     return out
+
+
+DIPGRA="https://www.dipgra.es/servicios/areas/deportes/deporte-competicion/circuito-provincial-campo-a-traves/"
+DIPHUELVA="https://www.diphuelva.es/deportes/contenidos/Circuitos-Carreras-Atleticas-2026/"
+GRANADA_CITIES={"cuevas del campo":"Cuevas del Campo","lecrin":"Lecrín","la zubia":"La Zubia",
+                "baza":"Baza","freila":"Freila","las gabias":"Las Gabias",
+                "quentar":"Quéntar","moraleda de zafayona":"Moraleda de Zafayona",
+                "guadix":"Guadix","alhendin":"Alhendín","illora":"Íllora"}
+HUELVA_CITIES={
+    "villanueva de los castillejos":"Villanueva de los Castillejos",
+    "vva. de los castillejos":"Villanueva de los Castillejos",
+    "san silvestre de guzman":"San Silvestre de Guzmán",
+    "moguer":"Moguer","cartaya":"Cartaya","ayamonte":"Ayamonte",
+    "almonte":"Almonte","huelva":"Huelva","bonares":"Bonares",
+    "trigueros":"Trigueros","lepe":"Lepe","galaroza":"Galaroza",
+    "escacena del campo":"Escacena del Campo","beas":"Beas",
+    "puebla de guzman":"Puebla de Guzmán","rociana del condado":"Rociana del Condado",
+    "bollullos par del condado":"Bollullos Par del Condado",
+    "san juan del puerto":"San Juan del Puerto","isla cristina":"Isla Cristina",
+    "punta umbria":"Punta Umbría",
+}
+
+def diputacion_granada(page,today=None):
+    from captacion import CalendarParser, get_date
+    today=today or date.today()
+    parser=CalendarParser();parser.feed(page)
+    out=[];seen=set()
+    for row in parser.rows:
+        if len(row)<2:continue
+        d=get_date(row[0])
+        if not d or d<today or d.year>today.year+2:continue
+        city=GRANADA_CITIES.get(clean(row[1]))
+        if not city:continue
+        key=(d.isoformat(),city)
+        if key in seen:continue
+        seen.add(key)
+        out.append({"fecha":d.isoformat(),
+                    "nombre":"XXX Circuito Provincial de Campo a Través — "+city,
+                    "localidad":city,"provincia":"Granada",
+                    "modalidad":"CROSS","distancia":"",
+                    "fuente":DIPGRA,"enlace":DIPGRA,"origen":"dipgra"})
+    return out
+
+def diputacion_huelva(page,today=None):
+    today=today or date.today()
+    parser=Listing();parser.feed(page)
+    out=[];seen=set()
+    section=""
+    for raw in parser.words:
+        line=" ".join(raw.split())
+        low=clean(line)
+        if low in ("carreras populares","campo a traves","gran fondo"):
+            section=low
+            continue
+        if "correo electronico de la delegacion" in low:
+            break
+        if section not in ("carreras populares","campo a traves","gran fondo"):
+            continue
+        match=re.search(r"(\d{1,2})/(\d{1,2})/(20\d\d)\s*$",line)
+        if not match or len(line)>240:continue
+        try:d=date(int(match[3]),int(match[2]),int(match[1]))
+        except ValueError:continue
+        if d<today or d.year>today.year+2:continue
+        title=line[:match.start()].strip(' -·')
+        if not title or NO_FOOT.search(title):continue
+        candidates=[(len(k),city) for k,city in HUELVA_CITIES.items()
+                    if re.search(r"(?<!\w)"+re.escape(k)+r"(?!\w)",clean(title))]
+        if not candidates:continue
+        city=max(candidates,key=lambda p:p[0])[1]
+        kind=("TRAIL" if "trail" in low or "montana" in low else
+              "CROSS" if "cross" in low else
+              "RUNNING")
+        key=(d.isoformat(),clean(title))
+        if key in seen:continue
+        seen.add(key)
+        out.append({"fecha":d.isoformat(),"nombre":title,"localidad":city,
+                    "provincia":"Huelva","modalidad":kind,"distancia":"",
+                    "fuente":DIPHUELVA,"enlace":DIPHUELVA,"origen":"diphuelva"})
+    return out
