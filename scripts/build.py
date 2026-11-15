@@ -169,7 +169,8 @@ def sitemap(races):
     return ET.tostring(root,encoding='unicode',xml_declaration=True)
 
 def main():
-    races=transform(load_csv())
+    from multifuente import seed_races, combine
+    races=combine(transform(load_csv()), seed_races(), slugify, km_parse)
     if OUT.exists():shutil.rmtree(OUT)
     OUT.mkdir()
     for filename in ['index.html','robots.txt']:
