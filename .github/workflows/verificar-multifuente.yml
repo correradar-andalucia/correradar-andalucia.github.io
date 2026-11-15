@@ -1,0 +1,29 @@
+name: Verificar calendario multifuente
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar sintaxis
+        run: python -m compileall -q scripts tests
+      - name: Comprobar parsers y deduplicación
+        run: python -m unittest discover -s tests -v
+      - name: Probar compilación sin acceso de red
+        env:
+          CORRERADAR_FETCH: '0'
+          SHEET_CSV_URL: ''
+        run: |
+          python scripts/build.py
+          test -s _site/data/carreras.json
+          test -s _site/data/estado_fuentes.json
