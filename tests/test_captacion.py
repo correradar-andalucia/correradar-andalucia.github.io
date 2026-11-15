@@ -28,6 +28,13 @@ class CaptacionTests(unittest.TestCase):
         self.assertEqual(data[0]["nombre"],"We Run UMA")
         self.assertEqual(data[0]["localidad"],"Málaga")
 
+    def test_dorsal_enlace_con_datos_en_un_solo_nodo(self):
+        page='<a href="/carrera/2026/11/21/7_Ecomaraton_La_Donaira.aspx">21/11/2026 7 Ecomaratón La Donaira El Gastor, Cádiz Prueba cronometrada por dorsalChip</a>'
+        data=parse_dorsalchip(page,date(2026,11,15))
+        self.assertEqual(len(data),1)
+        self.assertEqual(data[0]["nombre"],"7 Ecomaratón La Donaira")
+        self.assertEqual(data[0]["localidad"],"El Gastor")
+
     def test_dorsal_sin_localidad_se_descarta(self):
         data=parse_dorsalchip('<a href="/carrera/2026/12/02/trail.aspx">02/12/2026 Gran Trail</a>',date(2026,11,15))
         self.assertEqual(data,[])
