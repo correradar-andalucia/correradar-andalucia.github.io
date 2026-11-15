@@ -143,15 +143,16 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
         r.setdefault("estado","Por confirmar · fuente directa")
         r["km"]=km_parse(r.get("distancia",""))
         r["fuentes_origen"]=origins(r)
-        matches=next((old for old in results if same_event(old,r)),None)
-        if matches is not None:
+        match_idx=next((idx for idx,old in enumerate(results) if same_event(old,r)),None)
+        if match_idx is not None:
+            matches=results[match_idx]
             audit["duplicados_fusionados"]+=1
             if len(audit["ejemplos_duplicados"])<30:
                 audit["ejemplos_duplicados"].append({"fecha":r["fecha"],
                     "municipio":r.get("localidad"),"descartada":r.get("nombre"),
                     "conservada":matches.get("nombre"),"origen":r.get("origen")})
             record_sources(matches,r)
-            if not matches.get("distancia") and not is_approved and r.get("distancia"):
+            if not locks[match_idx] and not matches.get("distancia") and not is_approved and r.get("distancia"):
                 matches["distancia"]=r["distancia"]
                 matches["km"]=km_parse(r["distancia"])
             continue
@@ -172,6 +173,7 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
         r["slug"]=slug
         seen.add(slug)
         results.append(r)
+        locks.append(is_approved)
     verify_unique(results)
     audit["fichas_finales"]=len(results)
     audit["fichas_aprobadas_conservadas"]=sum(1 for r in results if r.get("origen") is None and
