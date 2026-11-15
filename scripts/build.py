@@ -184,6 +184,14 @@ def main():
     (OUT/'data').mkdir()
     (OUT/'data'/'carreras.json').write_text(json.dumps({'actualizado':dt.date.today().strftime('%d/%m/%Y'),'carreras':races},ensure_ascii=False,separators=(',',':')),encoding='utf8')
     (OUT/'data'/'estado_fuentes.json').write_text(json.dumps(informe_captacion,ensure_ascii=False,indent=2),encoding='utf8')
+    catalogo = ROOT/'config'/'catalogo_fuentes_maestra.json'
+    if catalogo.exists():
+        fuentes = json.loads(catalogo.read_text(encoding='utf-8'))
+        ids = [f.get('id') for f in fuentes.get('fuentes',[])]
+        if len(ids) != 50 or len(set(ids)) != len(ids):
+            raise ValueError('Catálogo de fuentes incompleto o con IDs duplicados')
+        (OUT/'data'/'fuentes.json').write_text(
+            json.dumps(fuentes,ensure_ascii=False,indent=2),encoding='utf8')
     for race in races:
         folder=OUT/'carreras'/race['slug'];folder.mkdir(parents=True)
         (folder/'index.html').write_text(detail_page(race),encoding='utf8')

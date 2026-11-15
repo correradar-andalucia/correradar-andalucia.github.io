@@ -1,0 +1,308 @@
+{
+  "actualizado": "2026-11-15",
+  "origen": "Fuentes de la hoja 'CorreRadar Andalucía - Base de Datos Maestra.xlsx', filas F001-F050",
+  "nota": "El catálogo es un inventario, NO una lista de conectores activos. La columna de permisos del Excel indica revisión pendiente. Las fuentes F027-F029 no tienen URL concreta.",
+  "total": 50,
+  "fuentes": [
+    {
+      "id": "F001",
+      "nombre": "Federación Andaluza de Atletismo — populares",
+      "url": "https://atletismofaa.es/carreraspopulares/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F002",
+      "nombre": "Federación Andaluza de Atletismo",
+      "url": "https://atletismofaa.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F003",
+      "nombre": "Federación Andaluza de Montaña FADMES",
+      "url": "https://fadmes.es/carreras-por-montana-actividades/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F004",
+      "nombre": "Calendario general FADMES",
+      "url": "https://fadmes.es/calendario-actividades/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F005",
+      "nombre": "Real Federación Española de Atletismo",
+      "url": "https://atletismorfea.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F006",
+      "nombre": "Federación Española de Deportes de Montaña FEDME",
+      "url": "https://fedme.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F007",
+      "nombre": "Diputación de Almería — Circuito de populares",
+      "url": "https://carreraspopularesalmeria.com/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F008",
+      "nombre": "Diputación de Cádiz — Circuitos deportivos",
+      "url": "https://www.dipucadiz.es/deportes/circuitos-deportivos/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F009",
+      "nombre": "Diputación de Huelva — Circuitos atléticos",
+      "url": "https://www.diphuelva.es/deportes/contenidos/Circuitos-Carreras-Atleticas-2026/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F010",
+      "nombre": "Diputación de Jaén — Deportes",
+      "url": "https://www.dipujaen.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F011",
+      "nombre": "Diputación de Granada — Deportes",
+      "url": "https://www.dipgra.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F012",
+      "nombre": "Diputación de Córdoba — Deportes",
+      "url": "https://www.dipucordoba.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F013",
+      "nombre": "Diputación de Málaga — Deportes",
+      "url": "https://www.malaga.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F014",
+      "nombre": "Diputación de Sevilla — Deportes",
+      "url": "https://www.dipusevilla.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F015",
+      "nombre": "101 km en 24 h de La Legión",
+      "url": "https://lalegion101.com/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F016",
+      "nombre": "La Desértica — La Legión",
+      "url": "https://www.ladesertica.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F017",
+      "nombre": "Cruzando la Meta",
+      "url": "https://www.cruzandolameta.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F018",
+      "nombre": "Runnink",
+      "url": "https://www.runnink.com/inscripciones/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F019",
+      "nombre": "Gesconchip",
+      "url": "https://gesconchip.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F020",
+      "nombre": "Dorsalchip",
+      "url": "https://dorsalchip.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F021",
+      "nombre": "Sportmaniacs",
+      "url": "https://www.sportmaniacs.com/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F022",
+      "nombre": "RockTheSport",
+      "url": "https://www.rockthesport.com/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F023",
+      "nombre": "Corredores Populares",
+      "url": "https://www.corredorespopulares.es/calendario/calendario.php",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F024",
+      "nombre": "Dorsal.pro — carreras por provincia",
+      "url": "https://www.dorsal.pro/carreras/provincias",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F025",
+      "nombre": "RUNNEA — carreras populares",
+      "url": "https://www.runnea.com/carreras-populares/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F026",
+      "nombre": "Federación Española de Carreras de Obstáculos",
+      "url": "https://www.osea.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F027",
+      "nombre": "Ayuntamientos andaluces — agendas deportivas",
+      "url": null,
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F028",
+      "nombre": "Clubes locales de atletismo/montaña",
+      "url": null,
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F029",
+      "nombre": "Boletines y agendas institucionales",
+      "url": null,
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F030",
+      "nombre": "Junta de Andalucía — listado de municipios",
+      "url": "https://www.juntadeandalucia.es/datosabiertos/portal/dataset/datos-abiertos-municipios",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F031",
+      "nombre": "INE — municipios y códigos",
+      "url": "https://www.ine.es/dyngs/INEbase/operacion.htm?c=Estadistica_C&cid=1254736177031&menu=ultiDatos&idp=1254734710990",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F032",
+      "nombre": "Benemérita Trail Sierra de la Alfaguara",
+      "url": "https://benemeritatrail.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F033",
+      "nombre": "Ruta 091 — Policía Nacional",
+      "url": "https://ruta091.es/carreras",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F034",
+      "nombre": "Guardia Civil — Participa",
+      "url": "https://web.guardiacivil.es/es/destacados/Comunicando_ciudadania/participa/index.html",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F035",
+      "nombre": "HYROX España — Calendario oficial",
+      "url": "https://hyrox.es/eventos/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F036",
+      "nombre": "DEKA Spartan — Calendario oficial",
+      "url": "https://es.spartan.com/es/race/find-race?parser-what=new&what=DEKAFITDEKAFITUltra",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F037",
+      "nombre": "Liga Híbrida Andalucía",
+      "url": "https://www.ligahibridaandalucia.com/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F038",
+      "nombre": "CarrerasOCR — Calendario",
+      "url": "https://carrerasocr.com/calendario/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F039",
+      "nombre": "Circuito OCR Diputación Granada",
+      "url": "https://www.carrerasobstaculosdipgra.com/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F040",
+      "nombre": "Global Tempo",
+      "url": "https://www.global-tempo.com/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F041",
+      "nombre": "Yomury Cronometrajes",
+      "url": "https://yomurycronometraje.com/live-timing/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F042",
+      "nombre": "GCC Sport Events",
+      "url": "https://gccsportevents.com/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F043",
+      "nombre": "ChipSerena",
+      "url": "https://www.chipserena.es/ccd-home",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F044",
+      "nombre": "Ejército de Tierra — Agenda",
+      "url": "https://ejercito.defensa.gob.es/agenda/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F045",
+      "nombre": "Universidad de Granada — Deportes",
+      "url": "https://deportes.ugr.es/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F046",
+      "nombre": "TecnoCrono — inscripciones deportivas",
+      "url": "https://inscripciones.tecnocrono.com/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F047",
+      "nombre": "HYROX Málaga — ficha oficial",
+      "url": "https://hyrox.es/eventos/hyrox-malaga-26-27/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F048",
+      "nombre": "DEKA Torremolinos — ficha oficial",
+      "url": "https://es.spartan.com/es/races/deka-torremolinos",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F049",
+      "nombre": "HybridRaceMap — Andalucía",
+      "url": "https://www.hybridracemap.com/comunidad/andalucia/",
+      "permiso_automatizacion": "pendiente_de_revision"
+    },
+    {
+      "id": "F050",
+      "nombre": "Medio Maratón Ciudad de Málaga — Web oficial",
+      "url": "https://www.mediamaratonmalaga.com/mlg-preguntas-frecuentes",
+      "permiso_automatizacion": "pendiente_de_revision"
+    }
+  ]
+}

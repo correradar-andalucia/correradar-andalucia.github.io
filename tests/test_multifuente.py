@@ -7,19 +7,29 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from multifuente import seed_races, combine
 
 class SemillaMultifuente(unittest.TestCase):
-    def test_75_registros_de_ocho_fuentes(self):
+    def test_78_registros_de_ocho_fuentes(self):
         rows = seed_races(dt.date(2026, 11, 15))
-        self.assertEqual(len(rows), 75)
+        self.assertEqual(len(rows), 78)
         self.assertEqual(len({r["origen"] for r in rows}), 8)
 
-    def test_73_eventos_unicos(self):
+    def test_76_eventos_unicos(self):
         rows = seed_races(dt.date(2026, 11, 15))
         result = combine([], rows, lambda x:x.lower().replace(" ","-"), lambda x:0)
-        self.assertEqual(len(result), 73)
+        self.assertEqual(len(result), 76)
         self.assertEqual(len({r["provincia"] for r in result}), 8)
 
-    def test_caducidad(self):
-        self.assertEqual(seed_races(dt.date(2026, 12, 16)), [])
+    def test_revalidacion_datos_antiguos(self):
+        rows = seed_races(dt.date(2026, 12, 16))
+        self.assertGreater(len(rows), 0)
+        self.assertTrue(all("RECONFIRMAR" in r["estado"] for r in rows))
+        self.assertTrue(any(r["origen"]=="globaltempo" for r in rows))
+
+    def test_global_tempo_siete_carreras(self):
+        rows = seed_races(dt.date(2026, 11, 15))
+        globaltempo=[r for r in rows if r["origen"]=="globaltempo"]
+        self.assertEqual(len(globaltempo),7)
+        self.assertTrue(all(r["fuente"].startswith("https://") for r in globaltempo))
+
 
     def test_prioridad_aprobadas(self):
         candidates = seed_races(dt.date(2026, 11, 15))
