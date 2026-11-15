@@ -83,6 +83,10 @@ def combine(approved, candidates, slugify, km_parse):
         if duplicate:
             continue
         race = dict(item)
+        for key in ("distancia", "desnivel", "precio", "bolsa", "track"):
+            race.setdefault(key, "")
+        race.setdefault("estado", "Por confirmar · fuente directa")
+        race.setdefault("verificado", dt.date.today().isoformat())
         race["km"] = km_parse(race["distancia"])
         race["slug"] = slugify(f"{race['nombre']}-{race['localidad']}-{race['fecha']}")
         result.append(race)
