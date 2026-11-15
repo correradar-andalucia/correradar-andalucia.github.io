@@ -4,7 +4,8 @@ const provinces = ['Almería','Cádiz','Córdoba','Granada','Huelva','Jaén','M�
 const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const sources = {globaltempo:'Global Tempo',dorsalchip:'Dorsalchip',fadmes:'FADMES',
  faa:'FAA',cruzandolameta:'Cruzando la Meta',gcc:'GCC Sport Events',
- dipgra:'Diputación de Granada',rockthesport:'RockTheSport'};
+ dipgra:'Diputación de Granada',diphuelva:'Diputación de Huelva',runnink:'Runnink',
+ gesconchip:'Gesconchip',rockthesport:'RockTheSport'};
 const raceOrigins = (r) => [...new Set([...(Array.isArray(r.fuentes_origen)?r.fuentes_origen:[]),r.origen].filter(Boolean))];
 const sourceName = (r) => {const names=raceOrigins(r).map(x=>sources[x]||x);return names.slice(0,2).join(' · ')+(names.length>2?' +'+(names.length-2):'');};
 const fmt = (s) => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
