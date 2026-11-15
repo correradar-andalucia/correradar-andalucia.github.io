@@ -23,6 +23,8 @@ SOURCES = {
     "cruzandolameta": "https://www.cruzandolameta.es/pruebas/",
     "faa": "https://atletismofaa.es/carreraspopulares/",
     "gcc": "https://gccsportevents.es/index.php",
+    "runnink": "https://www.runnink.com/inscripciones/",
+    "gesconchip": "https://gesconchip.es/app/proximas-pruebas",
 }
 PROVINCES = {"ALMERIA":"Almería","CADIZ":"Cádiz","CORDOBA":"Córdoba",
              "GRANADA":"Granada","HUELVA":"Huelva","JAEN":"Jaén",
@@ -376,7 +378,8 @@ def gcc_links(page):
     for a in p.anchors:
         href=urljoin(SOURCES["gcc"],a["href"])
         parts=urlparse(href)
-        if parts.scheme!="https" or parts.hostname not in ("gccsportevents.es","www.gccsportevents.es"):
+        if parts.scheme!="https" or parts.hostname not in ("gccsportevents.es","www.gccsportevents.es",
+            "www.runnink.com","runnink.com","gesconchip.es","www.gesconchip.es"):
             continue
         if not re.fullmatch(r"/index\.php/(trail-cxm|atletismo-ruta-cross)/[a-z0-9-]+",parts.path,re.I):
             continue
@@ -449,7 +452,13 @@ def collect(today=None):
     for name,url in SOURCES.items():
         try:
             page=fetch_if_permitted(url)
-            if name=="fadmes":
+            if name=="runnink":
+                from captacion_extra import runnink
+                rows=runnink(page,today)
+            elif name=="gesconchip":
+                from captacion_extra import gesconchip
+                rows=gesconchip(page,today)
+            elif name=="fadmes":
                 rows=parse_fadmes(page,today)
             elif name=="faa":
                 rows=parse_faa(page,today)
@@ -484,6 +493,10 @@ def collect(today=None):
             report["fuentes"][name]={"estado":"leida","candidatas":len(rows),"url":url}
         except Exception as exc:
             report["fuentes"][name]={"estado":"no disponible","motivo":str(exc)[:170],"url":url}
+    report["fuentes"]["sportmaniacs"]={"estado":"sin consulta automática",
+        "motivo":"No se ha verificado un calendario estructurado accesible ni método autorizado"}
+    report["fuentes"]["dip_almeria"]={"estado":"sin próximas carreras",
+        "motivo":"El circuito provincial 2026 finalizó en octubre; no extrapolar fechas de 2027"}
     report["fuentes"]["globaltempo"]={"estado":"sin consulta automática",
         "motivo":"Condiciones de reutilización pendientes; solo fichas cotejadas manualmente"}
     return events,report
