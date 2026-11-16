@@ -73,7 +73,7 @@ function raceCard(r) {
   info.append(head,el('p','race-location','⌖  '+[r.localidad,r.provincia].filter(Boolean).join(' · ')));
 
   const facts = el('div','race-facts');
-  if (r.distancia) facts.append(el('span','','↗  '+r.distancia+' · '+distanceLabel(r)));
+  if (r.distancia && r.distancia_origen) facts.append(el('span','','↗  '+r.distancia+' · '+distanceLabel(r)));
   else facts.append(el('span','fact-pending','Distancia no disponible'));
   if (confirmed(r)) {
     if (r.desnivel) facts.append(el('span','','⌁  '+r.desnivel));
