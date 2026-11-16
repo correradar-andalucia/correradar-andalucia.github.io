@@ -59,6 +59,15 @@ class RespaldoYCuracion(unittest.TestCase):
               "700 MTRS SUB 12","NORMATIVA","15 km de otro recorrido"]
         self.assertEqual(extract_races_section(text),"7,77 km · 2,59 km · 700 m")
 
+    def test_genera_distancia_con_h1_generico_y_spans_separados(self):
+        body=('<h1>Gesconchip</h1><h2>VII CROSS PINAR DEL REY</h2>'
+              '<h3>CARRERAS</h3><span>6.000</span> <span>MTRS</span>'
+              '<span>SUB 20</span><h3>NORMATIVA</h3>')
+        row={"nombre":"VII CROSS PINAR DEL REY","distancia":"",
+             "enlace":"https://gesconchip.es/prueba/informacion/vii-cross-pinar-del-rey"}
+        self.assertTrue(enrich_distance_from_detail(row,body,"gesconchip"))
+        self.assertEqual(row["distancia"],"6 km")
+
     def test_ficha_no_necesita_h1_si_h2_identifica_evento(self):
         html="<main><h2>VII CROSS PINAR DEL REY</h2><h3>CARRERAS</h3><p>6 KM - 13:15</p></main>"
         race={"nombre":"VII CROSS PINAR DEL REY","enlace":"https://gesconchip.es/prueba/informacion/vii-cross-pinar-del-rey","distancia":""}
