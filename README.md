@@ -13,9 +13,22 @@ Calendario independiente de carreras populares, trail, cross, ultradistancia, ob
 
 **Las distancias se muestran cuando se recuperan expresamente** del título, de un campo de la ficha fuente o del registro cotejado, con su procedencia. No se deducen kilómetros por nombres como «Media Maratón» ni se ocultan datos solo por carecer de una aprobación editorial posterior. Cuando no se dispone de ellos, la web indica «Distancia no disponible». El filtro de distancia sigue retirado hasta mejorar la cobertura. Nunca inferir fechas, lugares, distancias ni inscripción a partir de la edición de años anteriores.
 
+## Cobertura territorial y fichas de fuentes originales
+
+CorreRadar incorpora **fichas puntuales cotejadas** en fuentes identificables de Sevilla, Jaén y Huelva, para reducir el desequilibrio territorial. Están almacenadas en `data/fichas_oficiales_2026-11-16.json`, con nombre, fecha, municipio, modalidad, kilómetros y hora **solo cuando constan expresamente en la fuente**. Cada entrada conserva el enlace exacto y el nombre de la fuente.
+
+- `scripts/oficiales.py` valida el esquema, los enlaces HTTPS y la fecha de cotejo. Una revisión manual **no equivale a un lector automático permanente**.
+- A los 30 días los datos dejan de mostrarse como lectura reciente y pasan a «fecha cotejada» para evitar prometer vigencia indefinida.
+- La ficha publica la hora cuando se ha documentado. No se inventan recorridos, precios o desniveles.
+- No se añade una distancia ante discrepancias. Por ejemplo, Camas figura con fecha y hora, pero con distancia pendiente de contraste entre fuentes.
+- `_site/data/cobertura.json` mide las carreras por provincia y los campos de distancia y hora disponibles, sin necesidad de calcularlos manualmente.
+- El filtro de distancia permite ver rangos de kilómetros **sin ocultar por defecto las carreras sin distancia**; estas solo se excluyen cuando el corredor selecciona expresamente un rango.
+
+La cobertura actual no garantiza que aparezcan **todas** las carreras. Solo deben añadirse eventos verificables; las nuevas provincias y fuentes se incorporarán de forma incremental y con pruebas automatizadas.
+
 ## Arquitectura
 
-- `index.html`, `assets/styles.css` y `assets/app.js`: interfaz estática, búsqueda, filtros por provincia, mes, modalidad y fuente; paginación de 20 resultados.
+- `index.html`, `assets/styles.css` y `assets/app.js`: interfaz estática, búsqueda, filtros por provincia, mes, modalidad, fuente y distancia; paginación de 20 resultados.
 - `scripts/captacion.py` y `scripts/captacion_extra.py`: lectura de fuentes autorizadas, con control de dominios y robots.txt.
 - `scripts/distancias.py`: extrae medidas explícitas de títulos, campos, apartados de modalidades y descripciones de la misma carrera. Normaliza metros y kilómetros sin deducir distancias por el tipo de carrera.
 - Para Runnink y Gesconchip, el captador consulta la ficha concreta y, si se puede, sus modalidades de inscripción. Se respetan `robots.txt`, límites de tamaño, tiempos de respuesta y pausas entre consultas; un fallo no elimina la carrera.

@@ -153,7 +153,9 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
     # Mantener el orden de aprobadas tal como las ordenó la publicación.
     # Entre candidatas, las lecturas directas prevalecen sobre datos puntuales.
     candidates=sorted(candidates,key=lambda r:
-        (1 if "Cotejada" in str(r.get("estado","")) else 0, str(r.get("fecha",""))))
+        (0 if r.get("fuente_directa") else
+         2 if "Cotejada" in str(r.get("estado","")) else 1,
+         str(r.get("fecha",""))))
     rows=[(True,r) for r in approved]+[(False,r) for r in candidates]
     results=[];locks=[];seen=set()
     audit={"entradas_aprobadas":len(approved),"candidatas_entrantes":len(candidates),
@@ -175,15 +177,19 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
         # Una fecha leída del calendario de la fuente ES un dato publicado,
         # aunque no se haya revisado manualmente por CorreRadar.
         r["fecha_origen"] = ("editorial" if is_approved
+                             else "fuente" if r.get("fuente_directa")
                              else "catalogo" if "cotejada" in str(r.get("estado","")).lower()
                              else "fuente")
         r["distancia_origen"] = r["fecha_origen"] if r.get("distancia") else ""
         # La consulta automática de una fuente NO es una verificación editorial.
         if not is_approved:
-            r["consultado"] = (r.get("verificado") if "Cotejada" in str(r.get("estado",""))
-                              else date.today().isoformat())
+            r["consultado"] = (r.get("cotejada")
+                              or r.get("verificado") if "Cotejada" in str(r.get("estado",""))
+                              else r.get("cotejada") or date.today().isoformat())
             r["verificado"] = ""
         r.setdefault("distancia","")
+        r.setdefault("hora","")
+        r["hora_origen"] = r["fecha_origen"] if r.get("hora") else ""
         r.setdefault("desnivel","")
         r.setdefault("precio","")
         r.setdefault("bolsa","")
@@ -203,6 +209,9 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
                     "municipio":r.get("localidad"),"descartada":r.get("nombre"),
                     "conservada":matches.get("nombre"),"origen":r.get("origen")})
             record_sources(matches,r)
+            if not locks[match_idx] and not matches.get("hora") and r.get("hora"):
+                matches["hora"]=r["hora"]
+                matches["hora_origen"]=r.get("hora_origen","")
             if not locks[match_idx] and not matches.get("distancia") and not is_approved and r.get("distancia"):
                 matches["distancia"]=r["distancia"]
                 matches["distancia_origen"]=r["distancia_origen"]

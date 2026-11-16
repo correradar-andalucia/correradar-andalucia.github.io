@@ -52,3 +52,9 @@
 /* Varias distancias (incluidas categorías infantiles): sin desbordamiento horizontal. */
 .race-info{min-width:0}
 .race-facts span{white-space:normal;overflow-wrap:anywhere}
+
+/* Cuatro filtros claros y legibles desde el móvil, sin perder accesibilidad. */
+@media(min-width:901px){.select-row{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(min-width:621px) and (max-width:900px){.select-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:391px) and (max-width:620px){.select-row{grid-template-columns:repeat(2,minmax(0,1fr))}.select-row>.select-wrap:last-child{grid-column:auto}}
+@media(max-width:390px){.select-row{grid-template-columns:1fr}.select-row>.select-wrap:last-child{grid-column:auto}}

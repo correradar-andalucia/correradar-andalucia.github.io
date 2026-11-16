@@ -7,7 +7,8 @@ const sources = {
   globaltempo:'Global Tempo', dorsalchip:'Dorsalchip', fadmes:'FADMES',
   faa:'FAA', cruzandolameta:'Cruzando la Meta', gcc:'GCC Sport Events',
   dipgra:'Diputación de Granada', diphuelva:'Diputación de Huelva',
-  runnink:'Runnink', gesconchip:'Gesconchip', rockthesport:'RockTheSport'
+  runnink:'Runnink', gesconchip:'Gesconchip', rockthesport:'RockTheSport',
+  oficial:'Fuentes cotejadas'
 };
 const modeLabels = {
   RUNNING:'ASFALTO', TRAIL:'TRAIL', CROSS:'CROSS', ULTRA:'ULTRA',
@@ -18,6 +19,7 @@ const PAGE_SIZE = 20;
 const normalize = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const raceOrigins = (r) => [...new Set([...(Array.isArray(r.fuentes_origen) ? r.fuentes_origen : []),r.origen].filter(Boolean))];
 const sourceName = (r) => {
+  if (r.fuente_nombre) return r.fuente_nombre;
   const names = raceOrigins(r).map(x => sources[x] || x);
   return names.slice(0,2).join(' · ') + (names.length > 2 ? ' +' + (names.length-2) : '');
 };
@@ -32,6 +34,18 @@ const dateLabel = (r) => confirmed(r) ? 'REVISADA'
   : r.fecha_origen === 'fuente' ? 'FECHA EN FUENTE' : 'FECHA COTEJADA';
 const distanceLabel = (r) => r.distancia_origen === 'catalogo'
   ? 'Cotejada' : r.distancia_origen === 'fuente' ? 'En fuente' : 'Revisada';
+const distanceNumbers = (raw) => [...String(raw || '').matchAll(/(\d+(?:[.,]\d+)?)\s*(km|m)\b/gi)]
+  .map(m => Number(m[1].replace(',', '.')) / (m[2].toLowerCase() === 'm' ? 1000 : 1))
+  .filter(n => Number.isFinite(n) && n > 0);
+function distanceMatches(r, filter) {
+  if (!filter) return true;
+  const nums = distanceNumbers(r.distancia);
+  if (filter === 'unknown') return !nums.length;
+  return nums.some(n => filter === 'short' && n <= 10
+    || filter === 'medium' && n > 10 && n <= 21.1
+    || filter === 'long' && n > 21.1 && n <= 42.2
+    || filter === 'ultra' && n > 42.2);
+}
 let races = [];
 let currentMode = 'TODAS';
 let visibleLimit = PAGE_SIZE;
@@ -75,6 +89,7 @@ function raceCard(r) {
   const facts = el('div','race-facts');
   if (r.distancia && r.distancia_origen) facts.append(el('span','','↗  '+r.distancia+' · '+distanceLabel(r)));
   else facts.append(el('span','fact-pending','Distancia no disponible'));
+  if (r.hora && r.hora_origen) facts.append(el('span','','◷  '+r.hora+' h · según fuente'));
   if (confirmed(r)) {
     if (r.desnivel) facts.append(el('span','','⌁  '+r.desnivel));
     if (r.precio) facts.append(el('span','','◈  '+r.precio));
@@ -100,13 +115,14 @@ function raceCard(r) {
   card.append(date,info,actions);
   return card;
 }
-function matches(r, search, province, month, source, sourcedOnly, today) {
+function matches(r, search, province, month, source, distance, sourcedOnly, today) {
   if (!r.fecha || fmt(r.fecha) < today) return false;
   if (sourcedOnly && !publishedDate(r)) return false;
   if (search && !normalize([r.nombre,r.localidad,r.provincia,sourceName(r)].join(' ')).includes(search)) return false;
   if (source && !raceOrigins(r).includes(source)) return false;
   if (province && normalize(r.provincia) !== province) return false;
   if (month && r.fecha.slice(0,7) !== month) return false;
+  if (!distanceMatches(r, distance)) return false;
   if (currentMode !== 'TODAS' && (r.modalidad_conflicto || r.modalidad !== currentMode)) return false;
   return true;
 }
@@ -115,17 +131,18 @@ function render() {
   const province = normalize($('province').value);
   const month = $('month').value;
   const source = $('source').value;
+  const distance = $('distance').value;
   const sourcedOnly = $('confirmed-only').checked;
   const today = new Date();
   today.setHours(0,0,0,0);
-  const filtered = races.filter(r => matches(r,search,province,month,source,sourcedOnly,today));
+  const filtered = races.filter(r => matches(r,search,province,month,source,distance,sourcedOnly,today));
   $('result-count').textContent = String(filtered.length);
   const root = $('cards');
   root.replaceChildren();
   if (!filtered.length) {
     root.append(state(
       races.length ? 'No hay carreras con estos filtros' : 'El calendario está preparado',
-      races.length ? 'Prueba otra provincia, modalidad o desactiva el filtro de fuentes actuales.'
+      races.length ? 'Prueba otra provincia, modalidad o distancia. Los eventos sin kilómetros publicados se muestran con el filtro abierto.'
                    : 'Todavía no hay carreras disponibles en el calendario.'
     ));
   } else {
@@ -146,7 +163,7 @@ function filter() {
 }
 async function init() {
   $('year').textContent = new Date().getFullYear();
-  for (const id of ['search','province','month','source','confirmed-only']) {
+  for (const id of ['search','province','month','source','distance','confirmed-only']) {
     $(id).addEventListener(id==='search' ? 'input' : 'change',filter);
   }
   document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click',()=>{
@@ -159,7 +176,7 @@ async function init() {
     filter();
   }));
   $('clear').addEventListener('click',()=>{
-    for (const id of ['search','province','month','source']) $(id).value='';
+    for (const id of ['search','province','month','source','distance']) $(id).value='';
     $('confirmed-only').checked=false;
     document.querySelector('[data-mode="TODAS"]').click();
   });
@@ -188,6 +205,9 @@ async function init() {
       $('source').append(option);
     }
     $('updated').textContent=result.actualizado?'Generado el '+result.actualizado:'';
+    const withDistance=active.filter(r=>distanceNumbers(r.distancia).length).length;
+    const withTime=active.filter(r=>r.hora && r.hora_origen).length;
+    $('coverage').textContent=withDistance+' con distancia · '+withTime+' con horario';
     filter();
   } catch (error) {
     console.error(error);
