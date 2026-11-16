@@ -170,6 +170,8 @@ def detail_page(r):
     provisional=not is_confirmed
     if r['enlace']:buttons+=f'<a href="{esc(r["enlace"])}" rel="noopener noreferrer" target="_blank">{("Comprobar en la fuente ↗" if provisional else "Ver enlace de la carrera ↗")}</a>'
     if r.get('fuente') and r['fuente']!=r.get('enlace'):buttons+=f'<a class="secondary" href="{esc(r["fuente"])}" rel="noopener noreferrer" target="_blank">Fuente de verificación ↗</a>'
+    if r.get("distancia") and url_clean(r.get("distancia_fuente","")) and r.get("distancia_fuente") != r.get("enlace"):
+        buttons+=f'<a class="secondary" href="{esc(r["distancia_fuente"])}" rel="noopener noreferrer" target="_blank">Ver distancia en la fuente ↗</a>'
     if is_confirmed and r['track']:buttons+=f'<a class="secondary" href="{esc(r["track"])}" rel="noopener noreferrer" target="_blank">Ver track ↗</a>'
     if not buttons:buttons='<p>Enlaces oficiales pendientes de verificación.</p>'
     ld={'@context':'https://schema.org','@type':'SportsEvent','name':r['nombre'],'startDate':r['fecha'],
