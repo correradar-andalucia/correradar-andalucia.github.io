@@ -84,7 +84,7 @@ function raceCard(r) {
   const actions = el('div','race-actions');
   const sourceUrl = safeLink(confirmed(r) ? r.enlace : (r.fuente || r.enlace));
   if (sourceUrl) {
-    const link = el('a','register',confirmed(r) ? 'Inscripción ↗' : 'Consultar fuente ↗');
+    const link = el('a','register',confirmed(r) ? 'Ver enlace de la carrera ↗' : 'Consultar fuente ↗');
     link.href = sourceUrl;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
