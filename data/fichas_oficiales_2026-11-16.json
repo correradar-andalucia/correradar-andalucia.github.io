@@ -1,0 +1,152 @@
+{
+  "revision": "2026-11-16",
+  "criterio": "Fichas cotejadas en páginas de organizadores, administraciones o plataformas de inscripción. No son datos inventados ni extracción automática. Cambios posteriores requieren reconfirmación. Si existe conflicto de distancia, se deja vacía.",
+  "carreras": [
+    {
+      "fecha": "2026-11-22",
+      "nombre": "Carrera Solidaria Ruta 091 Écija",
+      "localidad": "Écija",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "5,1 km",
+      "hora": "10:00",
+      "fuente": "https://ruta091.es/carrera/carrera-solidaria-ruta-091-ecija-2026",
+      "fuente_nombre": "Policía Nacional · Ruta 091",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2026-12-04",
+      "nombre": "IX Carrera Nocturna Ciudad de Camas",
+      "localidad": "Camas",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "hora": "19:30",
+      "fuente": "https://www.camas.es/es/deporte/noticias/IX-CARRERA-NOCTURNA-CIUDAD-DE-CAMAS/",
+      "fuente_nombre": "Ayuntamiento de Camas",
+      "tipo_fuente": "administracion",
+      "nota_interna": "Distancia contradictoria entre fuentes; omitir hasta confirmar reglamento"
+    },
+    {
+      "fecha": "2026-12-20",
+      "nombre": "III Carrera Popular de Navidad El Rubio",
+      "localidad": "El Rubio",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "hora": "",
+      "fuente": "https://www.corredorespopulares.es/inscripciones.php",
+      "fuente_nombre": "Corredores Populares · inscripciones",
+      "tipo_fuente": "cronometraje",
+      "nota_interna": "Fecha en la plataforma de inscripciones, distancia sin confirmar en la fuente"
+    },
+    {
+      "fecha": "2026-12-27",
+      "nombre": "XXXI San Silvestre Sevillana",
+      "localidad": "Sevilla",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "5 km · 1 km · 250 m",
+      "hora": "10:00",
+      "fuente": "https://www.sansilvestresevillana.com/web-evento/14134-xxxi-san-silvestre-sevillana",
+      "fuente_nombre": "San Silvestre Sevillana",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2026-12-27",
+      "nombre": "Carrera Navideña de Bellavista",
+      "localidad": "Sevilla",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "hora": "11:00",
+      "fuente": "https://inscripciones.tecnocrono.com/inscripcion/carrera-navidena-de-bellavista/?lang=es",
+      "fuente_nombre": "TecnoCrono · inscripción",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-27",
+      "nombre": "XV San Silvestre Herrereña",
+      "localidad": "Herrera",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "hora": "11:00",
+      "fuente": "https://www.turismosevilla.org/es/eventos-y-fiestas/xv-san-silvestre-herrerena",
+      "fuente_nombre": "Turismo Provincia de Sevilla",
+      "tipo_fuente": "administracion"
+    },
+    {
+      "fecha": "2027-01-17",
+      "nombre": "XXXIV Carrera Popular Ruta Carlos III Ciudad del Sol",
+      "localidad": "Écija",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "26 km",
+      "hora": "10:30",
+      "fuente": "https://rutacarlosiii.ecija.es/",
+      "fuente_nombre": "Organización Ruta Carlos III",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2026-11-22",
+      "nombre": "XIII Carrera por la No Violencia de Género y la Igualdad",
+      "localidad": "Jaén",
+      "provincia": "Jaén",
+      "modalidad": "RUNNING",
+      "distancia": "1 km · 4,5 km",
+      "hora": "10:30",
+      "fuente": "https://deportime.es/events/xiii-carrera-por-la-no-violencia-de-genero-y-por-la-igualdad/",
+      "fuente_nombre": "DeporTime · CSIF Jaén",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-20",
+      "nombre": "XXVII Carrera a los Puentes",
+      "localidad": "Jaén",
+      "provincia": "Jaén",
+      "modalidad": "RUNNING",
+      "distancia": "18 km aprox.",
+      "hora": "10:00",
+      "fuente": "https://deportime.es/events/xxvii-carrera-a-los-puentes/",
+      "fuente_nombre": "DeporTime · Maratón Jaén",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-26",
+      "nombre": "XV Carrera Popular Torreperogil",
+      "localidad": "Torreperogil",
+      "provincia": "Jaén",
+      "modalidad": "RUNNING",
+      "distancia": "7 km",
+      "hora": "",
+      "fuente": "https://www.cronofinisher.com/evento/xv-carrera-popular-torreperogil/",
+      "fuente_nombre": "Cronofinisher · Ayuntamiento",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-11",
+      "nombre": "Grinch Run Corrales",
+      "localidad": "Corrales",
+      "provincia": "Huelva",
+      "modalidad": "RUNNING",
+      "distancia": "5 km",
+      "hora": "18:00",
+      "fuente": "https://lacasadelgrinch.es/grinch-run/",
+      "fuente_nombre": "La Casa del Grinch",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2026-12-30",
+      "nombre": "San Silvestre Onupolis Huelva",
+      "localidad": "Huelva",
+      "provincia": "Huelva",
+      "modalidad": "RUNNING",
+      "distancia": "2 km · 5 km · 10 km",
+      "hora": "18:30",
+      "fuente": "https://www.onupolis.es/",
+      "fuente_nombre": "Onupolis Huelva",
+      "tipo_fuente": "organizador"
+    }
+  ]
+}
