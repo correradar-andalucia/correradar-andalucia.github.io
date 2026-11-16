@@ -44,3 +44,5 @@
   .brand-type strong{font-size:13px}
   .hero h1{font-size:clamp(42px,11.5vw,75px)}
 }
+
+@media(min-width:621px){.select-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
