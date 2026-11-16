@@ -1,0 +1,63 @@
+"""Comprobar que la interfaz simplificada no pierde categorías ni enlaces."""
+from html.parser import HTMLParser
+from pathlib import Path
+import re
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class Markup(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.ids = set()
+        self.modes = []
+        self.selects = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if attributes.get("id"):
+            self.ids.add(attributes["id"])
+        if "data-mode" in attributes:
+            self.modes.append(attributes["data-mode"])
+        if tag == "select":
+            self.selects.append(attributes.get("id"))
+
+
+class InterfazSimplificada(unittest.TestCase):
+    def setUp(self):
+        self.page = (ROOT / "index.html").read_text(encoding="utf-8")
+        self.script = (ROOT / "assets/app.js").read_text(encoding="utf-8")
+        self.parser = Markup()
+        self.parser.feed(self.page)
+
+    def test_solo_filtros_utiles(self):
+        self.assertEqual(set(self.parser.selects), {"province", "month", "distance"})
+        self.assertEqual(self.parser.modes,
+                         ["TODAS", "RUNNING", "TRAIL", "CROSS", "OBSTACULOS", "OTRAS"])
+        self.assertNotIn("confirmed-only", self.page)
+        self.assertNotIn("id=\"source\"", self.page)
+
+    def test_todos_los_controles_de_js_existen(self):
+        direct_refs = set(re.findall(r"\$\('([^']+)'\)", self.script))
+        self.assertEqual(direct_refs - self.parser.ids, set())
+        self.assertNotIn("$('source')", self.script)
+        self.assertNotIn("$('confirmed-only')", self.script)
+
+    def test_no_promete_precios_ni_tracks_sin_datos(self):
+        self.assertNotIn("Consulta precios, desnivel, track e inscripciones", self.page)
+        self.assertNotIn("Accede a la inscripción oficial y al track", self.page)
+        self.assertNotIn("50</strong><small>FUENTES", self.page)
+        self.assertIn("Comprueba los detalles en su fuente", self.page)
+
+    def test_las_categorias_siguen_accesibles(self):
+        self.assertIn("r.modalidad === 'TRAIL' || r.modalidad === 'ULTRA'", self.script)
+        self.assertIn("r.modalidad === 'OCR' || r.modalidad === 'HIBRIDA'", self.script)
+        self.assertIn("r.modalidad === 'RUNNING' || r.modalidad === 'CROSS'", self.script)
+        self.assertIn("return 'OTRAS'", self.script)
+        self.assertIn("currentMode !== 'TODAS' && modalityGroup(r) !== currentMode",
+                      self.script)
+
+
+if __name__ == "__main__":
+    unittest.main()
