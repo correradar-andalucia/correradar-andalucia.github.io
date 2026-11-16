@@ -192,6 +192,7 @@ def detail_page(r):
                       'fuente':'publicada en la fuente',
                       'catalogo':'cotejada en el catálogo'}.get(r.get('distancia_origen'),'')
     entries=[('Fecha',fmt),('Procedencia de fecha',fecha_texto),
+             ('Hora de salida',r.get('hora','')+' h' if r.get('hora') else ''),
              ('Localidad',city),('Modalidad',mode)]
     if r.get('distancia') and distancia_origen:
         entries.append(('Distancia',r['distancia']+' · '+distancia_origen))
@@ -230,12 +231,26 @@ def sitemap(races):
 
 def main():
     from multifuente import seed_races, backup_runnink
+    from oficiales import official_races
     from deduplicacion import combine, verify_unique
     from captacion import collect
     candidatas_en_vivo, informe_captacion = collect()
-    races, auditoria = combine(transform(load_csv()), seed_races()+backup_runnink()+candidatas_en_vivo,
+    oficiales=official_races()
+    races, auditoria = combine(transform(load_csv()), oficiales+seed_races()+backup_runnink()+candidatas_en_vivo,
                                slugify, km_parse, with_audit=True)
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
+    auditoria["fichas_oficiales_cotejadas"]=len(oficiales)
+    provincias=["Almería","Cádiz","Córdoba","Granada","Huelva","Jaén","Málaga","Sevilla"]
+    cobertura={
+        "actualizado":dt.date.today().isoformat(),
+        "total":len(races),
+        "con_distancia":sum(bool(r.get("distancia")) for r in races),
+        "con_hora":sum(bool(r.get("hora")) for r in races),
+        "por_provincia":{p:len([r for r in races if r.get("provincia")==p]) for p in provincias},
+        "fuentes_oficiales_cotejadas":len(oficiales),
+        "fecha_cotejada":sum(r.get("fecha_origen")=="catalogo" for r in races),
+        "fecha_fuente":sum(r.get("fecha_origen")=="fuente" for r in races)
+    }
     verify_unique(races)
     print("AUDITORÍA DUPLICADOS:",json.dumps(auditoria,ensure_ascii=False))
     print("Captación multifuente:", json.dumps(informe_captacion, ensure_ascii=False))
@@ -249,6 +264,7 @@ def main():
     (OUT/'data'/'carreras.json').write_text(json.dumps({'actualizado':dt.date.today().strftime('%d/%m/%Y'),'carreras':races},ensure_ascii=False,separators=(',',':')),encoding='utf8')
     (OUT/'data'/'estado_fuentes.json').write_text(json.dumps(informe_captacion,ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'auditoria_duplicados.json').write_text(json.dumps(auditoria,ensure_ascii=False,indent=2),encoding='utf8')
+    (OUT/'data'/'cobertura.json').write_text(json.dumps(cobertura,ensure_ascii=False,indent=2),encoding='utf8')
     catalogo = ROOT/'config'/'catalogo_fuentes_maestra.json'
     if catalogo.exists():
         fuentes = json.loads(catalogo.read_text(encoding='utf-8'))
