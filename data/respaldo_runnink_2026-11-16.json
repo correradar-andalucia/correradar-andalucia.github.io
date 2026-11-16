@@ -1,0 +1,125 @@
+{
+  "fecha_cotejo": "2026-11-16",
+  "caducidad_dias": 30,
+  "fuente": "runnink",
+  "nota": "Copia de las 13 carreras del despliegue validado el 16-11-2026; no sustituye una consulta nueva a Runnink.",
+  "carreras": [
+    {
+      "fecha": "2026-11-22",
+      "nombre": "XXX Carrera Popular Puerto Menesteo",
+      "localidad": "El Puerto de Santa María",
+      "provincia": "Cádiz",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/xxx-carrera-popular-puerto-menesteo/121"
+    },
+    {
+      "fecha": "2026-11-28",
+      "nombre": "Fungo Hybrid Race",
+      "localidad": "Jerez de la Frontera",
+      "provincia": "Cádiz",
+      "modalidad": "HIBRIDA",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/fungo-hybrid-race/129"
+    },
+    {
+      "fecha": "2026-12-06",
+      "nombre": "Montesierra Trail La Teja",
+      "localidad": "Jerez de la Frontera",
+      "provincia": "Cádiz",
+      "modalidad": "TRAIL",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/montesierra-trail-la-teja/100"
+    },
+    {
+      "fecha": "2026-12-13",
+      "nombre": "VI Carrera Infantil Bomberos de Jerez",
+      "localidad": "Jerez de la Frontera",
+      "provincia": "Cádiz",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/vi-carrera-infantil-bomberos-de-jerez/134"
+    },
+    {
+      "fecha": "2026-12-27",
+      "nombre": "San Silvestre El Puerto de Santa María",
+      "localidad": "El Puerto de Santa María",
+      "provincia": "Cádiz",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/san-silvestre-el-puerto-de-santa-mar-a/140"
+    },
+    {
+      "fecha": "2026-12-29",
+      "nombre": "XXXIII San Silvestre Chipionera",
+      "localidad": "Chipiona",
+      "provincia": "Cádiz",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/xxxiii-san-silvestre-chipionera/113"
+    },
+    {
+      "fecha": "2027-01-31",
+      "nombre": "Media Maratón & 10K El Puerto",
+      "localidad": "El Puerto de Santa María",
+      "provincia": "Cádiz",
+      "modalidad": "RUNNING",
+      "distancia": "10 km",
+      "enlace": "https://www.runnink.com/evento/media-marat-n-10k-el-puerto/114"
+    },
+    {
+      "fecha": "2027-03-06",
+      "nombre": "DSC Hybrid Arcos",
+      "localidad": "Arcos de la Frontera",
+      "provincia": "Cádiz",
+      "modalidad": "HIBRIDA",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/dsc-hybrid-arcos/141"
+    },
+    {
+      "fecha": "2027-03-14",
+      "nombre": "Fungo Race",
+      "localidad": "El Puerto de Santa María",
+      "provincia": "Cádiz",
+      "modalidad": "OCR",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/fungo-race/130"
+    },
+    {
+      "fecha": "2027-04-04",
+      "nombre": "Reset Running",
+      "localidad": "El Puerto de Santa María",
+      "provincia": "Cádiz",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/reset-running/138"
+    },
+    {
+      "fecha": "2027-04-11",
+      "nombre": "Mkcross IV Carrera Benéfica por la ELA",
+      "localidad": "Majarromaque, Jerez de la Frontera",
+      "provincia": "Cádiz",
+      "modalidad": "CROSS",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/mkcross-iv-carrera-ben-fica-por-la-ela/142"
+    },
+    {
+      "fecha": "2027-06-19",
+      "nombre": "XI Fan-Pin",
+      "localidad": "San Fernando",
+      "provincia": "Cádiz",
+      "modalidad": "OCR",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/xi-fan-pin/139"
+    },
+    {
+      "fecha": "2027-06-25",
+      "nombre": "DSC Hybrid Circuito de Jerez",
+      "localidad": "Jerez de la Frontera",
+      "provincia": "Cádiz",
+      "modalidad": "HIBRIDA",
+      "distancia": "",
+      "enlace": "https://www.runnink.com/evento/dsc-hybrid-circuito-de-jerez/143"
+    }
+  ]
+}

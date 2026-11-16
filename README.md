@@ -25,6 +25,8 @@ Calendario independiente de carreras populares, trail, cross, ultradistancia, ob
 - `scripts/build.py`: genera el directorio `_site/`, fichas individuales, JSON, auditoría, páginas informativas y sitemap.
 - `config/site.json`: correo, titularidad y bandera `public_launch` (mantener `false` hasta completar los requisitos de lanzamiento).
 - `data/carreras.csv`: datos editoriales locales; en GitHub Actions puede sustituirse por el CSV publicado mediante la variable `SHEET_CSV_URL`. El archivo `data/carreras.json` del repositorio NO representa el calendario desplegado: se genera en el build.
+- `data/respaldo_runnink_2026-11-16.json`: copia de las 13 referencias obtenidas de Runnink el 16/11/2026, usada como respaldo cuando falla temporalmente la consulta en vivo. Se muestran como «fecha cotejada», nunca como consulta reciente; tras 30 días exigen reconfirmación.
+- `data/distancias_cotejadas_2026-11-16.json`: kilómetros corroborados para la edición y municipio exactos en páginas de organizadores o de inscripción. Solo se rellenan campos vacíos: los conflictos con fuentes actuales no se sobreescriben y se auditan.
 
 ## Desarrollo y pruebas locales
 

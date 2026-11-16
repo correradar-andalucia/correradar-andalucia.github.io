@@ -1,0 +1,105 @@
+{
+  "revision": "2026-11-16",
+  "criterio": "Solo distancias de páginas de inscripción o reglamentos de esta edición, cotejadas contra fecha y municipio. No incluye datos deducidos.",
+  "carreras": [
+    {
+      "fecha": "2026-11-22",
+      "nombre": "XXX Carrera Popular Puerto Menesteo",
+      "localidad": "El Puerto de Santa María",
+      "provincia": "Cádiz",
+      "distancia": "10 km",
+      "fuente": "https://www.runnink.com/book/121",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2026-11-22",
+      "nombre": "VII CROSS PINAR DEL REY",
+      "localidad": "San Roque",
+      "provincia": "Cádiz",
+      "distancia": "6 km · 3 km · 2 km · 1 km · 500 m · 250 m",
+      "fuente": "https://gesconchip.es/app/prueba/informacion/vii-cross-pinar-del-rey",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2026-11-22",
+      "nombre": "ALPINA SIERRA DE GADOR DALIAS",
+      "localidad": "Dalías",
+      "provincia": "Almería",
+      "distancia": "28 km · 21,6 km · 13,1 km",
+      "fuente": "https://cxmdalias.tucarrera.es/reglamento.html",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2026-11-28",
+      "nombre": "VI Caras Nortes Skyrace",
+      "localidad": "Güéjar Sierra",
+      "provincia": "Granada",
+      "distancia": "42 km · 24 km · 14 km",
+      "fuente": "https://carasnortes.com/reglamento-2/",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2026-11-22",
+      "nombre": "XLIV CARRERA URBANA CIUDAD DE CHICLANA",
+      "localidad": "Chiclana de la Frontera",
+      "provincia": "Cádiz",
+      "distancia": "7,77 km · 2,59 km · 1,4 km · 700 m · 400 m",
+      "fuente": "https://gesconchip.es/app/prueba/informacion/xliv-carrera-urbana-ciudad-de-chiclana",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2026-12-13",
+      "nombre": "XXXIII CROSS PINAR DE LA BARROSA",
+      "localidad": "Chiclana de la Frontera",
+      "provincia": "Cádiz",
+      "distancia": "7,4 km · 3 km · 2 km · 1 km · 900 m",
+      "fuente": "https://gesconchip.es/app/prueba/informacion/xxxiii-cross-pinar-de-la-barrosa",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2026-12-26",
+      "nombre": "XXII CARRERA POPULAR DE NAVIDAD VILLA DE ROTA",
+      "localidad": "Rota",
+      "provincia": "Cádiz",
+      "distancia": "5 km",
+      "fuente": "https://gesconchip.es/app/prueba/informacion/xxii-carrera-popular-de-navidad-villa-de-rota",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2026-12-30",
+      "nombre": "XIV SAN SILVESTRE CHICLANERA",
+      "localidad": "Chiclana de la Frontera",
+      "provincia": "Cádiz",
+      "distancia": "1 km · 2 km · 4,7 km",
+      "fuente": "https://gesconchip.es/app/prueba/informacion/xiv-san-silvestre-chiclanera",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2027-03-14",
+      "nombre": "XL MEDIA MARATÓN “COSTA DE LA LUZ”",
+      "localidad": "Rota-Chipiona",
+      "provincia": "Cádiz",
+      "distancia": "21,097 km",
+      "fuente": "https://gesconchip.es/app/prueba/informacion/xl-media-maraton-costa-de-la-luz",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2026-12-13",
+      "nombre": "I TRAIL BENAHAVÍS",
+      "localidad": "Benahavís",
+      "provincia": "Málaga",
+      "distancia": "14 km",
+      "fuente": "https://gesconchip.es/app/prueba/informacion/i-trail-benahavis",
+      "cotejada": "2026-11-16"
+    },
+    {
+      "fecha": "2027-01-31",
+      "nombre": "XIV GRAN FONDO GUADIAMAR",
+      "localidad": "Sanlúcar la Mayor",
+      "provincia": "Sevilla",
+      "distancia": "31 km · 15 km",
+      "fuente": "https://gesconchip.es/app/prueba/informacion/xiv-gran-fondo-guadiamar",
+      "cotejada": "2026-11-16"
+    }
+  ]
+}
