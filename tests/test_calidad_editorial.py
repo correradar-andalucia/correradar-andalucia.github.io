@@ -74,13 +74,38 @@ class CalidadEditorial(unittest.TestCase):
         pending = race(confirmada=False, distancia="12 km", consultado="2026-11-16")
         pending_page = detail_page(pending)
         self.assertIn('noindex,follow', pending_page)
-        self.assertIn("Pendiente de confirmación", pending_page)
+        self.assertIn("Procedencia de fecha", pending_page)
         self.assertNotIn("12 km", pending_page)
         self.assertNotIn('"SportsEvent"', pending_page)
         approved = race(confirmada=True, estado="Confirmado", verificado="2026-11-15")
         approved_page = detail_page(approved)
         self.assertNotIn('noindex,follow', approved_page)
         self.assertIn('"SportsEvent"', approved_page)
+
+
+    def test_fecha_de_fuente_directa_esta_publicada_no_pendiente(self):
+        result = combine([], [race()], slugify, km_parse)[0]
+        self.assertEqual(result["fecha_origen"], "fuente")
+        self.assertFalse(result["confirmada"])
+        page = detail_page(result)
+        self.assertIn("Fecha publicada en la fuente consultada", page)
+        self.assertNotIn("Pendiente de confirmación", page)
+
+    def test_distancia_cotejada_visible_sin_aprobacion_manual(self):
+        r = race(estado="Cotejada · confirmar en fuente", verificado="2026-11-15",
+                 distancia="12 km")
+        result = combine([], [r], slugify, km_parse)[0]
+        self.assertEqual(result["fecha_origen"], "catalogo")
+        self.assertEqual(result["distancia_origen"], "catalogo")
+        page = detail_page(result)
+        self.assertIn("12 km", page)
+        self.assertIn("cotejada en el catálogo", page)
+
+    def test_distancia_explicita_en_fuente_directa(self):
+        r = race(distancia="10 km")
+        result = combine([], [r], slugify, km_parse)[0]
+        self.assertEqual(result["distancia_origen"], "fuente")
+        self.assertIn("10 km", detail_page(result))
 
     def test_sitemap_solo_carreras_confirmadas(self):
         pending = race(confirmada=False, slug="pendiente")
