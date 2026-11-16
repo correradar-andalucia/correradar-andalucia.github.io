@@ -1,6 +1,6 @@
 'use strict';
 
-/* Calendario conservador: nunca tratar una lectura automática como confirmación. */
+/* Calendario con procedencia explícita de fechas y distancias: no ocultar hechos publicados. */
 const $ = (id) => document.getElementById(id);
 const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const sources = {
@@ -27,6 +27,11 @@ const safeLink = (url) => {
   catch { return null; }
 };
 const confirmed = (r) => r.confirmada === true;
+const publishedDate = (r) => confirmed(r) || r.fecha_origen === 'fuente';
+const dateLabel = (r) => confirmed(r) ? 'REVISADA'
+  : r.fecha_origen === 'fuente' ? 'FECHA EN FUENTE' : 'FECHA COTEJADA';
+const distanceLabel = (r) => r.distancia_origen === 'catalogo'
+  ? 'Cotejada' : r.distancia_origen === 'fuente' ? 'En fuente' : 'Revisada';
 let races = [];
 let currentMode = 'TODAS';
 let visibleLimit = PAGE_SIZE;
@@ -62,23 +67,22 @@ function raceCard(r) {
     head.append(el('span','tag '+String(r.modalidad).toLowerCase(),
                    modeLabels[r.modalidad] || r.modalidad));
   }
-  head.append(el('span',confirmed(r) ? 'tag tag-verified' : 'tag tag-pending',
-                 confirmed(r) ? 'CONFIRMADA' : 'FECHA POR CONFIRMAR'));
+  head.append(el('span',confirmed(r) ? 'tag tag-verified' :
+    publishedDate(r) ? 'tag tag-sourced' : 'tag tag-pending',dateLabel(r)));
   if (sourceName(r)) head.append(el('span','tag source-tag',sourceName(r)));
   info.append(head,el('p','race-location','⌖  '+[r.localidad,r.provincia].filter(Boolean).join(' · ')));
 
   const facts = el('div','race-facts');
+  if (r.distancia) facts.append(el('span','','↗  '+r.distancia+' · '+distanceLabel(r)));
+  else facts.append(el('span','fact-pending','Distancia no disponible'));
   if (confirmed(r)) {
-    if (r.distancia) facts.append(el('span','','↗  '+r.distancia));
     if (r.desnivel) facts.append(el('span','','⌁  '+r.desnivel));
     if (r.precio) facts.append(el('span','','◈  '+r.precio));
   }
-  if (!confirmed(r)) {
-    facts.append(el('span','fact-pending','Distancia y otros detalles pendientes de validar'));
-  }
   info.append(facts);
   if (!confirmed(r) && r.consultado) {
-    info.append(el('p','source-meta','Referencia de fuente: '+r.consultado));
+    info.append(el('p','source-meta',
+      (r.fecha_origen === 'catalogo' ? 'Cotejada el ' : 'Fuente consultada el ')+r.consultado));
   }
 
   const actions = el('div','race-actions');
@@ -96,9 +100,9 @@ function raceCard(r) {
   card.append(date,info,actions);
   return card;
 }
-function matches(r, search, province, month, source, confirmedOnly, today) {
+function matches(r, search, province, month, source, sourcedOnly, today) {
   if (!r.fecha || fmt(r.fecha) < today) return false;
-  if (confirmedOnly && !confirmed(r)) return false;
+  if (sourcedOnly && !publishedDate(r)) return false;
   if (search && !normalize([r.nombre,r.localidad,r.provincia,sourceName(r)].join(' ')).includes(search)) return false;
   if (source && !raceOrigins(r).includes(source)) return false;
   if (province && normalize(r.provincia) !== province) return false;
@@ -111,18 +115,18 @@ function render() {
   const province = normalize($('province').value);
   const month = $('month').value;
   const source = $('source').value;
-  const confirmedOnly = $('confirmed-only').checked;
+  const sourcedOnly = $('confirmed-only').checked;
   const today = new Date();
   today.setHours(0,0,0,0);
-  const filtered = races.filter(r => matches(r,search,province,month,source,confirmedOnly,today));
+  const filtered = races.filter(r => matches(r,search,province,month,source,sourcedOnly,today));
   $('result-count').textContent = String(filtered.length);
   const root = $('cards');
   root.replaceChildren();
   if (!filtered.length) {
     root.append(state(
       races.length ? 'No hay carreras con estos filtros' : 'El calendario está preparado',
-      races.length ? 'Prueba otra provincia, modalidad o desactiva «Solo confirmadas».'
-                   : 'Aún no hay carreras revisadas para publicar.'
+      races.length ? 'Prueba otra provincia, modalidad o desactiva el filtro de fuentes actuales.'
+                   : 'Todavía no hay carreras disponibles en el calendario.'
     ));
   } else {
     const fragment = document.createDocumentFragment();
