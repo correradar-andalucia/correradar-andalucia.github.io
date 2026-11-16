@@ -4,18 +4,20 @@ Calendario independiente de carreras populares, trail, cross, ultradistancia, ob
 
 ## Principio editorial
 
-**Una fuente leída automáticamente no significa que el organizador haya confirmado la fecha.** El calendario diferencia:
+**Fecha publicada en una fuente** no es lo mismo que **aprobación editorial**. El calendario diferencia:
 
-- **Confirmada**: aprobada expresamente en la hoja editorial (columna `Publicar=Sí`), con enlace de fuente y fecha de verificación. En la ficha se muestran los datos adicionales disponibles.
-- **Pendiente de confirmación**: obtenida de una fuente directa o del catálogo histórico. Se muestra para ayudar a descubrir eventos, pero la fecha y los detalles deben revisarse en la fuente enlazada. No se muestran distancias ni precios no validados editorialmente.
-- **Modalidad por revisar**: una misma ficha profunda se ha clasificado de dos maneras. Se publica una sola entrada sin atribuirle una modalidad fiable.
+- **Revisada**: confirmada por el equipo en la hoja editorial (`Publicar=Sí`, `Verificado` y URL de fuente).
+- **Fecha en fuente**: leída directamente de una ficha o calendario de la fuente en la última captación. La fecha mostrada coincide con la publicada en esa fuente; no afirmamos que la carrera no pueda modificarse o cancelarse después.
+- **Fecha cotejada**: recogida de un catálogo consultado previamente, con fecha de cotejo visible y advertencia de posibles cambios.
+- **Modalidad por revisar**: una misma ficha profunda se clasificó de dos maneras y no se atribuye ninguna modalidad sin resolver la discrepancia.
 
-No se muestran kilómetros como filtro hasta disponer de una cobertura suficiente y verificada. Nunca inferir fechas, lugares, distancias ni inscripción a partir de la edición de años anteriores.
+**Las distancias se muestran cuando se recuperan expresamente** del título, de un campo de la ficha fuente o del registro cotejado, con su procedencia. No se deducen kilómetros por nombres como «Media Maratón» ni se ocultan datos solo por carecer de una aprobación editorial posterior. Cuando no se dispone de ellos, la web indica «Distancia no disponible». El filtro de distancia sigue retirado hasta mejorar la cobertura. Nunca inferir fechas, lugares, distancias ni inscripción a partir de la edición de años anteriores.
 
 ## Arquitectura
 
 - `index.html`, `assets/styles.css` y `assets/app.js`: interfaz estática, búsqueda, filtros por provincia, mes, modalidad y fuente; paginación de 20 resultados.
 - `scripts/captacion.py` y `scripts/captacion_extra.py`: lectura de fuentes autorizadas, con control de dominios y robots.txt.
+- `scripts/distancias.py`: extrae únicamente medidas con unidades expresas en el título o en campos de distancia de una ficha.
 - `scripts/multifuente.py`: semilla histórica fechada, no equivalente a una consulta en directo. A partir de 30 días requiere reconfirmación.
 - `scripts/deduplicacion.py`: combina fichas según nombre, fecha, municipio, distancias y enlaces profundos; registra descartes y discrepancias.
 - `scripts/build.py`: genera el directorio `_site/`, fichas individuales, JSON, auditoría, páginas informativas y sitemap.
@@ -56,4 +58,4 @@ Completar la identidad del titular y revisar el aviso legal, privacidad y cookie
 
 ## Limitaciones conocidas
 
-La cobertura provincial no es uniforme. Los lectores dependen del formato de cada fuente y pueden dejar de funcionar. Algunas fichas solo enlazan a calendarios de terceros y no a la inscripción directa. **No se debe prometer una plaza, un precio o una fecha que la fuente no confirma.**
+La cobertura provincial no es uniforme. Los lectores dependen del formato de cada fuente y pueden dejar de funcionar. Algunas fichas solo enlazan a calendarios de terceros y no a la inscripción directa. **Una fecha publicada puede variar después**; siempre facilitar el enlace a la fuente para comprobar cambios. Las distancias que solo aparecen en imágenes, PDFs o secciones no estructuradas pueden seguir sin recuperarse automáticamente.
