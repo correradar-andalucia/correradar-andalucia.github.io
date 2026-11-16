@@ -81,8 +81,11 @@ def extract_races_section(fragments):
     Las categorías menores también se conservan si tienen distancia expresa.
     """
     parts=[str(x).strip() for x in fragments]
+    # En Gesconchip «PRUEBAS» es también un enlace del menú superior.
+    # Usar exclusivamente el encabezado «CARRERAS» de la ficha, para no
+    # confundir la navegación con el listado de distancias.
     start=next((i for i,p in enumerate(parts[:180])
-                if p.casefold() in ("carreras", "modalidades", "pruebas")),None)
+                if p.casefold()=="carreras"),None)
     if start is None:return ""
     section=[]
     for p in parts[start+1:start+60]:
