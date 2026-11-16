@@ -119,6 +119,41 @@ def transform(rows):
             raise ValueError(f'Fila {rowno}: {exc}') from exc
     return sorted(races,key=lambda r:r['fecha'])
 
+def add_curated_distances(races, catalog=None):
+    """Solo rellenar huecos con datos de la misma edición y municipio.
+
+    Los conflictos NO sustituyen lo que diga una fuente consultada en vivo.
+    """
+    if catalog is None:
+        path=ROOT/"data"/"distancias_cotejadas_2026-11-16.json"
+        catalog=json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"carreras":[]}
+    applied=0;conflicts=0
+    seen=set()
+    by_key={(r["fecha"],norm(r["nombre"]),norm(r["localidad"]),norm(r["provincia"])):r
+            for r in races}
+    for item in catalog.get("carreras",[]):
+        key=(item["fecha"],norm(item["nombre"]),norm(item["localidad"]),norm(item["provincia"]))
+        if key in seen:raise ValueError("Distancia cotejada repetida: "+str(key))
+        seen.add(key)
+        dt.date.fromisoformat(item["fecha"])
+        dt.date.fromisoformat(item["cotejada"])
+        if not item["fuente"].startswith("https://") or not item["distancia"].strip():
+            raise ValueError("Distancia cotejada sin fuente HTTPS ni valor")
+        race=by_key.get(key)
+        if race is None:continue
+        if race.get("distancia"):
+            if race["distancia"]!=item["distancia"]:
+                conflicts+=1
+            continue
+        race["distancia"]=item["distancia"]
+        race["distancia_origen"]="fuente"
+        race["distancia_fuente"]=item["fuente"]
+        race["distancia_cotejada"]=item["cotejada"]
+        race["km"]=km_parse(item["distancia"])
+        applied+=1
+    return {"aplicadas":applied,"conflictos_no_sobrescritos":conflicts}
+
+
 def esc(s):return html.escape(str(s),quote=True)
 
 def legal_footer():
@@ -160,6 +195,8 @@ def detail_page(r):
              ('Localidad',city),('Modalidad',mode)]
     if r.get('distancia') and distancia_origen:
         entries.append(('Distancia',r['distancia']+' · '+distancia_origen))
+    if r.get("distancia_cotejada"):
+        entries.append(("Distancia cotejada el",r["distancia_cotejada"]))
     if is_confirmed:
         entries += [('Desnivel',r['desnivel']),
                     ('Precio',r['precio']),('Bolsa del corredor',r['bolsa'])]
@@ -198,6 +235,7 @@ def main():
     candidatas_en_vivo, informe_captacion = collect()
     races, auditoria = combine(transform(load_csv()), seed_races()+backup_runnink()+candidatas_en_vivo,
                                slugify, km_parse, with_audit=True)
+    auditoria["distancias_cotejadas"]=add_curated_distances(races)
     verify_unique(races)
     print("AUDITORÍA DUPLICADOS:",json.dumps(auditoria,ensure_ascii=False))
     print("Captación multifuente:", json.dumps(informe_captacion, ensure_ascii=False))
