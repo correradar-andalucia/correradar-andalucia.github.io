@@ -69,7 +69,7 @@ def extract_distance(title="", fragments=()):
             window.append(following)
         detail_values=_values(" ".join(window)[:260])
         if detail_values:break
-    if title_values and detail_values and set(title_values)!=set(detail_values):
+    if title_values and detail_values and not set(title_values).issubset(set(detail_values)):
         return ""
     return " · ".join(detail_values or title_values)
 
