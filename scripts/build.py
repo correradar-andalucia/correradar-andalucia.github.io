@@ -192,11 +192,11 @@ def sitemap(races):
     return ET.tostring(root,encoding='unicode',xml_declaration=True)
 
 def main():
-    from multifuente import seed_races
+    from multifuente import seed_races, backup_runnink
     from deduplicacion import combine, verify_unique
     from captacion import collect
     candidatas_en_vivo, informe_captacion = collect()
-    races, auditoria = combine(transform(load_csv()), seed_races()+candidatas_en_vivo,
+    races, auditoria = combine(transform(load_csv()), seed_races()+backup_runnink()+candidatas_en_vivo,
                                slugify, km_parse, with_audit=True)
     verify_unique(races)
     print("AUDITORÍA DUPLICADOS:",json.dumps(auditoria,ensure_ascii=False))
