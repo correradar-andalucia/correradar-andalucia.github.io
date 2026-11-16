@@ -171,6 +171,13 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
                     "localidad":r.get("localidad"),"fuente":r.get("fuente")})
             continue
         r["confirmada"] = bool(is_approved)
+        # Origen del dato, independiente de la aprobación editorial.
+        # Una fecha leída del calendario de la fuente ES un dato publicado,
+        # aunque no se haya revisado manualmente por CorreRadar.
+        r["fecha_origen"] = ("editorial" if is_approved
+                             else "catalogo" if "cotejada" in str(r.get("estado","")).lower()
+                             else "fuente")
+        r["distancia_origen"] = r["fecha_origen"] if r.get("distancia") else ""
         # La consulta automática de una fuente NO es una verificación editorial.
         if not is_approved:
             r["consultado"] = (r.get("verificado") if "Cotejada" in str(r.get("estado",""))
@@ -198,6 +205,7 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
             record_sources(matches,r)
             if not locks[match_idx] and not matches.get("distancia") and not is_approved and r.get("distancia"):
                 matches["distancia"]=r["distancia"]
+                matches["distancia_origen"]=r["distancia_origen"]
                 matches["km"]=km_parse(r["distancia"])
             continue
         # Una discrepancia de distancia respecto a una ficha APROBADA no debe

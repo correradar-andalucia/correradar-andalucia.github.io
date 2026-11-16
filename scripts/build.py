@@ -149,13 +149,22 @@ def detail_page(r):
     is_confirmed = bool(r.get('confirmada'))
     mode = ('Por confirmar' if r.get('modalidad_conflicto')
             else 'Asfalto' if r['modalidad']=='RUNNING' else r['modalidad'].title())
-    entries=[('Fecha',fmt),('Localidad',city),('Modalidad',mode)]
+    fecha_origen=r.get('fecha_origen', 'editorial' if is_confirmed else 'catalogo')
+    fecha_texto={'editorial':'Fecha revisada por CorreRadar',
+                 'fuente':'Fecha publicada en la fuente consultada',
+                 'catalogo':'Fecha cotejada anteriormente con la fuente'}.get(fecha_origen,'Fecha de referencia')
+    distancia_origen={'editorial':'revisada por CorreRadar',
+                      'fuente':'publicada en la fuente',
+                      'catalogo':'cotejada en el catálogo'}.get(r.get('distancia_origen'),'')
+    entries=[('Fecha',fmt),('Procedencia de fecha',fecha_texto),
+             ('Localidad',city),('Modalidad',mode)]
+    if r.get('distancia') and distancia_origen:
+        entries.append(('Distancia',r['distancia']+' · '+distancia_origen))
     if is_confirmed:
-        entries += [('Distancia',r['distancia']),('Desnivel',r['desnivel']),
+        entries += [('Desnivel',r['desnivel']),
                     ('Precio',r['precio']),('Bolsa del corredor',r['bolsa'])]
-    entries += [('Estado', 'Confirmada editorialmente' if is_confirmed else 'Pendiente de confirmación'),
-                ('Referencia de fuente registrada el',r.get('consultado','') if not is_confirmed else ''),
-                ('Confirmación editorial el',r.get('verificado','') if is_confirmed else '')]
+    entries += [('Fecha de la consulta o cotejo',r.get('consultado','') if not is_confirmed else ''),
+                ('Última revisión editorial',r.get('verificado','') if is_confirmed else '')]
     lines='\n'.join(f'<div class="detail-line"><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>' for k,v in entries if v)
     buttons=''
     provisional=not is_confirmed

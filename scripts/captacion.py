@@ -15,6 +15,7 @@ from urllib.robotparser import RobotFileParser
 import re
 import unicodedata
 import os
+from distancias import extract_distance
 
 USER_AGENT = "CorreRadarAndaluciaBot/0.1 (+mailto:correradarandalucia@gmail.com)"
 SOURCES = {
@@ -92,7 +93,7 @@ def parse_fadmes(html,today=None):
         if SKIP.search(name):continue
         modality="ULTRA" if "ULTRA" in canon(name) else "TRAIL"
         found.append({"fecha":d.isoformat(),"nombre":name,"localidad":city,"provincia":province,
-                      "modalidad":modality,"distancia":"","fuente":SOURCES["fadmes"],
+                      "modalidad":modality,"distancia":extract_distance(name),"fuente":SOURCES["fadmes"],
                       "enlace":SOURCES["fadmes"],"origen":"fadmes"})
     return found
 
@@ -147,7 +148,7 @@ def parse_dorsalchip(html,today=None):
         if identity in seen:continue
         seen.add(identity)
         found.append({"fecha":day.isoformat(),"nombre":name,"localidad":city,"provincia":province,
-                      "modalidad":modality,"distancia":"","fuente":url,"enlace":url,"origen":"dorsalchip"})
+                      "modalidad":modality,"distancia":extract_distance(name),"fuente":url,"enlace":url,"origen":"dorsalchip"})
     return found
 
 
@@ -232,7 +233,7 @@ def parse_cruzando_detail(page,source_url,today=None):
             or re.match(r"(?i)^\s*(?:a las|a la|desde las|salida\b|pabell[oó]n\b|plaza\b)", place)):
         return None
     return {"fecha":d.isoformat(),"nombre":name,"localidad":place,"provincia":province,
-            "modalidad":category,"distancia":"","enlace":source_url,
+            "modalidad":category,"distancia":extract_distance(name,parser.words),"enlace":source_url,
             "fuente":source_url,"origen":"cruzandolameta"}
 
 
@@ -294,7 +295,7 @@ def dorsal_detail(page,link,today=None):
         if re.search(r"\b(?:CANCELADA|CANCELADO|ANULADA|APLAZADA)\b",canon(" ".join(texts[i-2:i+6]))):
             continue
         return {"fecha":d.isoformat(),"nombre":name,"localidad":city,"provincia":province,
-                "modalidad":mode,"distancia":"","fuente":link,"enlace":link,"origen":"dorsalchip"}
+                "modalidad":mode,"distancia":extract_distance(name,texts[i+2:]),"fuente":link,"enlace":link,"origen":"dorsalchip"}
     return None
 
 
@@ -360,7 +361,7 @@ def parse_faa(page,today=None):
              "TRAIL" if re.search("TRAIL|CXM|MONTANA",upper) else
              "CROSS" if "CROSS" in upper else "RUNNING")
         results.append({"fecha":day.isoformat(),"nombre":title,"localidad":city,
-                        "provincia":prov,"modalidad":typ,"distancia":"",
+                        "provincia":prov,"modalidad":typ,"distancia":extract_distance(title),
                         "enlace":SOURCES["faa"],"fuente":SOURCES["faa"],"origen":"faa"})
     return results
 
@@ -432,7 +433,7 @@ def parse_gcc_detail(page,url,today=None):
               "TRAIL" if re.search(r"TRAIL|CXM|MONTANA",upper) else
               "CROSS" if "CROSS" in upper else "RUNNING")
     return {"fecha":day.isoformat(),"nombre":title,"localidad":city,
-            "provincia":province,"modalidad":modality,"distancia":"",
+            "provincia":province,"modalidad":modality,"distancia":extract_distance(title,p.words),
             "enlace":url,"fuente":url,"origen":"gcc"}
 
 
