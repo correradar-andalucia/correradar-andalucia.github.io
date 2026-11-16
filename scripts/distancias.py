@@ -11,7 +11,7 @@ UNIT = re.compile(rf"(?<![\w\d]){NUMBER}\s*(kil[oó]metros?|kms?|metros?|mtrs?|m
 LABEL = re.compile(r"^\s*(?:distancias?|recorridos?|modalidades?|circuitos?|longitud de (?:la )?(?:carrera|prueba|ruta))\s*(?::|[-–]|\s|$)",re.I)
 STOP_SECTION = re.compile(
     r"^(?:normativa|reglamento|organiza(?:n|dores)?|patrocinadores|"
-    r"colaboradores|informaci[oó]n|contacto|inscripci[oó]n|"
+    r"colaboradores|informaci[oó]n|contacto|inscripci[oó]n(?:es)?|"
     r"otras pruebas|m[aá]s pruebas|servicios|resultados)\b", re.I)
 MAX_DISTANCES = 12
 
