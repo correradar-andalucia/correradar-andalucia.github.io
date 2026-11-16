@@ -46,3 +46,5 @@
 }
 
 @media(min-width:621px){.select-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.race-facts .fact-pending{white-space:normal;overflow-wrap:anywhere}
