@@ -84,17 +84,15 @@ def extract_races_section(fragments):
     start=next((i for i,p in enumerate(parts[:180])
                 if p.casefold() in ("carreras", "modalidades", "pruebas")),None)
     if start is None:return ""
-    found=[]
-    for p in parts[start+1:start+35]:
+    section=[]
+    for p in parts[start+1:start+60]:
         if STOP_SECTION.match(p) or p.upper() in ("ORGANIZA", "NORMATIVA"):
             break
-        if len(p)>125:
-            continue
-        for value in _values(p):
-            if value not in found:found.append(value)
-        if len(found)>MAX_DISTANCES:
-            return ""
-    return " · ".join(found)
+        if len(p)<=125:
+            section.append(p)
+    # En HTML real la cifra, la unidad y el nombre de la categoría pueden
+    # estar repartidos entre spans; reunir solo el bloque CARRERAS del evento.
+    return " · ".join(_values(" ".join(section)[:2000]))
 
 
 def extract_narrative_distance(fragments):

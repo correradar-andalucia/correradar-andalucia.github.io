@@ -478,7 +478,8 @@ def enrich_distance_from_detail(row, page, provider):
     # Solo aceptar coincidencia clara con un nodo cercano al inicio, nunca
     # una mención dentro de una tarjeta de «otras carreras» al final.
     expected=canon(row.get("nombre",""))
-    headings=(p.heading[:6] if p.heading else p.words[:65])
+    # Algunos portales tienen un h1 genérico y el título real en h2/h3.
+    headings=[*p.heading[:6],*p.words[:85]]
     match=any(SequenceMatcher(None,canon(piece),expected).ratio()>=0.88
               for piece in headings if 5<=len(piece)<=180)
     if not match:
