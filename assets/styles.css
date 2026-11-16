@@ -58,3 +58,9 @@
 @media(min-width:621px) and (max-width:900px){.select-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:391px) and (max-width:620px){.select-row{grid-template-columns:repeat(2,minmax(0,1fr))}.select-row>.select-wrap:last-child{grid-column:auto}}
 @media(max-width:390px){.select-row{grid-template-columns:1fr}.select-row>.select-wrap:last-child{grid-column:auto}}
+
+/* Calendario esencial: tres filtros, con controles legibles en pantallas pequeñas. */
+@media(min-width:901px){.select-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:391px) and (max-width:900px){.select-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:391px) and (max-width:620px){.select-row>.select-wrap:last-child{grid-column:1/-1}}
+@media(max-width:390px){.select-row{grid-template-columns:1fr}.select-row>.select-wrap:last-child{grid-column:auto}}

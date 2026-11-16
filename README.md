@@ -11,7 +11,7 @@ Calendario independiente de carreras populares, trail, cross, ultradistancia, ob
 - **Fecha cotejada**: recogida de un catálogo consultado previamente, con fecha de cotejo visible y advertencia de posibles cambios.
 - **Modalidad por revisar**: una misma ficha profunda se clasificó de dos maneras y no se atribuye ninguna modalidad sin resolver la discrepancia.
 
-**Las distancias se muestran cuando se recuperan expresamente** del título, de un campo de la ficha fuente o del registro cotejado, con su procedencia. No se deducen kilómetros por nombres como «Media Maratón» ni se ocultan datos solo por carecer de una aprobación editorial posterior. Cuando no se dispone de ellos, la web indica «Distancia no disponible». El filtro de distancia sigue retirado hasta mejorar la cobertura. Nunca inferir fechas, lugares, distancias ni inscripción a partir de la edición de años anteriores.
+**Las distancias se muestran cuando se recuperan expresamente** del título, de un campo de la ficha fuente o del registro cotejado, con su procedencia. No se deducen kilómetros por nombres como «Media Maratón» ni se ocultan datos solo por carecer de una aprobación editorial posterior. Cuando no se dispone de ellos, la web indica «Distancia no disponible». El filtro de distancia es opcional: todas las carreras, incluidas las que no tienen kilómetros publicados, aparecen al dejarlo en «Todas». Nunca inferir fechas, lugares, distancias ni inscripción a partir de la edición de años anteriores.
 
 ## Cobertura territorial y fichas de fuentes originales
 
@@ -23,12 +23,13 @@ CorreRadar incorpora **fichas puntuales cotejadas** en fuentes identificables de
 - No se añade una distancia ante discrepancias. Por ejemplo, Camas figura con fecha y hora, pero con distancia pendiente de contraste entre fuentes.
 - `_site/data/cobertura.json` mide las carreras por provincia y los campos de distancia y hora disponibles, sin necesidad de calcularlos manualmente.
 - El filtro de distancia permite ver rangos de kilómetros **sin ocultar por defecto las carreras sin distancia**; estas solo se excluyen cuando el corredor selecciona expresamente un rango.
+- La pantalla principal se simplifica a búsqueda, provincia, mes, distancia y seis grupos de modalidades. Se retiran los filtros técnicos por proveedor y por fecha consultada: la procedencia sigue visible en cada carrera, sin confundir al usuario con controles que no ayudan a escoger prueba.
 
 La cobertura actual no garantiza que aparezcan **todas** las carreras. Solo deben añadirse eventos verificables; las nuevas provincias y fuentes se incorporarán de forma incremental y con pruebas automatizadas.
 
 ## Arquitectura
 
-- `index.html`, `assets/styles.css` y `assets/app.js`: interfaz estática, búsqueda, filtros por provincia, mes, modalidad, fuente y distancia; paginación de 20 resultados.
+- `index.html`, `assets/styles.css` y `assets/app.js`: interfaz estática, búsqueda, filtros por provincia, mes, modalidad agrupada y distancia; paginación de 20 resultados.
 - `scripts/captacion.py` y `scripts/captacion_extra.py`: lectura de fuentes autorizadas, con control de dominios y robots.txt.
 - `scripts/distancias.py`: extrae medidas explícitas de títulos, campos, apartados de modalidades y descripciones de la misma carrera. Normaliza metros y kilómetros sin deducir distancias por el tipo de carrera.
 - Para Runnink y Gesconchip, el captador consulta la ficha concreta y, si se puede, sus modalidades de inscripción. Se respetan `robots.txt`, límites de tamaño, tiempos de respuesta y pausas entre consultas; un fallo no elimina la carrera.
