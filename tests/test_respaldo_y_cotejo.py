@@ -8,6 +8,8 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
 from multifuente import backup_runnink
 from build import add_curated_distances
 from captacion import enrich_distance_from_detail
+from captacion_extra import gesconchip
+from distancias import extract_races_section
 
 
 class RespaldoYCuracion(unittest.TestCase):
@@ -42,6 +44,20 @@ class RespaldoYCuracion(unittest.TestCase):
         self.assertEqual(result["aplicadas"],0)
         self.assertEqual(result["conflictos_no_sobrescritos"],1)
         self.assertEqual(one["distancia"],"5 km")
+
+    def test_nueva_localidad_gesconchip_rota_chipiona(self):
+        html="""<a href="/app/prueba/informacion/xl-media-maraton-costa-de-la-luz">
+            14 Mar 2027 XL MEDIA MARATÓN “COSTA DE LA LUZ” Rota-Chipiona - Cádiz
+            </a>"""
+        rows=gesconchip(html,date(2026,11,16))
+        self.assertEqual(len(rows),1)
+        self.assertEqual(rows[0]["localidad"],"Rota-Chipiona")
+
+    def test_gesconchip_mtrs(self):
+        text=["CARRERAS","7.770 M SUB 18 - 09:30:00",
+              "2.590 MTRS SUB 16 - 10:00:00",
+              "700 MTRS SUB 12","NORMATIVA","15 km de otro recorrido"]
+        self.assertEqual(extract_races_section(text),"7,77 km · 2,59 km · 700 m")
 
     def test_ficha_no_necesita_h1_si_h2_identifica_evento(self):
         html="<main><h2>VII CROSS PINAR DEL REY</h2><h3>CARRERAS</h3><p>6 KM - 13:15</p></main>"
