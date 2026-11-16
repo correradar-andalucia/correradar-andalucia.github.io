@@ -556,7 +556,7 @@ def collect(today=None):
                 from captacion_extra import gesconchip
                 rows=gesconchip(page,today)
                 detail_success=0;detail_errors=0;fetched=0
-                with_headline=0;with_section=0;with_text=0
+                with_headline=0;with_section=0;with_text=0;diagnosticos=[]
                 for row in rows[:30]:
                     if row.get("distancia"):
                         continue
@@ -566,6 +566,14 @@ def collect(today=None):
                         if parsed.heading:with_headline+=1
                         if len(parsed.words)>15:with_text+=1
                         if any(str(t).strip().upper()=="CARRERAS" for t in parsed.words):with_section+=1
+                        if len(diagnosticos)<3:
+                            start=next((i for i,t in enumerate(parsed.words)
+                                        if str(t).strip().upper()=="CARRERAS"),-1)
+                            diagnosticos.append({"calendario":row.get("nombre"),
+                              "titulos":parsed.heading[:3],
+                              "primeros_textos":parsed.words[:12],
+                              "bloque_carreras":(parsed.words[start:start+7] if start>=0 else []),
+                              "extraida":extract_races_section(parsed.words)})
                         if enrich_distance_from_detail(row,detail,"gesconchip"):
                             detail_success+=1
                         time.sleep(0.25)
@@ -574,7 +582,8 @@ def collect(today=None):
                 report["fuentes"]["gesconchip_detalle"]={
                     "consultadas":fetched,"distancias_recuperadas":detail_success,
                     "incidencias":detail_errors,"paginas_con_h1":with_headline,
-                    "paginas_con_texto":with_text,"secciones_carreras":with_section}
+                    "paginas_con_texto":with_text,"secciones_carreras":with_section,
+                    "diagnosticos":diagnosticos}
             elif name=="fadmes":
                 rows=parse_fadmes(page,today)
             elif name=="faa":
