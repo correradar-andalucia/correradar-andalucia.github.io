@@ -47,6 +47,13 @@ function distanceMatches(r, filter) {
     || filter === 'ultra' && n > 42.2);
 }
 let races = [];
+const modalityGroup = (r) => {
+  if (r.modalidad_conflicto) return 'OTRAS';
+  if (r.modalidad === 'TRAIL' || r.modalidad === 'ULTRA') return 'TRAIL';
+  if (r.modalidad === 'OCR' || r.modalidad === 'HIBRIDA') return 'OBSTACULOS';
+  if (r.modalidad === 'RUNNING' || r.modalidad === 'CROSS') return r.modalidad;
+  return 'OTRAS';
+};
 let currentMode = 'TODAS';
 let visibleLimit = PAGE_SIZE;
 
@@ -115,34 +122,30 @@ function raceCard(r) {
   card.append(date,info,actions);
   return card;
 }
-function matches(r, search, province, month, source, distance, sourcedOnly, today) {
+function matches(r, search, province, month, distance, today) {
   if (!r.fecha || fmt(r.fecha) < today) return false;
-  if (sourcedOnly && !publishedDate(r)) return false;
   if (search && !normalize([r.nombre,r.localidad,r.provincia,sourceName(r)].join(' ')).includes(search)) return false;
-  if (source && !raceOrigins(r).includes(source)) return false;
   if (province && normalize(r.provincia) !== province) return false;
   if (month && r.fecha.slice(0,7) !== month) return false;
   if (!distanceMatches(r, distance)) return false;
-  if (currentMode !== 'TODAS' && (r.modalidad_conflicto || r.modalidad !== currentMode)) return false;
+  if (currentMode !== 'TODAS' && modalityGroup(r) !== currentMode) return false;
   return true;
 }
 function render() {
   const search = normalize($('search').value.trim());
   const province = normalize($('province').value);
   const month = $('month').value;
-  const source = $('source').value;
   const distance = $('distance').value;
-  const sourcedOnly = $('confirmed-only').checked;
   const today = new Date();
   today.setHours(0,0,0,0);
-  const filtered = races.filter(r => matches(r,search,province,month,source,distance,sourcedOnly,today));
+  const filtered = races.filter(r => matches(r,search,province,month,distance,today));
   $('result-count').textContent = String(filtered.length);
   const root = $('cards');
   root.replaceChildren();
   if (!filtered.length) {
     root.append(state(
       races.length ? 'No hay carreras con estos filtros' : 'El calendario está preparado',
-      races.length ? 'Prueba otra provincia, modalidad o distancia. Los eventos sin kilómetros publicados se muestran con el filtro abierto.'
+      races.length ? 'Prueba otra provincia, tipo de carrera o distancia. Las carreras sin kilómetros aparecen al elegir «Todas».'
                    : 'Todavía no hay carreras disponibles en el calendario.'
     ));
   } else {
@@ -163,7 +166,7 @@ function filter() {
 }
 async function init() {
   $('year').textContent = new Date().getFullYear();
-  for (const id of ['search','province','month','source','distance','confirmed-only']) {
+  for (const id of ['search','province','month','distance']) {
     $(id).addEventListener(id==='search' ? 'input' : 'change',filter);
   }
   document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click',()=>{
@@ -176,8 +179,7 @@ async function init() {
     filter();
   }));
   $('clear').addEventListener('click',()=>{
-    for (const id of ['search','province','month','source','distance']) $(id).value='';
-    $('confirmed-only').checked=false;
+    for (const id of ['search','province','month','distance']) $(id).value='';
     document.querySelector('[data-mode="TODAS"]').click();
   });
   $('more').addEventListener('click',()=>{visibleLimit+=PAGE_SIZE;render();});
@@ -196,13 +198,6 @@ async function init() {
       const opt=el('option','',months[Number(num)-1]+' '+year);
       opt.value=m;
       $('month').append(opt);
-    }
-    const usedSources=[...new Set(active.flatMap(r=>raceOrigins(r)).filter(x=>sources[x]))]
-      .sort((a,b)=>sourceName({origen:a}).localeCompare(sourceName({origen:b}),'es'));
-    for (const origin of usedSources) {
-      const option=el('option','',sourceName({origen:origin}));
-      option.value=origin;
-      $('source').append(option);
     }
     $('updated').textContent=result.actualizado?'Generado el '+result.actualizado:'';
     const withDistance=active.filter(r=>distanceNumbers(r.distancia).length).length;
