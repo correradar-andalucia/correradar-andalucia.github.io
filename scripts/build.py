@@ -154,14 +154,14 @@ def detail_page(r):
         entries += [('Distancia',r['distancia']),('Desnivel',r['desnivel']),
                     ('Precio',r['precio']),('Bolsa del corredor',r['bolsa'])]
     entries += [('Estado', 'Confirmada editorialmente' if is_confirmed else 'Pendiente de confirmación'),
-                ('Fuente consultada el',r.get('consultado','') if not is_confirmed else ''),
+                ('Referencia de fuente registrada el',r.get('consultado','') if not is_confirmed else ''),
                 ('Confirmación editorial el',r.get('verificado','') if is_confirmed else '')]
     lines='\n'.join(f'<div class="detail-line"><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>' for k,v in entries if v)
     buttons=''
     provisional=not is_confirmed
-    if r['enlace']:buttons+=f'<a href="{esc(r["enlace"])}" rel="noopener noreferrer" target="_blank">{("Comprobar en la fuente ↗" if provisional else "Ir a la inscripción oficial ↗")}</a>'
+    if r['enlace']:buttons+=f'<a href="{esc(r["enlace"])}" rel="noopener noreferrer" target="_blank">{("Comprobar en la fuente ↗" if provisional else "Ver enlace de la carrera ↗")}</a>'
     if r.get('fuente') and r['fuente']!=r.get('enlace'):buttons+=f'<a class="secondary" href="{esc(r["fuente"])}" rel="noopener noreferrer" target="_blank">Fuente de verificación ↗</a>'
-    if r['track']:buttons+=f'<a class="secondary" href="{esc(r["track"])}" rel="noopener noreferrer" target="_blank">Ver track ↗</a>'
+    if is_confirmed and r['track']:buttons+=f'<a class="secondary" href="{esc(r["track"])}" rel="noopener noreferrer" target="_blank">Ver track ↗</a>'
     if not buttons:buttons='<p>Enlaces oficiales pendientes de verificación.</p>'
     ld={'@context':'https://schema.org','@type':'SportsEvent','name':r['nombre'],'startDate':r['fecha'],
         'eventAttendanceMode':'https://schema.org/OfflineEventAttendanceMode','url':BASE+path,
