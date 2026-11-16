@@ -6,6 +6,7 @@ Conserva la prioridad de las carreras aprobadas en Google Sheets.
 import csv
 import datetime as dt
 import difflib
+import json
 import re
 import unicodedata
 from pathlib import Path
@@ -67,6 +68,34 @@ def seed_races(today=None):
             except (ValueError, KeyError):
                 continue
     return result
+
+
+def backup_runnink(today=None):
+    """Copia de última lectura correcta: no perder carreras si falla robots.txt.
+
+    La copia conserva su fecha de consulta y NO se presenta como lectura
+    actual ni evento aprobado. Se fusiona con lecturas posteriores.
+    """
+    today=today or dt.date.today()
+    path=Path(__file__).resolve().parents[1]/"data"/"respaldo_runnink_2026-11-16.json"
+    if not path.exists():return []
+    data=json.loads(path.read_text(encoding="utf-8"))
+    stamp=dt.date.fromisoformat(data["fecha_cotejo"])
+    overdue=today>stamp+dt.timedelta(days=int(data["caducidad_dias"]))
+    rows=[]
+    for item in data["carreras"]:
+        r=dict(item)
+        try:day=dt.date.fromisoformat(r["fecha"])
+        except (ValueError,KeyError):continue
+        if day<today or not r.get("enlace","").startswith("https://www.runnink.com/evento/"):
+            continue
+        r.update({"origen":"runnink","fuente":r["enlace"],
+                  "estado":"Cotejada · RECONFIRMAR fecha" if overdue else "Cotejada · fuente previa",
+                  "verificado":stamp.isoformat(),
+                  "desnivel":"","precio":"","bolsa":"","track":""})
+        rows.append(r)
+    return rows
+
 
 def combine(approved, candidates, slugify, km_parse):
     """Prioriza las aprobadas; fusiona duplicados muy parecidos por fecha y localidad."""
