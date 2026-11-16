@@ -8,3 +8,41 @@
 @media(min-width:621px){.select-row{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .tag.source-tag{background:#253a3a;color:#b7dad5;border:1px solid #416061}
 @media(max-width:620px){.select-row>.select-wrap:last-child{grid-column:auto}}
+
+/* Calendario fiable: foco accesible, estados claros y navegación progresiva. */
+.search-field:focus-within{border-color:var(--lime);outline:3px solid var(--lime);outline-offset:2px}
+.search-field input:focus-visible{outline:none}
+.hero-secondary{display:inline-flex;margin-left:22px;font-size:13px;font-weight:750;color:#d1e5d2;text-decoration:underline;text-underline-offset:4px}
+.confirmed-toggle{display:inline-flex;align-items:center;gap:9px;color:#edf5ec;font-size:13px;font-weight:750;white-space:nowrap;cursor:pointer}
+.confirmed-toggle input{width:19px;height:19px;accent-color:var(--lime);cursor:pointer}
+.confirmed-toggle:focus-within{outline:2px solid var(--lime);outline-offset:5px;border-radius:3px}
+.calendar-disclaimer{margin:22px 0 0;padding:13px 16px;border-left:3px solid #a5b899;background:#1c2926;color:#d3e2d8;font-size:13px;line-height:1.7}
+.calendar-disclaimer strong{font-weight:750}
+.tag-verified{background:#264c35;color:#bcf5bb}
+.tag-pending{background:#4e4330;color:#ffe6aa}
+.tag-review{background:#55402d;color:#ffd496}
+.source-meta{color:#91aba3;font-size:11px;margin:9px 0 0}
+.fact-pending{font-style:italic;color:#9cafaa}
+.pagination{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-top:24px;color:#9bada6;font-size:12px}
+.more-button{background:#22312e;color:var(--lime);border:1px solid #66824e;border-radius:7px;padding:13px 20px;font-size:13px;font-weight:800}
+.more-button:hover{background:#304530}
+[hidden]{display:none!important}
+@media(max-width:860px){.header-nav{display:none}}
+@media(max-width:620px){
+  .select-row>.select-wrap:last-child{grid-column:1/-1}
+  .hero-secondary{display:block;margin:20px 0 0;width:max-content}
+  .confirmed-toggle{white-space:normal;min-height:44px}
+  .filter-bottom{gap:15px}
+  .chips .chip{min-height:43px}
+  .more-button{width:100%;min-height:46px}
+}
+@media(max-width:370px){
+  .header{gap:6px}
+  .brand{gap:7px}
+  .header-cta{white-space:nowrap;padding:8px;font-size:10px}
+  .brand-type{letter-spacing:0}
+  .brand-type strong{font-size:13px}
+  .hero h1{font-size:clamp(42px,11.5vw,75px)}
+}
+
+@media(min-width:621px){.select-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
