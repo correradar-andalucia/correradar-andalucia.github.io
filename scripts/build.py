@@ -146,10 +146,19 @@ def detail_page(r):
     title=f'{r["nombre"]} — {fmt} | CorreRadar Andalucía'
     desc=f'Información de {r["nombre"]} en {city}: fecha y detalles orientativos; confirma en el organizador.'[:155]
     path=f'/carreras/{r["slug"]}/'
-    entries=[('Fecha',fmt),('Localidad',city),('Modalidad','Asfalto' if r['modalidad']=='RUNNING' else r['modalidad'].title()),('Distancia',r['distancia']),('Desnivel',r['desnivel']),('Precio',r['precio']),('Bolsa del corredor',r['bolsa']),('Estado',r['estado']),('Última verificación',r['verificado'])]
+    is_confirmed = bool(r.get('confirmada'))
+    mode = ('Por confirmar' if r.get('modalidad_conflicto')
+            else 'Asfalto' if r['modalidad']=='RUNNING' else r['modalidad'].title())
+    entries=[('Fecha',fmt),('Localidad',city),('Modalidad',mode)]
+    if is_confirmed:
+        entries += [('Distancia',r['distancia']),('Desnivel',r['desnivel']),
+                    ('Precio',r['precio']),('Bolsa del corredor',r['bolsa'])]
+    entries += [('Estado', 'Confirmada editorialmente' if is_confirmed else 'Pendiente de confirmación'),
+                ('Fuente consultada el',r.get('consultado','') if not is_confirmed else ''),
+                ('Confirmación editorial el',r.get('verificado','') if is_confirmed else '')]
     lines='\n'.join(f'<div class="detail-line"><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>' for k,v in entries if v)
     buttons=''
-    provisional=('confirmar' in norm(r.get('estado')) or 'cotejada' in norm(r.get('estado')))
+    provisional=not is_confirmed
     if r['enlace']:buttons+=f'<a href="{esc(r["enlace"])}" rel="noopener noreferrer" target="_blank">{("Comprobar en la fuente ↗" if provisional else "Ir a la inscripción oficial ↗")}</a>'
     if r.get('fuente') and r['fuente']!=r.get('enlace'):buttons+=f'<a class="secondary" href="{esc(r["fuente"])}" rel="noopener noreferrer" target="_blank">Fuente de verificación ↗</a>'
     if r['track']:buttons+=f'<a class="secondary" href="{esc(r["track"])}" rel="noopener noreferrer" target="_blank">Ver track ↗</a>'
@@ -159,12 +168,14 @@ def detail_page(r):
         'location':{'@type':'Place','name':r['localidad'],'address':{'@type':'PostalAddress','addressLocality':r['localidad'],'addressRegion':r['provincia'],'addressCountry':'ES'}}}
     if r['enlace']:ld['sameAs']=r['enlace']
     structured=json.dumps(ld,ensure_ascii=False).replace('<','\\u003c')
-    return f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1112"><meta name="description" content="{esc(desc)}"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{BASE+path}"><link rel="canonical" href="{BASE+path}"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/styles.css"><script type="application/ld+json">{structured}</script><title>{esc(title)}</title></head><body><div class="topline"></div><header class="header wrap"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">↗</span><span class="brand-type">CORRERADAR <strong>ANDALUCÍA<span class="brand-dot">.</span></strong></span></a><a class="header-cta" href="/">Calendario ↗</a></header><main class="detail-main wrap"><a class="detail-back" href="/">← VOLVER AL CALENDARIO</a><div class="section-kicker" style="margin-top:48px">/ FICHA DE CARRERA</div><h1>{esc(r['nombre'])}<span class="period">.</span></h1><p class="detail-lead">{esc(fmt)} · {esc(city)}</p><div class="detail-grid"><dl class="detail-list">{lines}</dl><aside class="detail-side"><h2>PREPARA TU SALIDA.</h2>{buttons}<p class="disclaimer">Los datos pueden variar. Confirma siempre los detalles en la web del organizador.</p></aside></div></main>{legal_footer()}</body></html>'''
+    structured_tag = (f'<script type="application/ld+json">{structured}</script>' if is_confirmed else '')
+    provisional_robots = '' if is_confirmed else '<meta name="robots" content="noindex,follow">'
+    return f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1112">{provisional_robots}<meta name="description" content="{esc(desc)}"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{BASE+path}"><link rel="canonical" href="{BASE+path}"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/styles.css">{structured_tag}<title>{esc(title)}</title></head><body><div class="topline"></div><header class="header wrap"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">↗</span><span class="brand-type">CORRERADAR <strong>ANDALUCÍA<span class="brand-dot">.</span></strong></span></a><a class="header-cta" href="/">Calendario ↗</a></header><main class="detail-main wrap"><a class="detail-back" href="/">← VOLVER AL CALENDARIO</a><div class="section-kicker" style="margin-top:48px">/ FICHA DE CARRERA</div><h1>{esc(r['nombre'])}<span class="period">.</span></h1><p class="detail-lead">{esc(fmt)} · {esc(city)}</p><div class="detail-grid"><dl class="detail-list">{lines}</dl><aside class="detail-side"><h2>PREPARA TU SALIDA.</h2>{buttons}<p class="disclaimer">Los datos pueden variar. Confirma siempre los detalles en la web del organizador.</p></aside></div></main>{legal_footer()}</body></html>'''
 
 def sitemap(races):
     ET.register_namespace('', 'http://www.sitemaps.org/schemas/sitemap/0.9')
     root=ET.Element('{http://www.sitemaps.org/schemas/sitemap/0.9}urlset')
-    for path in ['/','/aviso-legal/','/privacidad/','/cookies/','/contacto/']+[f'/carreras/{r["slug"]}/' for r in races]:
+    for path in ['/','/aviso-legal/','/privacidad/','/cookies/','/contacto/']+[f'/carreras/{r["slug"]}/' for r in races if r.get('confirmada')]:
         u=ET.SubElement(root,'{http://www.sitemaps.org/schemas/sitemap/0.9}url')
         ET.SubElement(u,'{http://www.sitemaps.org/schemas/sitemap/0.9}loc').text=BASE+path
     return ET.tostring(root,encoding='unicode',xml_declaration=True)
