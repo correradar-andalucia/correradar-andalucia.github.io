@@ -6,7 +6,7 @@ reglamentos o PDF no asociados inequívocamente a esa ficha.
 from __future__ import annotations
 import re
 
-NUMBER = r"(\d{1,3}(?:[.,]\d{1,3})?)"
+NUMBER = r"(\d{1,5}(?:[.,]\d{1,3})?)"
 UNIT = re.compile(rf"(?<![\w\d]){NUMBER}\s*(kil[oó]metros?|kms?|metros?|m|k)\b", re.I)
 LABEL = re.compile(r"^\s*(?:distancias?|recorridos?|longitud de (?:la )?(?:carrera|prueba|ruta))\s*(?::|[-–]|\s|$)",re.I)
 STOP_SECTION = re.compile(
