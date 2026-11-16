@@ -10,6 +10,7 @@ from difflib import SequenceMatcher
 import hashlib
 import re
 import unicodedata
+from urllib.parse import urlparse
 
 STOPWORDS = {"de","del","la","las","el","los","y","en","a","al","por","para",
              "carrera","popular","municipal","circuito","provincial","prueba",
@@ -61,8 +62,33 @@ def same_place(a,b):
             and norm(a.get("localidad"))==norm(b.get("localidad"))
             and bool(norm(a.get("localidad"))))
 
+def specific_event_link(item):
+    """URL profunda de ficha, nunca una portada ni un calendario general."""
+    url = item.get("fuente") or item.get("enlace") or ""
+    parsed = urlparse(url)
+    return (parsed.geturl().rstrip("/") if parsed.scheme == "https"
+            and re.search(r"/(?:carrera/|evento/|pruebas/[^/]+|index\.php/(?:trail-cxm|atletismo-ruta-cross)/)", parsed.path, re.I)
+            else "")
+
+
+def valid_locality(value):
+    """Descarta horarios y recintos confundidos con municipios, sin adivinar una localidad."""
+    raw = str(value or "").strip()
+    return bool(raw and len(raw) <= 90
+                and not re.search(r"\b\d{1,2}:\d{2}\b", raw)
+                and not re.match(r"(?i)^(?:a las|a la|desde las|salida\b|pabell[oó]n\b|plaza\b)", raw))
+
+
 def same_event(a,b):
-    if a.get("fecha")!=b.get("fecha") or not same_place(a,b):return False
+    if a.get("fecha")!=b.get("fecha"):return False
+    # Una URL de ficha específica idéntica y misma fecha/nombre identifica la prueba.
+    # Puede haber errores distintos en modalidad y localidad en dos lectores.
+    link_a, link_b = specific_event_link(a), specific_event_link(b)
+    if link_a and link_a == link_b and similarity(a.get("nombre"), b.get("nombre")):
+        da, db = distance_set(a), distance_set(b)
+        if not da or not db or bool(da & db):
+            return True
+    if not same_place(a,b):return False
     ma,mb=a.get("modalidad"),b.get("modalidad")
     if ma and mb and ma!=mb:return False
     if not similarity(a.get("nombre"),b.get("nombre")):return False
@@ -132,9 +158,24 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
     results=[];locks=[];seen=set()
     audit={"entradas_aprobadas":len(approved),"candidatas_entrantes":len(candidates),
            "duplicados_fusionados":0,"fechas_en_conflicto":0,"distancias_en_conflicto":0,
-           "ejemplos_duplicados":[],"ejemplos_conflictos":[]}
+           "descartadas_localidad":0,
+           "ejemplos_duplicados":[],"ejemplos_conflictos":[],"ejemplos_localidades_descartadas":[]}
     for is_approved,item in rows:
         r=dict(item)
+        if not valid_locality(r.get("localidad")):
+            if is_approved:
+                raise ValueError("PUBLICACIÓN BLOQUEADA: localidad inválida en carrera aprobada: " + str(r.get("nombre","")))
+            audit["descartadas_localidad"] += 1
+            if len(audit["ejemplos_localidades_descartadas"]) < 30:
+                audit["ejemplos_localidades_descartadas"].append({"nombre":r.get("nombre"),
+                    "localidad":r.get("localidad"),"fuente":r.get("fuente")})
+            continue
+        r["confirmada"] = bool(is_approved)
+        # La consulta automática de una fuente NO es una verificación editorial.
+        if not is_approved:
+            r["consultado"] = (r.get("verificado") if "Cotejada" in str(r.get("estado",""))
+                              else date.today().isoformat())
+            r["verificado"] = ""
         r.setdefault("distancia","")
         r.setdefault("desnivel","")
         r.setdefault("precio","")
@@ -147,6 +188,8 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
         match_idx=next((idx for idx,old in enumerate(results) if same_event(old,r)),None)
         if match_idx is not None:
             matches=results[match_idx]
+            if matches.get("modalidad") != r.get("modalidad"):
+                matches["modalidad_conflicto"] = True
             audit["duplicados_fusionados"]+=1
             if len(audit["ejemplos_duplicados"])<30:
                 audit["ejemplos_duplicados"].append({"fecha":r["fecha"],
