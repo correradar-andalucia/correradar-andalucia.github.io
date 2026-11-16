@@ -222,7 +222,10 @@ def parse_cruzando_detail(page,source_url,today=None):
     for marker in ("Dónde", "Localización", "Lugar", "Salida"):
         if marker in place:place=place.split(marker)[-1].strip(" :·")
     place=place[-100:].strip(" ,;·")
-    if not place or len(place)<2:return None
+    # Un horario o un recinto de salida no es un municipio. Ante la duda, no publicar.
+    if (not place or len(place)<2 or re.search(r"\b\d{1,2}:\d{2}\b", place)
+            or re.match(r"(?i)^\s*(?:a las|a la|desde las|salida\b|pabell[oó]n\b|plaza\b)", place)):
+        return None
     return {"fecha":d.isoformat(),"nombre":name,"localidad":place,"provincia":province,
             "modalidad":category,"distancia":"","enlace":source_url,
             "fuente":source_url,"origen":"cruzandolameta"}
