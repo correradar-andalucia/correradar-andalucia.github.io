@@ -474,9 +474,14 @@ def enrich_distance_from_detail(row, page, provider):
     """
     from difflib import SequenceMatcher
     p=RaceText();p.feed(page)
-    name=compact(" ".join(p.heading))
+    # Varios portales usan h2/h3, no h1, para el título de la ficha.
+    # Solo aceptar coincidencia clara con un nodo cercano al inicio, nunca
+    # una mención dentro de una tarjeta de «otras carreras» al final.
     expected=canon(row.get("nombre",""))
-    if not name or SequenceMatcher(None,canon(name),expected).ratio()<0.77:
+    headings=(p.heading[:6] if p.heading else p.words[:65])
+    match=any(SequenceMatcher(None,canon(piece),expected).ratio()>=0.88
+              for piece in headings if 5<=len(piece)<=180)
+    if not match:
         return False
     distance=(extract_races_section(p.words) if provider=="gesconchip"
               else extract_distance(row.get("nombre",""),p.words)
@@ -550,11 +555,16 @@ def collect(today=None):
                 from captacion_extra import gesconchip
                 rows=gesconchip(page,today)
                 detail_success=0;detail_errors=0;fetched=0
+                with_headline=0;with_section=0;with_text=0
                 for row in rows[:30]:
                     if row.get("distancia"):
                         continue
                     try:
                         detail=fetch_if_permitted(row["enlace"]);fetched+=1
+                        parsed=RaceText();parsed.feed(detail)
+                        if parsed.heading:with_headline+=1
+                        if len(parsed.words)>15:with_text+=1
+                        if any(str(t).strip().upper()=="CARRERAS" for t in parsed.words):with_section+=1
                         if enrich_distance_from_detail(row,detail,"gesconchip"):
                             detail_success+=1
                         time.sleep(0.25)
@@ -562,7 +572,8 @@ def collect(today=None):
                         detail_errors+=1
                 report["fuentes"]["gesconchip_detalle"]={
                     "consultadas":fetched,"distancias_recuperadas":detail_success,
-                    "incidencias":detail_errors}
+                    "incidencias":detail_errors,"paginas_con_h1":with_headline,
+                    "paginas_con_texto":with_text,"secciones_carreras":with_section}
             elif name=="fadmes":
                 rows=parse_fadmes(page,today)
             elif name=="faa":
