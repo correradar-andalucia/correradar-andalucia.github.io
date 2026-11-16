@@ -15,7 +15,8 @@ from urllib.robotparser import RobotFileParser
 import re
 import unicodedata
 import os
-from distancias import extract_distance
+from distancias import (extract_distance, extract_races_section,
+                       extract_narrative_distance, extract_booking_distance)
 
 USER_AGENT = "CorreRadarAndaluciaBot/0.1 (+mailto:correradarandalucia@gmail.com)"
 SOURCES = {
@@ -465,6 +466,48 @@ def fetch_if_permitted(url):
         if "html" not in ctype.lower():raise RuntimeError("Formato inesperado")
         return raw.decode("utf-8","replace")
 
+def enrich_distance_from_detail(row, page, provider):
+    """Lee solo la página vinculada con ESTA carrera y verifica el título.
+
+    No sustituye fechas, nombres o ciudades ya seleccionados por el captador.
+    Si la página no identifica el evento, mantiene la distancia original.
+    """
+    from difflib import SequenceMatcher
+    p=RaceText();p.feed(page)
+    name=compact(" ".join(p.heading))
+    expected=canon(row.get("nombre",""))
+    if not name or SequenceMatcher(None,canon(name),expected).ratio()<0.77:
+        return False
+    distance=(extract_races_section(p.words) if provider=="gesconchip"
+              else extract_distance(row.get("nombre",""),p.words)
+                   or extract_narrative_distance(p.words))
+    if not distance:
+        return False
+    if row.get("distancia") and row["distancia"]!=distance:
+        # Dos medidas distintas: no reemplazarlas sin revisión.
+        return False
+    if not row.get("distancia"):
+        row["distancia"]=distance
+        row["distancia_fuente"]=row.get("enlace","")
+        return True
+    return False
+
+
+def enrich_booking_distance(row,page,booking_url):
+    """Tarjetas de modalidades de Runnink; validar nombre antes de extraer."""
+    from difflib import SequenceMatcher
+    p=RaceText();p.feed(page)
+    if not any(SequenceMatcher(None,canon(row.get("nombre")),canon(x)).ratio()>=.77
+               for x in p.heading[:5]):
+        return False
+    distance=extract_booking_distance(p.words)
+    if not distance or row.get("distancia"):
+        return False
+    row["distancia"]=distance
+    row["distancia_fuente"]=booking_url
+    return True
+
+
 def collect(today=None):
     today=today or date.today()
     events=[];report={"consultado":today.isoformat(),"fuentes":{}}
@@ -483,9 +526,43 @@ def collect(today=None):
             elif name=="runnink":
                 from captacion_extra import runnink
                 rows=runnink(page,today)
+                detail_success=0;detail_errors=0;fetched=0
+                for row in rows[:24]:
+                    if row.get("distancia"):
+                        continue
+                    try:
+                        detail=fetch_if_permitted(row["enlace"]);fetched+=1
+                        if enrich_distance_from_detail(row,detail,"runnink"):
+                            detail_success+=1
+                        elif not row.get("distancia"):
+                            m=re.search(r"/(\d+)/?$",row["enlace"])
+                            if m:
+                                booking="https://www.runnink.com/book/"+m.group(1)
+                                if enrich_booking_distance(row,fetch_if_permitted(booking),booking):
+                                    detail_success+=1
+                        time.sleep(0.25)
+                    except Exception:
+                        detail_errors+=1
+                report["fuentes"]["runnink_detalle"]={
+                    "consultadas":fetched,"distancias_recuperadas":detail_success,
+                    "incidencias":detail_errors}
             elif name=="gesconchip":
                 from captacion_extra import gesconchip
                 rows=gesconchip(page,today)
+                detail_success=0;detail_errors=0;fetched=0
+                for row in rows[:30]:
+                    if row.get("distancia"):
+                        continue
+                    try:
+                        detail=fetch_if_permitted(row["enlace"]);fetched+=1
+                        if enrich_distance_from_detail(row,detail,"gesconchip"):
+                            detail_success+=1
+                        time.sleep(0.25)
+                    except Exception:
+                        detail_errors+=1
+                report["fuentes"]["gesconchip_detalle"]={
+                    "consultadas":fetched,"distancias_recuperadas":detail_success,
+                    "incidencias":detail_errors}
             elif name=="fadmes":
                 rows=parse_fadmes(page,today)
             elif name=="faa":
