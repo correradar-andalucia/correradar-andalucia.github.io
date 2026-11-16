@@ -53,6 +53,21 @@ class RespaldoYCuracion(unittest.TestCase):
         self.assertEqual(len(rows),1)
         self.assertEqual(rows[0]["localidad"],"Rota-Chipiona")
 
+    def test_pruebas_menu_no_interrumpe_carreras_reales(self):
+        partes=["Gesconchip", "ÚLTIMA HORA", "INICIO", "PRUEBAS",
+                "Próximas pruebas", "Resultados", "Circuitos", "SERVICIOS",
+                "VII CROSS PINAR DEL REY", "FECHA", "22/11/2026",
+                "LUGAR", "San Roque, Cádiz", "CARRERAS",
+                "SUB 16 Y SUB 18 - 3.000 M - 10:30:00",
+                "SUB 14 - 2.000 M. - 11:00:00",
+                "SUB 12 - 1.000 M - 11:30:00",
+                "SUB 10 - 500 M. - 11:50:00",
+                "SUB 8 - 250 M. - 12:00:00",
+                "SUB 20 A VETERANO M65 - 6.000 M - 13:15:00",
+                "NORMATIVA", "Recorrido de otras carreras 21 km"]
+        self.assertEqual(extract_races_section(partes),
+                         "3 km · 2 km · 1 km · 500 m · 250 m · 6 km")
+
     def test_gesconchip_mtrs(self):
         text=["CARRERAS","7.770 M SUB 18 - 09:30:00",
               "2.590 MTRS SUB 16 - 10:00:00",
