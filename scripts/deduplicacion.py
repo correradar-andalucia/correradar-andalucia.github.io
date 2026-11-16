@@ -206,6 +206,8 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
             if not locks[match_idx] and not matches.get("distancia") and not is_approved and r.get("distancia"):
                 matches["distancia"]=r["distancia"]
                 matches["distancia_origen"]=r["distancia_origen"]
+                if r.get("distancia_fuente"):
+                    matches["distancia_fuente"]=r["distancia_fuente"]
                 matches["km"]=km_parse(r["distancia"])
             continue
         # Una discrepancia de distancia respecto a una ficha APROBADA no debe
