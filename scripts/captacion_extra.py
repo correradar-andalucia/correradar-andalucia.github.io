@@ -9,6 +9,7 @@ from urllib.parse import urlparse, urljoin
 from html.parser import HTMLParser
 import re
 import unicodedata
+from distancias import extract_distance
 
 RUNNINK="https://www.runnink.com/inscripciones/"
 GESCONCHIP="https://gesconchip.es/app/proximas-pruebas"
@@ -111,7 +112,7 @@ def runnink(page,today=None):
         kind=mode(context+" "+title)
         if not kind:continue
         out.append({"fecha":d.isoformat(),"nombre":title,"localidad":city,
-                    "provincia":province,"modalidad":kind,"distancia":"",
+                    "provincia":province,"modalidad":kind,"distancia":extract_distance(title),
                     "enlace":url,"fuente":url,"origen":"runnink"})
     return out
 
@@ -151,7 +152,7 @@ def gesconchip(page,today=None):
         kind=mode(original_name)
         if not kind:continue
         out.append({"fecha":d.isoformat(),"nombre":original_name,"localidad":city,
-                    "provincia":province,"modalidad":kind,"distancia":"",
+                    "provincia":province,"modalidad":kind,"distancia":extract_distance(original_name),
                     "enlace":url,"fuente":url,"origen":"gesconchip"})
     return out
 
@@ -230,6 +231,6 @@ def diputacion_huelva(page,today=None):
         if key in seen:continue
         seen.add(key)
         out.append({"fecha":d.isoformat(),"nombre":title,"localidad":city,
-                    "provincia":"Huelva","modalidad":kind,"distancia":"",
+                    "provincia":"Huelva","modalidad":kind,"distancia":extract_distance(title),
                     "fuente":DIPHUELVA,"enlace":DIPHUELVA,"origen":"diphuelva"})
     return out
