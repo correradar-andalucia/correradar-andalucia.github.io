@@ -5,11 +5,29 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from distancias import extract_distance
+from distancias import extract_distance, extract_modalities_distance
 from captacion import parse_fadmes, dorsal_detail
 
 
 class DistanciasExplicitas(unittest.TestCase):
+    def test_bloque_modalidades(self):
+        self.assertEqual(extract_modalities_distance(
+            ["Modalidades", "Trail corto", "12 km", "Trail largo", "24 km",
+             "Inscripciones", "Carrera 5 km recomendada"]), "12 km · 24 km")
+
+    def test_no_traer_distancia_de_otras_carreras(self):
+        self.assertEqual(extract_modalities_distance(
+            ["Otras carreras", "Trail 10 km", "Recomendaciones"]), "")
+
+    def test_dorsal_modalidades_en_ficha(self):
+        page = ('<main><div>Carrera Popular del Puerto</div>'
+                '<div>22/11/2026</div><div>El Puerto de Santa María</div>'
+                '<div>Cádiz</div><h2>Modalidades</h2><div>5 km</div>'
+                '<div>10 km</div><h2>Inscripciones</h2><div>21 km</div></main>')
+        row = dorsal_detail(page, "https://dorsalchip.es/carrera/2026/11/22/puerto.aspx",
+                            date(2026, 11, 15))
+        self.assertEqual(row["distancia"], "5 km · 10 km")
+
     def test_10k_titulo(self):
         self.assertEqual(extract_distance("XX Carrera 10K de Prueba"), "10 km")
 

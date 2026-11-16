@@ -8,10 +8,10 @@ import re
 
 NUMBER = r"(\d{1,5}(?:[.,]\d{1,3})?)"
 UNIT = re.compile(rf"(?<![\w\d]){NUMBER}\s*(kil[oó]metros?|kms?|metros?|mtrs?|mts?|m|k)\b", re.I)
-LABEL = re.compile(r"^\s*(?:distancias?|recorridos?|longitud de (?:la )?(?:carrera|prueba|ruta))\s*(?::|[-–]|\s|$)",re.I)
+LABEL = re.compile(r"^\s*(?:distancias?|recorridos?|modalidades?|circuitos?|longitud de (?:la )?(?:carrera|prueba|ruta))\s*(?::|[-–]|\s|$)",re.I)
 STOP_SECTION = re.compile(
     r"^(?:normativa|reglamento|organiza(?:n|dores)?|patrocinadores|"
-    r"colaboradores|informaci[oó]n|contacto|inscripci[oó]n|"
+    r"colaboradores|informaci[oó]n|contacto|inscripci[oó]n(?:es)?|"
     r"otras pruebas|m[aá]s pruebas|servicios|resultados)\b", re.I)
 MAX_DISTANCES = 12
 
@@ -136,4 +136,27 @@ def extract_booking_distance(fragments):
             continue
         for value in _values(part):
             if value not in found:found.append(value)
+    return " · ".join(found) if len(found)<=MAX_DISTANCES else ""
+
+
+def extract_modalities_distance(fragments):
+    """Busca distancias en bloques de modalidades, sin leer el resto de la página.
+
+    Solo se aceptan unidades explícitas y encabezados de carrera. Los
+    límites de sección evitan contaminar con publicidad y otros eventos.
+    """
+    parts=[str(x).strip() for x in fragments][:300]
+    found=[]
+    headers=re.compile(r"^(?:modalidades?|distancias?|recorridos?|carreras|pruebas disponibles|elige tu distancia)\s*:?\s*$",re.I)
+    for i,part in enumerate(parts):
+        if not headers.fullmatch(part):continue
+        window=[]
+        for item in parts[i+1:i+65]:
+            if STOP_SECTION.match(item) or re.match(r"^(?:otros eventos|otras carreras|recomendaciones)\b",item,re.I):
+                break
+            if len(item)>240:break
+            window.append(item)
+        for value in _values(" ".join(window)[:2500]):
+            if value not in found:found.append(value)
+        if found:break
     return " · ".join(found) if len(found)<=MAX_DISTANCES else ""

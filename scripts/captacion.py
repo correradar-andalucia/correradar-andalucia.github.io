@@ -16,7 +16,8 @@ import re
 import unicodedata
 import os
 from distancias import (extract_distance, extract_races_section,
-                       extract_narrative_distance, extract_booking_distance)
+                       extract_narrative_distance, extract_booking_distance,
+                       extract_modalities_distance)
 
 USER_AGENT = "CorreRadarAndaluciaBot/0.1 (+mailto:correradarandalucia@gmail.com)"
 SOURCES = {
@@ -234,7 +235,8 @@ def parse_cruzando_detail(page,source_url,today=None):
             or re.match(r"(?i)^\s*(?:a las|a la|desde las|salida\b|pabell[oó]n\b|plaza\b)", place)):
         return None
     return {"fecha":d.isoformat(),"nombre":name,"localidad":place,"provincia":province,
-            "modalidad":category,"distancia":extract_distance(name,parser.words),"enlace":source_url,
+            "modalidad":category,"distancia":(extract_distance(name,parser.words)
+                or extract_modalities_distance(parser.words)),"enlace":source_url,
             "fuente":source_url,"origen":"cruzandolameta"}
 
 
@@ -296,7 +298,8 @@ def dorsal_detail(page,link,today=None):
         if re.search(r"\b(?:CANCELADA|CANCELADO|ANULADA|APLAZADA)\b",canon(" ".join(texts[i-2:i+6]))):
             continue
         return {"fecha":d.isoformat(),"nombre":name,"localidad":city,"provincia":province,
-                "modalidad":mode,"distancia":extract_distance(name,texts[i+2:]),"fuente":link,"enlace":link,"origen":"dorsalchip"}
+                "modalidad":mode,"distancia":(extract_distance(name,texts[i+2:])
+                or extract_modalities_distance(texts[i+2:])),"fuente":link,"enlace":link,"origen":"dorsalchip"}
     return None
 
 
@@ -434,7 +437,8 @@ def parse_gcc_detail(page,url,today=None):
               "TRAIL" if re.search(r"TRAIL|CXM|MONTANA",upper) else
               "CROSS" if "CROSS" in upper else "RUNNING")
     return {"fecha":day.isoformat(),"nombre":title,"localidad":city,
-            "provincia":province,"modalidad":modality,"distancia":extract_distance(title,p.words),
+            "provincia":province,"modalidad":modality,"distancia":(extract_distance(title,p.words)
+                or extract_modalities_distance(p.words)),
             "enlace":url,"fuente":url,"origen":"gcc"}
 
 
@@ -486,6 +490,7 @@ def enrich_distance_from_detail(row, page, provider):
         return False
     distance=(extract_races_section(p.words) if provider=="gesconchip"
               else extract_distance(row.get("nombre",""),p.words)
+                   or extract_modalities_distance(p.words)
                    or extract_narrative_distance(p.words))
     if not distance:
         return False
