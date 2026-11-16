@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 
 NUMBER = r"(\d{1,5}(?:[.,]\d{1,3})?)"
-UNIT = re.compile(rf"(?<![\w\d]){NUMBER}\s*(kil[oó]metros?|kms?|metros?|m|k)\b", re.I)
+UNIT = re.compile(rf"(?<![\w\d]){NUMBER}\s*(kil[oó]metros?|kms?|metros?|mtrs?|mts?|m|k)\b", re.I)
 LABEL = re.compile(r"^\s*(?:distancias?|recorridos?|longitud de (?:la )?(?:carrera|prueba|ruta))\s*(?::|[-–]|\s|$)",re.I)
 STOP_SECTION = re.compile(
     r"^(?:normativa|reglamento|organiza(?:n|dores)?|patrocinadores|"
@@ -18,7 +18,7 @@ MAX_DISTANCES = 12
 
 def _one(raw, unit):
     unit = unit.casefold()
-    is_m = unit in ("m", "metro", "metros")
+    is_m = unit in ("m", "metro", "metros", "mtr", "mtrs", "mt", "mts")
     if is_m:
         # En español «3.000 m» son tres mil metros, no 3 metros.
         if re.fullmatch(r"\d{1,3}[.,]\d{3}", raw):
