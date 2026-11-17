@@ -1,0 +1,368 @@
+{
+  "fecha_revision": "2026-11-17",
+  "origen": "Fuentes copiadas y clasificadas de la hoja de cálculo 'fuentes_oficiales_carreras_andalucia_ampliado.xlsx' aportada por el responsable.",
+  "norma": "El Excel enumera fuentes, NO eventos confirmados. Nunca publicar una carrera basándose solo en agregadores. Requiere enlace específico a la edición y fecha de organizador, federación, administración o plataforma de inscripción; verificar que es carrera a pie en Andalucía y no está pasada; evitar duplicados. Este inventario NO activa captadores ni afirma que haya permisos de extracción.",
+  "total_fuentes": 45,
+  "fuentes": [
+    {
+      "hoja": "1. Federaciones",
+      "nombre": "Federación Andaluza de Atletismo",
+      "url": "https://atletismofaa.es/",
+      "rol": "federacion",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "1. Federaciones",
+      "nombre": "Federación Andaluza de Deportes de Montaña, Escalada y Senderismo",
+      "url": "https://fadmes.es/calendario-fam/",
+      "rol": "federacion",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "1. Federaciones",
+      "nombre": "Federación Andaluza de Triatlón",
+      "url": "https://triatlonandalucia.org/competiciones-fatri/calendario/",
+      "rol": "federacion",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "1. Federaciones",
+      "nombre": "Real Federación Española de Atletismo",
+      "url": "https://www.rfeacontent.es/",
+      "rol": "federacion",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "Gesconchip",
+      "url": "https://gesconchip.es/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "Dorsalchip",
+      "url": "https://www.dorsalchip.es/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "Cruzando la Meta",
+      "url": "https://www.cruzandolameta.es/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "Global Tempo",
+      "url": "https://www.global-tempo.com/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "Tus Inscripciones",
+      "url": "https://www.tusinscripciones.es/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "Sportmaniacs",
+      "url": "https://sportmaniacs.com/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "RockTheSport",
+      "url": "https://www.rockthesport.com/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "Chip Tiempo",
+      "url": "https://www.chiptiempo.com/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "Crono3",
+      "url": "https://www.crono3.es/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "2. Cronometradoras",
+      "nombre": "ChipSerena",
+      "url": "https://www.chipserena.es/",
+      "rol": "cronometraje",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "3. Grandes Carreras y Org.",
+      "nombre": "101 km 24h de La Legión (Ronda)",
+      "url": "https://www.lalegion101.com/",
+      "rol": "organizador",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "3. Grandes Carreras y Org.",
+      "nombre": "La Desértica",
+      "url": "https://www.ladesertica.com/",
+      "rol": "organizador",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "3. Grandes Carreras y Org.",
+      "nombre": "Zurich Maratón de Sevilla",
+      "url": "https://www.zurichmaratonsevilla.es/",
+      "rol": "organizador",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "3. Grandes Carreras y Org.",
+      "nombre": "Medio Maratón de Sevilla",
+      "url": "https://www.mediomaratonsevilla.com/",
+      "rol": "organizador",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "3. Grandes Carreras y Org.",
+      "nombre": "Nocturna del Guadalquivir",
+      "url": "https://imd.sevilla.org/",
+      "rol": "organizador",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "3. Grandes Carreras y Org.",
+      "nombre": "Generali Maratón de Málaga",
+      "url": "https://www.generalimaratonmalaga.com/",
+      "rol": "organizador",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "3. Grandes Carreras y Org.",
+      "nombre": "Cross Internacional de Itálica",
+      "url": "https://www.crossinternacionaldeitalica.es/",
+      "rol": "organizador",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "3. Grandes Carreras y Org.",
+      "nombre": "Ultra Sierra Nevada",
+      "url": "https://www.ultrasierranevada.com/",
+      "rol": "organizador",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "3. Grandes Carreras y Org.",
+      "nombre": "Gran Vuelta al Valle del Genal",
+      "url": "https://www.granvueltadelgenal.com/",
+      "rol": "organizador",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "4. Híbridas y OCR",
+      "nombre": "HYROX España",
+      "url": "https://hyrox.es/",
+      "rol": "federacion",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "4. Híbridas y OCR",
+      "nombre": "DEKA (Spartan)",
+      "url": "https://deka.fit/",
+      "rol": "federacion",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "4. Híbridas y OCR",
+      "nombre": "Farinato Race",
+      "url": "https://www.farinatorace.com/",
+      "rol": "federacion",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "4. Híbridas y OCR",
+      "nombre": "Spartan Race España",
+      "url": "https://www.spartanrace.es/",
+      "rol": "federacion",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "4. Híbridas y OCR",
+      "nombre": "Hybrid Race Map",
+      "url": "https://www.hybridracemap.com/calendario/",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "4. Híbridas y OCR",
+      "nombre": "Hybrid Race Hub",
+      "url": "https://hybridracehub.com/calendario",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "4. Híbridas y OCR",
+      "nombre": "Metahíbrida",
+      "url": "https://metahibrida.com/calendario/",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "4. Híbridas y OCR",
+      "nombre": "Sportplan (HYROX)",
+      "url": "https://sportplan.es/es/categories/hyrox/spain",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "5. Circuitos Provinciales",
+      "nombre": "Portal Circuitos Provinciales FAA",
+      "url": "https://atletismofaa.es/circuitosprovinciales/",
+      "rol": "circuito",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "5. Circuitos Provinciales",
+      "nombre": "Córdoba - Circuito Provincial",
+      "url": "https://carreraspopularescordoba.com/",
+      "rol": "circuito",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "5. Circuitos Provinciales",
+      "nombre": "Sevilla - Circuito Provincial de Cross",
+      "url": "https://atletismofaa.es/circuitosprovinciales/",
+      "rol": "circuito",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "5. Circuitos Provinciales",
+      "nombre": "Málaga - Circuito Provincial y Copa Trail",
+      "url": "https://atletismofaa.es/circuitosprovinciales/",
+      "rol": "circuito",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "5. Circuitos Provinciales",
+      "nombre": "Granada - Cross, Pista y CxM",
+      "url": "https://atletismofaa.es/circuitosprovinciales/",
+      "rol": "circuito",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "5. Circuitos Provinciales",
+      "nombre": "Cádiz y Jerez - Cross y Populares",
+      "url": "https://atletismofaa.es/circuitosprovinciales/",
+      "rol": "circuito",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "5. Circuitos Provinciales",
+      "nombre": "Huelva - Circuito Onúpolis / Diputación",
+      "url": "https://atletismofaa.es/circuitosprovinciales/",
+      "rol": "circuito",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "5. Circuitos Provinciales",
+      "nombre": "Almería - JDP Cross y Populares",
+      "url": "https://atletismofaa.es/circuitosprovinciales/",
+      "rol": "circuito",
+      "permite_confirmar": true,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "6. Agregadores Confirmados",
+      "nombre": "Andalucía Running",
+      "url": "https://andaluciarunning.com/calendario/",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "6. Agregadores Confirmados",
+      "nombre": "Runnea (Calendario Andalucía)",
+      "url": "https://www.runnea.com/carreras-populares/calendario/andalucia/",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "6. Agregadores Confirmados",
+      "nombre": "Corredores Populares",
+      "url": "https://www.corredorespopulares.es/calendario/calendario.php",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "6. Agregadores Confirmados",
+      "nombre": "CarrerasPopulares.com",
+      "url": "https://carreraspopulares.com/calendario_carreras",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "6. Agregadores Confirmados",
+      "nombre": "ClubRunning",
+      "url": "https://www.clubrunning.es/novedades/?comunidad=Andalucia",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    },
+    {
+      "hoja": "6. Agregadores Confirmados",
+      "nombre": "RunAgain",
+      "url": "https://runagain.com/",
+      "rol": "agregador",
+      "permite_confirmar": false,
+      "ingesta_automatica_nueva": false
+    }
+  ]
+}
