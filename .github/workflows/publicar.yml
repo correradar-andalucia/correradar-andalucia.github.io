@@ -14,6 +14,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    # Una vez activada y validada la vía privada, no volver a subir páginas públicas.
+    # Es imprescindible DESPUBLICAR el despliegue anterior manualmente en Settings > Pages.
+    if: ${{ vars.PRIVATE_DEPLOY_ENABLED != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Descargar repositorio

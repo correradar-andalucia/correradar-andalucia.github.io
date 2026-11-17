@@ -12,6 +12,12 @@ El registro `config/derechos_fuentes.json` diferencia `consulta_minima` (operaci
 
 Los controles de prelanzamiento, no indexación y revisión legal siguen activos. **La ausencia de autorización general no equivale a una prohibición automática de informar de hechos públicos; tampoco garantiza que todo tipo de recopilación periódica esté permitido.**
 
+## Uso personal desde el móvil (preparado; NO activado)
+
+Se ha preparado un **Cloudflare Worker cerrado por defecto**: exige una identidad Cloudflare Access autenticada y un correo permitido configurado como secreto antes de servir cualquier ficha o JSON. Incluye un workflow de actualización cada 12 horas que permanece **deshabilitado** hasta configurar las credenciales, el acceso privado y la variable `PRIVATE_DEPLOY_ENABLED=true`. Los archivos se empaquetan dentro del Worker y **no se sirven a través de un router público de assets**. La web GitHub Pages actual **todavía es pública**, aunque tenga `noindex`; una vez probada la alternativa privada, hay que despublicar la anterior y, si se desea ocultar también el repositorio, trasladarlo a uno privado. Pasos completos en [acceso privado desde el móvil](docs/acceso-privado-movil.md).
+
+El filtro de distancia reconoce **todas las distancias anunciadas** y sus abreviaturas (por ejemplo, 15 k y 25 k). La deduplicación conserva la lista más completa cuando dos lecturas coinciden en una edición, sin mezclar distancias de pruebas diferentes ni alterar fichas aprobadas manualmente.
+
 ## Principio editorial
 
 **Fecha publicada en una fuente** no es lo mismo que **aprobación editorial**. El calendario conserva internamente la procedencia y la fecha de consulta; **la portada no muestra etiquetas técnicas redundantes** junto a cada fecha. Las fichas ofrecen el enlace original para comprobar posibles cambios. Distinguimos internamente:
@@ -32,7 +38,7 @@ CorreRadar incorpora **fichas puntuales cotejadas** en fuentes identificables de
 - La ficha publica la hora cuando se ha documentado. No se inventan recorridos, precios o desniveles.
 - No se añade una distancia ante discrepancias. Por ejemplo, Camas figura con fecha y hora, pero con distancia pendiente de contraste entre fuentes.
 - `_site/data/cobertura.json` mide las carreras por provincia y los campos de distancia y hora disponibles, sin necesidad de calcularlos manualmente.
-- El filtro de distancia permite ver rangos de kilómetros **sin ocultar por defecto las carreras sin distancia**; estas solo se excluyen cuando el corredor selecciona expresamente un rango.
+- El filtro de distancia permite ver rangos de kilómetros **sin ocultar por defecto las carreras sin distancia**; estas solo se excluyen cuando el corredor selecciona expresamente un rango. Una prueba con varias distancias aparece en **todos los rangos correspondientes**, no solo en uno.
 - La pantalla principal se simplifica a búsqueda, provincia, mes, distancia y seis grupos de modalidades. Se retiran los filtros técnicos por proveedor y por fecha consultada: la procedencia sigue visible en cada carrera, sin confundir al usuario con controles que no ayudan a escoger prueba.
 
 La cobertura actual no garantiza que aparezcan **todas** las carreras. Solo deben añadirse eventos verificables; las nuevas provincias y fuentes se incorporarán de forma incremental y con pruebas automatizadas.
