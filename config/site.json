@@ -8,5 +8,6 @@
   "legal_review_complete": false,
   "source_rights_review_complete": false,
   "hosting_privacy_review_complete": false,
-  "cookie_behavior_review_complete": false
+  "cookie_behavior_review_complete": false,
+  "holder_type": "persona_fisica"
 }

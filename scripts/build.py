@@ -24,6 +24,9 @@ CONFIG = json.loads((ROOT/'config'/'site.json').read_text(encoding='utf-8'))
 PUBLIC_LAUNCH = bool(CONFIG.get('public_launch', False))
 CONTACT = CONFIG.get('contact_email','').strip()
 LEGAL_NAME = CONFIG.get('legal_name','').strip()
+HOLDER_TYPE = CONFIG.get('holder_type','').strip()
+if HOLDER_TYPE not in ('', 'persona_fisica', 'entidad'):
+    raise ValueError('holder_type debe ser persona_fisica o entidad')
 LEGAL_ADDRESS = CONFIG.get('legal_address','').strip()
 if CONFIG.get('site_url',BASE).rstrip('/') != BASE:
     raise ValueError('Esta versión usa el dominio GitHub Pages raíz. Actualiza BASE y enlaces antes de cambiar de dominio.')
@@ -176,7 +179,18 @@ def legal_pages():
     email_link=(f'<a href="mailto:{esc(CONTACT)}">{esc(CONTACT)}</a>' if CONTACT
                 else '<strong>[CORREO DE CONTACTO PENDIENTE]</strong>')
     identity=(f'<strong>{esc(LEGAL_NAME)}</strong>' if LEGAL_NAME
-              else '<strong>[TITULAR RESPONSABLE: IDENTIDAD PENDIENTE DE COMPLETAR]</strong>')
+              else ('<strong>[NOMBRE Y APELLIDOS DEL TITULAR PENDIENTES]</strong>'
+                    if HOLDER_TYPE=='persona_fisica'
+                    else '<strong>[TITULAR RESPONSABLE: IDENTIDAD PENDIENTE DE COMPLETAR]</strong>'))
+    owner_label=('Persona física responsable, en nombre propio'
+                 if HOLDER_TYPE=='persona_fisica'
+                 else 'Titular o responsable del sitio')
+    owner_privacy=('una persona física que actúa en nombre propio, '
+                   'no una sociedad ni una asociación'
+                   if HOLDER_TYPE=='persona_fisica' else 'el titular indicado')
+    # CorreRadar es el nombre del proyecto, no sustituye a la identidad del
+    # responsable del tratamiento exigida por el artículo 13 del RGPD.
+
     address=(esc(LEGAL_ADDRESS) if LEGAL_ADDRESS
              else '[DOMICILIO: PENDIENTE DE DETERMINAR Y PUBLICAR CUANDO SEA EXIGIBLE]')
     unresolved=(not LEGAL_NAME or not CONFIG.get("legal_review_complete",False))
@@ -193,7 +207,7 @@ def legal_pages():
     legal=f'''{status}
 <h2>Identificación del proyecto</h2>
 <p>CorreRadar Andalucía es un calendario informativo independiente de carreras populares, montaña y obstáculos en Andalucía. No es el organizador de las pruebas, no presta servicios de cronometraje y no gestiona inscripciones ni pagos.</p>
-<p>Titular o responsable del sitio: {identity}<br>Correo de contacto: {email_link}<br>Domicilio: {address}</p>
+<p>{owner_label}: {identity}<br>Correo de contacto: {email_link}<br>Domicilio: {address}</p>
 <p>Si el proyecto constituye un servicio de la sociedad de la información sujeto a la Ley 34/2002, se facilitarán los datos adicionales exigibles por su artículo 10 (entre ellos NIF y, según proceda, información registral). La situación legal del titular debe comprobarse antes del lanzamiento público.</p>
 <h2>Información deportiva y exactitud</h2>
 <p>Las fichas muestran datos básicos de carreras, procedentes de organizaciones, federaciones, administraciones, servicios de cronometraje y revisiones editoriales puntuales. Su publicación no implica una homologación ni aprobación del evento por CorreRadar. Las fechas, horarios, recorridos, disponibilidad o condiciones de inscripción pueden variar. Debes contrastar la información antes de inscribirte o viajar.</p>
@@ -208,7 +222,7 @@ def legal_pages():
 
     privacy=f'''{status}
 <h2>Responsable del tratamiento</h2>
-<p>Responsable de las comunicaciones dirigidas al proyecto: {identity}. Contacto para asuntos de privacidad: {email_link}. El dato identificativo del titular aún debe completarse.</p>
+<p>El responsable del tratamiento es {owner_privacy}: {identity}. «CorreRadar Andalucía» identifica el proyecto, no una persona jurídica distinta. Contacto para asuntos de privacidad y ejercicio de derechos: {email_link}. {'El nombre y apellidos del responsable aún deben completarse antes del lanzamiento.' if not LEGAL_NAME else ''}</p>
 <h2>Qué información utilizamos y para qué</h2>
 <p>La web pública no solicita registro, no dispone de formularios de usuario, no ofrece suscripciones y no tiene funciones propias de seguimiento del visitante. La búsqueda y los filtros del calendario se realizan localmente en tu navegador con archivos estáticos del sitio; no enviamos a CorreRadar tus términos de búsqueda ni preferencias.</p>
 <p>Si escribes voluntariamente al correo indicado, podremos tratar el remitente, dirección, asunto, contenido y datos que aportes para gestionar la consulta, comunicar correcciones de carreras o responder a un organizador. Evita enviar números de documento, datos médicos y otra información innecesaria sobre corredores.</p>
