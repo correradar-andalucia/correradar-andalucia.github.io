@@ -5,5 +5,8 @@
   "site_url": "https://correradar-andalucia.github.io",
   "monetized": false,
   "public_launch": false,
-  "legal_review_complete": false
+  "legal_review_complete": false,
+  "source_rights_review_complete": false,
+  "hosting_privacy_review_complete": false,
+  "cookie_behavior_review_complete": false
 }

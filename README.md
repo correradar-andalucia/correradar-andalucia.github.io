@@ -77,6 +77,14 @@ En la portada, debajo del calendario, sección **«Inscripciones revisadas»**, 
 
 **Aspectos técnicos:** `scripts/alertas_globaltempo.py` valida Atom/RSS Google Alerts, la procedencia y la URL profunda; `.github/workflows/detectar-alertas-globaltempo.yml` crea las incidencias; `.github/workflows/aprobar-enlace-globaltempo.yml` obliga a aprobación manual y despliega con el mismo control de calidad que la web habitual. Al guardar el registro con `GITHUB_TOKEN`, otros flujos no se disparan automáticamente, por eso el flujo de aprobación publica GitHub Pages directamente. El enlace RSS se guarda como **Secret** porque puede contener un identificador privado.
 
+## Revisión de privacidad, cookies y condiciones de fuentes (17/11/2026)
+
+Se ha revisado el código de la web pública y las diez fuentes automáticas; detalles, enlaces de referencia y riesgos conocidos en [la auditoría de fuentes y privacidad](docs/auditoria_fuentes_privacidad_2026-11-17.md). **No se afirma conformidad legal íntegra:** la política de privacidad de una fuente y el permiso de robots.txt no autorizan por sí solos copiar sistemáticamente sus contenidos. Las reservas de FADMES y de Diputación de Granada requieren aclaración y todas las fuentes necesitan revisar su licencia o régimen aplicable.
+
+Las páginas generadas de **aviso legal, privacidad y cookies** informan expresamente del alojamiento en GitHub Pages y del registro de direcciones IP por motivos de seguridad. El JS del visitante no contiene analítica, anuncios, cookies propias ni almacenamiento local de seguimiento; por eso no se muestra un banner de consentimiento sin cookies opcionales. Las páginas aplican la política de referencia `no-referrer` para limitar los datos comunicados al abrir inscripciones de terceros.
+
+El sitio permanece **en prelanzamiento y sin indexación**. No cambiar `public_launch` a `true` hasta que el titular complete la identidad y se hayan realizado y documentado cuatro revisiones: `legal_review_complete`, `source_rights_review_complete`, `hosting_privacy_review_complete` y `cookie_behavior_review_complete`. Por defecto están a `false`: un cambio aislado no desactiva la protección. **El texto legal no sustituye a una revisión profesional ni concede permisos de terceros.**
+
 ## Global Tempo — conexión automática preparada (requiere autorización escrita)
 
 El adaptador `scripts/globaltempo_feed.py` ya está integrado en la tarea de GitHub Actions que se ejecuta cada 12 horas. **Por defecto NO se conecta a Global Tempo**: sus condiciones de reutilización requieren autorización escrita. No se han introducido credenciales ni inventado una API.
