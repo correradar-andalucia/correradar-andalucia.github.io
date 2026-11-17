@@ -165,7 +165,8 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
     # Mantener el orden de aprobadas tal como las ordenó la publicación.
     # Entre candidatas, las lecturas directas prevalecen sobre datos puntuales.
     candidates=sorted(candidates,key=lambda r:
-        (0 if r.get("fuente_directa") else
+        (-1 if r.get("feed_autorizado") else
+         0 if r.get("fuente_directa") else
          2 if "Cotejada" in str(r.get("estado","")) else 1,
          str(r.get("fecha",""))))
     rows=[(True,r) for r in approved]+[(False,r) for r in candidates]
