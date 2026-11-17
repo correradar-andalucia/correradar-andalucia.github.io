@@ -559,6 +559,7 @@ def collect(today=None):
         return events,report
     permitted = fuentes_con_derechos_acreditados()
     report["fuentes_habilitadas_por_derechos"] = len(permitted)
+    report["nombres_fuentes_habilitadas"] = sorted(permitted)
     if not permitted:
         report["modo"] = "Fuentes pausadas por derechos de reutilización"
     for name,url in SOURCES.items():
