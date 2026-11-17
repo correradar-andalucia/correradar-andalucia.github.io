@@ -41,6 +41,12 @@ def check_launch_ready(config):
         missing.append("legal_name")
     if config.get("legal_review_complete") is not True:
         missing.append("legal_review_complete=true tras revisión del responsable")
+    if config.get("source_rights_review_complete") is not True:
+        missing.append("source_rights_review_complete=true tras documentar los derechos de reutilización por fuente")
+    if config.get("hosting_privacy_review_complete") is not True:
+        missing.append("hosting_privacy_review_complete=true tras revisar proveedores y transferencias")
+    if config.get("cookie_behavior_review_complete") is not True:
+        missing.append("cookie_behavior_review_complete=true tras comprobar cookies reales con el navegador")
     if missing:
         raise ValueError("LANZAMIENTO BLOQUEADO: falta " + ", ".join(missing))
 
