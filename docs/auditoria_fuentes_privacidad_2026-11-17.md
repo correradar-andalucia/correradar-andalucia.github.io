@@ -6,7 +6,7 @@
 
 La **política de privacidad de CorreRadar** se refiere al tratamiento de datos personales de sus visitantes, corresponsales y responsables editoriales. Las **políticas de privacidad de las webs de carreras** explican cómo esas organizaciones tratan los datos de sus propios usuarios y participantes; **no conceden licencias a CorreRadar para copiar sus bases de datos**. `robots.txt` controla una preferencia técnica de rastreo, no derechos de propiedad intelectual. Noindex tampoco proporciona una excepción legal de reutilización.
 
-## Fuentes automáticas de calendario (10)
+**Resumen de autorizaciones:** reutilización automática recurrente **NO acreditada** para las diez fuentes. Abreviaturas institucionales del informe: FADME/FADMES (montaña) y FAA (Federación Andaluza de Atletismo).\n\n## Fuentes automáticas de calendario (10)
 
 Los diez lectores de `scripts/captacion.py` se ejecutan en GitHub Actions aproximadamente cada 12 horas. Consultan sus propias URLs HTTPS, comprueban `robots.txt`, limitan tamaños y solo extraen campos básicos (fecha, nombre, lugar, modalidad, enlace, distancias/horas cuando las haya). **No consta permiso o licencia específica verificada para explotación automática recurrente de ninguno de estos calendarios.** La revisión de una fuente no equivale a permiso para las demás.
 
