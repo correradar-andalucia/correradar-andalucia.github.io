@@ -14,11 +14,11 @@ FADMES y Diputación de Granada vuelven a estar incluidas, **pero sus reservas e
 
 La política de privacidad de la propia web se refiere a visitas, correos y proveedores. La justificación de la consulta de datos factuales ajenos es una cuestión **distinta** relativa a propiedad intelectual, términos de acceso y bases de datos. La ausencia de un permiso general no convierte por sí sola los hechos públicos en obras protegidas, pero el artículo 133 TRLPI sí contempla límites a extracciones repetidas o sistemáticas que perjudiquen la explotación normal de una base de datos. Ver [auditoría](docs/auditoria_fuentes_privacidad_2026-11-17.md).
 
-## Avisos por email de nuevas carreras (preparado, requiere activar Gmail)
+## Avisos GitHub de nuevas carreras (sin contraseña de Gmail)
 
-Cada vez que GitHub Pages publique **una o varias carreras nuevas**, el trabajo de notificaciones enviará **un correo con todas las novedades de ese despliegue**, con nombre, fecha y enlaces, a `correradarandalucia@gmail.com` (o al destinatario configurado). No envía correos por despliegues sin novedades ni repite carreras ya avisadas; la primera ejecución sirve de referencia y no remite todos los eventos históricos.
+Después de cada publicación correcta, el trabajo `avisos` detecta carreras realmente nuevas y abre **una incidencia GitHub con todas las novedades** (nombre, fecha, localidad, distancias y enlaces). Conserva el histórico anterior, por lo que no vuelve a notificar las 162 carreras antiguas. No crea incidencias por despliegues sin novedades ni ediciones de una ficha.
 
-**Para activar los envíos hay que añadir una contraseña de aplicación de Gmail como secreto de GitHub `CARRERAS_SMTP_APP_PASSWORD`.** Sin ese secreto, el calendario funciona igual, pero no se envía email y las futuras novedades quedan pendientes. Consulta [instrucciones de avisos por correo](docs/avisos-carreras-email.md). El flujo de Google Alerts de Global Tempo no se modifica: solo se notifica una carrera cuando pasa a formar parte del calendario publicado, no cuando llega una alerta pendiente.
+GitHub puede enviar la incidencia por correo a **Gmail** si tu cuenta personal tiene activada la vigilancia del repositorio en **Watch → Custom → Issues** y las notificaciones por email en [GitHub → Settings → Notifications](https://github.com/settings/notifications). **No hace falta ninguna contraseña de aplicación ni configuración SMTP.** Los avisos se envían según los ajustes de GitHub, y cualquier incidencia del repositorio también puede generar notificaciones si vigilas todas las Issues. Consulta [configuración de avisos GitHub a Gmail](docs/avisos-carreras-email.md). Google Alerts de Global Tempo se mantiene independiente.
 
 ## Principio editorial
 

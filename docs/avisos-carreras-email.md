@@ -1,30 +1,27 @@
-# Avisos por correo cuando se publique una carrera nueva
+# CorreRadar — avisos de carreras nuevas desde GitHub a Gmail
 
-CorreRadar ejecuta su captación y despliegue de GitHub Pages aproximadamente cada 12 horas. Tras **un despliegue exitoso**, el trabajo `avisos` compara las carreras publicadas con el histórico de avisos en la rama `estado-correradar-avisos`.
+Este método **no utiliza SMTP, contraseñas de aplicación de Gmail ni secretos de correo**. Después de que GitHub Pages se publique correctamente, la tarea `avisos` compara las carreras con la rama `estado-correradar-avisos` y, si aparecen nuevas, crea **una incidencia (Issue)** con nombre, fecha, localidad/provincia, kilómetros disponibles, enlace a la fuente y ficha.
 
-- **Novedad:** carrera que no aparecía anteriormente (fecha, municipio, provincia y nombre, permitiendo pequeñas rectificaciones).
-- **Un solo email por actualización**, con todas las carreras nuevas de esa actualización; no un correo por cada carrera si entran varias simultáneamente.
-- **No se avisa** por un simple despliegue, una edición de distancia/hora, un cambio de estilos o un evento que desapareció temporalmente y luego reaparece.
-- **Primer despliegue:** crea la referencia inicial con las carreras ya existentes; **no** envía un correo masivo por esas carreras.
-- **Si Gmail falla o faltan las credenciales:** no se da por avisada ninguna novedad pendiente. Se vuelve a intentar en el próximo despliegue, lo que puede generar algún reintento duplicado si Gmail envió el mensaje pero GitHub no consiguió guardar el histórico.
-- El correo incluye nombre, fecha, municipio, provincia, distancia cuando consta, enlace de origen y enlace a la ficha.
-- La captura de fuentes y la alerta de Google Alerts para Global Tempo no cambian. Google Alerts solo crea incidencias editoriales; se avisará de una nueva carrera en el calendario principal **si realmente se incorpora al calendario y se publica**.
+Si entran cinco carreras a la vez, se crea una incidencia con las cinco. Si no hay carreras nuevas, no se crea incidencia. Tampoco se crean incidencias por cambios en distancia, formato, hora o despliegues idénticos. La referencia de las carreras ya conocidas se conserva desde la instalación SMTP anterior: no se pierde el histórico ni se vuelven a notificar carreras antiguas.
 
-## Activar los envíos (una vez)
+## Activar el correo desde GitHub (configuración personal)
 
-El destinatario y remitente predeterminados son el correo de contacto configurado en `config/site.json`: `correradarandalucia@gmail.com`.
+1. Inicia sesión en la **cuenta personal de GitHub** cuyo correo deseas que reciba las notificaciones.
+2. Abre [CorreRadar en GitHub](https://github.com/correradar-andalucia/correradar-andalucia.github.io) y pulsa **Watch → Custom → Issues**. Evita *All Activity* si solo quieres las incidencias y no toda la actividad del repositorio. Esto puede avisarte también de otras incidencias del proyecto, no exclusivamente de las creadas por CorreRadar.
+3. En [GitHub → Settings → Notifications](https://github.com/settings/notifications), habilita **Email** para *Watching* (y *Participating* si te interesa). Revisa en [Emails](https://github.com/settings/emails) que la dirección de Gmail deseada esté verificada y seleccionada como destinataria de notificaciones de GitHub.
+4. Revisa en Gmail que los mensajes de `notifications@github.com` no terminen en spam. Puedes crear un filtro por el asunto `CorreRadar:` si deseas distinguirlos de otras notificaciones.
+5. Las próximas novedades se crearán como incidencias en [Issues del repositorio](https://github.com/correradar-andalucia/correradar-andalucia.github.io/issues). El workflow se ejecuta aproximadamente cada 12 horas.
 
-1. En la cuenta de Gmail que va a enviar los avisos, activa [la verificación en dos pasos](https://support.google.com/accounts/answer/185839) y, si tu cuenta admite esta función, crea una [contraseña de aplicación](https://support.google.com/accounts/answer/185833). **No uses tu contraseña principal ni la compartas por el chat.** Google recomienda OAuth para integraciones modernas y puede no ofrecer contraseñas de aplicación en algunas cuentas.
-2. Abre [el repositorio en GitHub](https://github.com/correradar-andalucia/correradar-andalucia.github.io/settings/secrets/actions) → **Settings → Secrets and variables → Actions → Repository secrets → New repository secret**.
-3. Añade el secreto **`CARRERAS_SMTP_APP_PASSWORD`** con esa contraseña de aplicación de Gmail. Nunca lo escribas en README, código o incidencias.
-4. Si quieres enviar desde otro Gmail distinto al correo público, añade **`CARRERAS_SMTP_USER`** como secreto con su dirección completa, y crea la contraseña de aplicación en esa misma cuenta.
-5. Si deseas recibir los avisos en otra dirección, añade **una variable** `CARRERAS_ALERT_EMAIL` con el correo receptor. Si no existe, se usa `correradarandalucia@gmail.com`.
-6. Puedes comprobar la siguiente ejecución desde [Actions → Actualizar carreras y publicar web](https://github.com/correradar-andalucia/correradar-andalucia.github.io/actions/workflows/publicar.yml). El trabajo `avisos` se ejecuta **después** de los trabajos `build` y `deploy`.
+**Importante:** GitHub envía el correo de notificación según la configuración de tu cuenta, no el propio código de CorreRadar. No puedo activar la opción Watch ni verificar el correo por ti: requiere tu sesión de GitHub. Crear una incidencia no garantiza que llegue un correo si has desactivado el email, tienes filtros de Gmail o tu organización limita las direcciones receptoras.
 
-**No hay que añadir credenciales de Global Tempo.** La lista de carreras notificadas se guarda en una rama separada del repositorio, para evitar que guardar el histórico dispare de nuevo el despliegue de `main`. Las contraseñas no se incluyen en esa rama ni en ningún artefacto.
+## Implementación
 
-## Seguridad y límites
+- `.github/workflows/publicar.yml`: el trabajo `avisos` se ejecuta **solo tras completar build y deploy**; tiene permisos mínimos `issues:write` y `contents:write` para crear incidencias y actualizar el histórico.
+- `scripts/notificar_carreras.py`: calcula el conjunto de carreras nuevas, prepara título/cuerpo de la incidencia y un identificador de lote estable. No accede al correo ni contiene claves.
+- La tarea verifica si ya existe una incidencia con ese identificador entre las últimas 1000 incidencias, abiertas o cerradas, para evitar duplicados en reintentos.
+- `estado-correradar-avisos`: rama separada, guardada únicamente después de crear o localizar la incidencia. Si falla GitHub al publicar, no marca carreras como avisadas.
+- No se interfiere con las diez fuentes ni con el sistema de Google Alerts de Global Tempo. **Los avisos se refieren a carreras efectivamente incorporadas al calendario**, no a entradas pendientes de revisión de Global Tempo.
 
-La rama de avisos guarda solo nombres, fechas, municipios y enlaces de carreras ya publicados; no datos privados de visitantes ni claves. El trabajo utiliza SMTP cifrado por TLS (puerto 465), con secretos de GitHub Actions. El envío no está activo hasta configurar la contraseña. Si se revoca esa contraseña, los avisos dejan de enviarse sin afectar al calendario.
+Las incidencias son visibles porque el repositorio de CorreRadar es público y solo contienen hechos deportivos y URLs ya disponibles en la web. GitHub puede agrupar, retrasar o filtrar algunos correos según sus preferencias; para una comprobación completa, conviene probar con una carrera nueva real.
 
-Este mecanismo envía notificaciones cuando aparecen **nuevas carreras**, no cada vez que cambia un detalle de una ficha existente. Para avisos de modificaciones o cancelaciones habría que ampliar explícitamente las reglas y sus pruebas.
+Documentación oficial: [notificaciones GitHub](https://docs.github.com/en/subscriptions-and-notifications/get-started/configuring-notifications), [crear incidencias desde Actions](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token).
