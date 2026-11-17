@@ -185,13 +185,10 @@ def detail_page(r):
     mode = ('Por confirmar' if r.get('modalidad_conflicto')
             else 'Asfalto' if r['modalidad']=='RUNNING' else r['modalidad'].title())
     fecha_origen=r.get('fecha_origen', 'editorial' if is_confirmed else 'catalogo')
-    fecha_texto={'editorial':'Fecha revisada por CorreRadar',
-                 'fuente':'Fecha publicada en la fuente consultada',
-                 'catalogo':'Fecha cotejada anteriormente con la fuente'}.get(fecha_origen,'Fecha de referencia')
     distancia_origen={'editorial':'revisada por CorreRadar',
                       'fuente':'publicada en la fuente',
                       'catalogo':'cotejada en el catálogo'}.get(r.get('distancia_origen'),'')
-    entries=[('Fecha',fmt),('Procedencia de fecha',fecha_texto),
+    entries=[('Fecha',fmt),
              ('Hora de salida',r.get('hora','')+' h' if r.get('hora') else ''),
              ('Localidad',city),('Modalidad',mode)]
     if r.get('distancia') and distancia_origen:
@@ -201,7 +198,12 @@ def detail_page(r):
     if is_confirmed:
         entries += [('Desnivel',r['desnivel']),
                     ('Precio',r['precio']),('Bolsa del corredor',r['bolsa'])]
-    entries += [('Fecha de la consulta o cotejo',r.get('consultado','') if not is_confirmed else ''),
+    consultado=str(r.get('consultado','') or '')
+    if re.fullmatch(r'\d{4}-\d{2}-\d{2}',consultado):
+        consultado=consultado[8:10]+'/'+consultado[5:7]+'/'+consultado[:4]
+    consulta_label=('Consulta anterior de la fuente' if fecha_origen=='catalogo'
+                    else 'Fuente consultada')
+    entries += [(consulta_label,consultado if not is_confirmed else ''),
                 ('Última revisión editorial',r.get('verificado','') if is_confirmed else '')]
     lines='\n'.join(f'<div class="detail-line"><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>' for k,v in entries if v)
     buttons=''
