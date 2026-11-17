@@ -12,10 +12,10 @@ from build import slugify, km_parse
 
 
 class GlobalTempoControlado(unittest.TestCase):
-    def test_10_fichas_primarias_con_fecha_y_enlace_profundo(self):
+    def test_11_fichas_primarias_con_fecha_y_enlace_profundo(self):
         items=official_races(date(2026,11,17))
         gt=[r for r in items if r["fuente_nombre"].startswith("Global Tempo")]
-        self.assertEqual(len(gt),10)
+        self.assertEqual(len(gt),11)
         self.assertTrue(all(r["fuente"].startswith("https://www.global-tempo.com/carreras.php?id=")
                             for r in gt))
         self.assertTrue(all(r["tipo_fuente"]=="cronometraje" for r in gt))
@@ -23,6 +23,7 @@ class GlobalTempoControlado(unittest.TestCase):
         names={r["nombre"] for r in gt}
         self.assertIn("VII Carrera San Silvestre Alhendín 2026",names)
         self.assertIn("XIII Subida a la Cruz de la Atalaya",names)
+        self.assertIn("Carrera Solidaria de Navidad Villa de Otura",names)
         self.assertNotIn("Playa Cambriles Race",names)
         self.assertNotIn("Pasacalles Andarines Alhendín",names)
 
@@ -38,6 +39,21 @@ class GlobalTempoControlado(unittest.TestCase):
         self.assertEqual(race["fecha"],"2027-01-31")
         self.assertEqual(race["distancia"],"8,72 km")
         self.assertEqual(race["hora"],"10:00")
+
+    def test_otura_2026_fecha_hora_y_distancia_aproximada(self):
+        gt=[r for r in official_races(date(2026,11,17))
+            if r["nombre"]=="Carrera Solidaria de Navidad Villa de Otura"]
+        self.assertEqual(len(gt),1)
+        race=gt[0]
+        self.assertEqual(race["fecha"],"2026-12-22")
+        self.assertEqual(race["localidad"],"Otura")
+        self.assertEqual(race["provincia"],"Granada")
+        self.assertEqual(race["hora"],"18:00")
+        self.assertIn("según categoría",race["distancia"])
+        self.assertIn("aprox.",race["distancia"])
+        self.assertEqual(race["enlace"],
+                         "https://www.global-tempo.com/carreras.php?id=3327")
+        self.assertFalse(race.get("confirmada",False))
 
     def test_una_portada_no_cuenta_como_confirmacion(self):
         sample=next(r for r in official_races(date(2026,11,17))
@@ -74,8 +90,8 @@ class GlobalTempoControlado(unittest.TestCase):
         old=[r for r in seed_races(date(2026,11,17)) if r["origen"]=="globaltempo"]
         races=combine([],gt+old,slugify,km_parse)
         self.assertTrue(verify_unique(races))
-        # Solo dos ediciones no presentes en la semilla inicial.
-        self.assertEqual(len(races),10)
+        # Tres ediciones no estaban presentes en la semilla inicial.
+        self.assertEqual(len(races),11)
         neptune=next(r for r in races if r["nombre"].startswith("Neptune Race"))
         self.assertEqual(neptune["distancia"],"6 km")
         self.assertEqual(neptune["hora"],"10:00")
