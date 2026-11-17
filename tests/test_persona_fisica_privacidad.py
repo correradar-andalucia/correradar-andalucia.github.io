@@ -30,6 +30,42 @@ class TitularPersonaFisica(unittest.TestCase):
             self.assertIn("[NOMBRE Y APELLIDOS DEL TITULAR PENDIENTES]",page)
             self.assertIn("antes del lanzamiento",page)
 
+    def test_titular_identificado_sin_pedir_dni_o_domicilio(self):
+        self.assertEqual(build.LEGAL_NAME,"Iván Amador Dueñas")
+        self.assertEqual(build.HOLDER_TYPE,"persona_fisica")
+        legal=build.legal_pages()["aviso-legal"][1]
+        privacy=build.legal_pages()["privacidad"][1]
+        self.assertIn("Iván Amador Dueñas",legal)
+        self.assertIn("Iván Amador Dueñas",privacy)
+        self.assertNotIn("[NOMBRE Y APELLIDOS DEL TITULAR PENDIENTES]",privacy)
+        self.assertNotIn("Es necesario identificar al titular",legal)
+        self.assertTrue(self.config_em_brief()["public_launch"] is False)
+
+    def config_em_brief(self):
+        return json.loads((ROOT/"config"/"site.json").read_text(encoding="utf8"))
+
+    def test_privacidad_revela_metodo_real_globaltempo_y_proveedores(self):
+        text=build.legal_pages()["privacidad"][1]
+        for item in ("Google Alerts","GitHub Actions","GitHub Pages","Gmail",
+                     "incidencias","público","inscripciones",
+                     "terceros países","no una consulta automática",
+                     "plazo", "borrado automático"):
+            with self.subTest(item=item):
+                self.assertIn(item,text)
+        self.assertIn("correradarandalucia@gmail.com",text)
+
+    def test_auditoria_distingue_10_fuentes_y_permisos(self):
+        from captacion import SOURCES
+        audit=(ROOT/"docs"/"auditoria_fuentes_privacidad_2026-11-17.md").read_text(
+            encoding="utf8")
+        self.assertEqual(len(SOURCES),10)
+        for key in SOURCES:
+            self.assertIn(f"(`{key}`)",audit)
+        self.assertIn("no se puede certificar",audit.lower())
+        self.assertIn("artículo 133",audit)
+        self.assertIn("Global Tempo",audit)
+        self.assertIn("autorización",audit)
+
     def test_aviso_legal_usa_responsable_persona_fisica(self):
         page=build.legal_pages()["aviso-legal"][1]
         self.assertIn("Persona física responsable, en nombre propio",page)
