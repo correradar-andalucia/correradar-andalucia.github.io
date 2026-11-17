@@ -40,7 +40,11 @@ def official_races(today=None, catalog=None):
     result = []
     for path in FILES:
         if path.exists():
-            result.extend(_read_catalog(today, json.loads(path.read_text(encoding="utf-8"))))
+            record=json.loads(path.read_text(encoding="utf-8"))
+            # En pruebas históricas no introducir información cotejada después.
+            if date.fromisoformat(record["revision"]) > today:
+                continue
+            result.extend(_read_catalog(today, record))
     return result
 
 
