@@ -34,8 +34,17 @@ const readableDate = (iso) => {
   const found = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
   return found ? found[3]+'/'+found[2]+'/'+found[1] : String(iso || '');
 };
-const distanceNumbers = (raw) => [...String(raw || '').matchAll(/(\d+(?:[.,]\d+)?)\s*(km|m)\b/gi)]
-  .map(m => Number(m[1].replace(',', '.')) / (m[2].toLowerCase() === 'm' ? 1000 : 1))
+// Cada distancia anunciada cuenta en su propio rango; aceptar también «25 k / 15 k».
+const distanceNumbers = (raw) => [...String(raw || '').matchAll(/(\d{1,5}(?:[.,]\d{1,3})?)\s*(kil[oó]metros?|kms?|k|metros?|m)\b/gi)]
+  .map(m => {
+    const unit = m[2].toLowerCase();
+    const meters = unit === 'm' || unit.startsWith('metro');
+    // En fuentes españolas «1.500 m» equivale a 1500 m, no a 1,5 m.
+    const value = meters && /^\d{1,3}[.,]\d{3}$/.test(m[1])
+      ? Number(m[1].replace(/[.,]/g, ''))
+      : Number(m[1].replace(',', '.'));
+    return meters ? value / 1000 : value;
+  })
   .filter(n => Number.isFinite(n) && n > 0);
 function distanceMatches(r, filter) {
   if (!filter) return true;
