@@ -15,6 +15,7 @@ from urllib.robotparser import RobotFileParser
 import re
 import unicodedata
 import os
+import json
 from distancias import (extract_distance, extract_races_section,
                        extract_narrative_distance, extract_booking_distance,
                        extract_modalities_distance)
@@ -521,13 +522,52 @@ def enrich_booking_distance(row,page,booking_url):
     return True
 
 
+def fuentes_con_derechos_acreditados():
+    """Lista de lectores habilitados con evidencia revisada en Git.
+
+    La mera accesibilidad, el permiso de robots.txt o una variable de entorno
+    no se consideran autorización para extraer sistemáticamente calendarios.
+    """
+    from pathlib import Path
+    path = Path(__file__).resolve().parents[1] / "config" / "derechos_fuentes.json"
+    config = json.loads(path.read_text(encoding="utf-8"))
+    records = config.get("fuentes")
+    if config.get("version") != 1 or not isinstance(records, dict) or set(records) != set(SOURCES):
+        raise ValueError("Registro de derechos de fuentes incompleto o inválido")
+    enabled = set()
+    for name, record in records.items():
+        if not isinstance(record, dict) or record.get("estado") not in ("pendiente", "autorizado"):
+            raise ValueError("Estado de derechos inválido: " + name)
+        if record["estado"] == "autorizado":
+            reference = str(record.get("referencia_evidencia") or "").strip()
+            review_date = str(record.get("fecha_revision") or "")
+            try:
+                date.fromisoformat(review_date)
+            except ValueError as exc:
+                raise ValueError("Fecha de autorización inválida: " + name) from exc
+            if len(reference) < 12:
+                raise ValueError("Falta referencia de evidencia de derechos: " + name)
+            enabled.add(name)
+    return enabled
+
+
 def collect(today=None):
     today=today or date.today()
     events=[];report={"consultado":today.isoformat(),"fuentes":{}}
     if os.environ.get('CORRERADAR_FETCH')=='0':
         report['modo']='Prueba local sin conexión'
         return events,report
+    permitted = fuentes_con_derechos_acreditados()
+    report["fuentes_habilitadas_por_derechos"] = len(permitted)
+    if not permitted:
+        report["modo"] = "Fuentes pausadas por derechos de reutilización"
     for name,url in SOURCES.items():
+        if name not in permitted:
+            report["fuentes"][name] = {
+                "estado": "sin consulta automática",
+                "motivo": "Pendiente de acreditar derechos de reutilización",
+                "url": url}
+            continue
         try:
             page=fetch_if_permitted(url)
             if name=="dipgra":

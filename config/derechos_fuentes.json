@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "descripcion": "Registro operativo. Sólo habilitar un captador después de revisar y documentar el fundamento aplicable de reutilización recurrente por fuente. No colocar correos privados, DNI, domicilios ni tokens en Git.",
+  "fuentes": {
+    "fadmes": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    },
+    "dorsalchip": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    },
+    "cruzandolameta": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    },
+    "faa": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    },
+    "gcc": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    },
+    "runnink": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    },
+    "gesconchip": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    },
+    "dipgra": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    },
+    "diphuelva": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    },
+    "circuito_cordoba": {
+      "estado": "pendiente",
+      "fecha_revision": "",
+      "referencia_evidencia": ""
+    }
+  }
+}
