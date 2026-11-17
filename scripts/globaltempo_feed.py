@@ -123,7 +123,9 @@ def parse_authorized_feed(document, today=None):
             continue
         distance = str(item.get("distancia") or "").strip()
         hour = str(item.get("hora") or "").strip()
-        if len(distance) > 140 or (distance and not DISTANCE.search(distance)):
+        if (len(distance) > 140 or
+                (distance and (not DISTANCE.search(distance)
+                               or re.search(r"(?i)desnivel|\bm\+",distance)))):
             skipped += 1
             continue
         if hour and not HOUR.fullmatch(hour):
