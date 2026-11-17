@@ -9,7 +9,8 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from captacion import SOURCES, collect, fuentes_habilitadas
+from captacion import (SOURCES, FUENTES_CON_RESERVAS_DOCUMENTADAS,
+                       collect, fuentes_habilitadas)
 from control_calidad import inspect_calendar
 
 
@@ -34,6 +35,14 @@ class DerechosDeFuentesTests(unittest.TestCase):
             self.assertEqual(doc["fuentes"][source]["estado"], "consulta_minima")
             self.assertEqual(doc["fuentes"][source]["riesgo_aviso_legal"], "reserva_expresa")
             self.assertEqual(doc["fuentes"][source]["referencia_evidencia"], "")
+        self.assertEqual(doc["fuentes"]["faa"]["riesgo_aviso_legal"], "reserva_general")
+        recorded = {key for key, item in doc["fuentes"].items()
+                    if item.get("riesgo_aviso_legal")}
+        self.assertEqual(recorded, FUENTES_CON_RESERVAS_DOCUMENTADAS)
+        external = doc["fuentes_externas"]["globaltempo"]
+        self.assertEqual(external["modo"], "google_alerts_revision_manual")
+        self.assertEqual(external["feed_directo_autorizacion"]["estado"], "pendiente")
+        self.assertFalse(external["feed_directo_autorizacion"]["referencia_evidencia"])
 
     def test_fadmes_y_dipgra_se_consultan_solo_con_robots_permitido(self):
         # Sin descargar la red: simular la lectura de calendarios primarios.
@@ -54,7 +63,7 @@ class DerechosDeFuentesTests(unittest.TestCase):
         self.assertEqual(call.call_count, 2)
         self.assertEqual(report["fuentes"]["fadmes"]["estado"], "leida")
         self.assertEqual(report["fuentes"]["dipgra"]["estado"], "leida")
-        self.assertEqual(report["fuentes_con_reservas_documentadas"], ["dipgra", "fadmes"])
+        self.assertEqual(report["fuentes_con_reservas_documentadas"], ["dipgra", "faa", "fadmes"])
         self.assertTrue(any(r["origen"] == "fadmes" for r in races))
         self.assertTrue(any(r["origen"] == "dipgra" for r in races))
 
