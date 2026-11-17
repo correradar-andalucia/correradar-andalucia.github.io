@@ -4,14 +4,14 @@ Calendario independiente de carreras populares, trail, cross, ultradistancia, ob
 
 ## Principio editorial
 
-**Fecha publicada en una fuente** no es lo mismo que **aprobación editorial**. El calendario diferencia:
+**Fecha publicada en una fuente** no es lo mismo que **aprobación editorial**. El calendario conserva internamente la procedencia y la fecha de consulta; **la portada no muestra etiquetas técnicas redundantes** junto a cada fecha. Las fichas ofrecen el enlace original para comprobar posibles cambios. Distinguimos internamente:
 
 - **Revisada**: confirmada por el equipo en la hoja editorial (`Publicar=Sí`, `Verificado` y URL de fuente).
 - **Fecha en fuente**: leída directamente de una ficha o calendario de la fuente en la última captación. La fecha mostrada coincide con la publicada en esa fuente; no afirmamos que la carrera no pueda modificarse o cancelarse después.
 - **Fecha cotejada**: recogida de un catálogo consultado previamente, con fecha de cotejo visible y advertencia de posibles cambios.
 - **Modalidad por revisar**: una misma ficha profunda se clasificó de dos maneras y no se atribuye ninguna modalidad sin resolver la discrepancia.
 
-**Las distancias se muestran cuando se recuperan expresamente** del título, de un campo de la ficha fuente o del registro cotejado, con su procedencia. No se deducen kilómetros por nombres como «Media Maratón» ni se ocultan datos solo por carecer de una aprobación editorial posterior. Cuando no se dispone de ellos, la web indica «Distancia no disponible». El filtro de distancia es opcional: todas las carreras, incluidas las que no tienen kilómetros publicados, aparecen al dejarlo en «Todas». Nunca inferir fechas, lugares, distancias ni inscripción a partir de la edición de años anteriores.
+**Las distancias se muestran cuando se recuperan expresamente** del título, de un campo de la ficha fuente o del registro cotejado, con su procedencia. No se deducen kilómetros por nombres como «Media Maratón» ni se ocultan datos solo por carecer de una aprobación editorial posterior. Cuando no se dispone de ellos, la tarjeta no repite un aviso de distancia desconocida. El filtro de distancia es opcional: todas las carreras, incluidas las que no tienen kilómetros publicados, aparecen al dejarlo en «Todas». Nunca inferir fechas, lugares, distancias ni inscripción a partir de la edición de años anteriores.
 
 ## Cobertura territorial y fichas de fuentes originales
 
