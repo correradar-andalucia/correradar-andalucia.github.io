@@ -85,6 +85,8 @@ def clean_title(value):
             or any(ord(ch) < 32 for ch in title)):
         return ""
     title = re.sub(r"\s+[-|·]\s+Global[ -]Tempo\b.*$", "", title, flags=re.I).strip()
+    if re.fullmatch(r"Global[ -]Tempo(?:[. :\-]*Cronometraje Profesional)?",title,re.I):
+        return ""
     return title if len(title) >= 6 else ""
 
 
