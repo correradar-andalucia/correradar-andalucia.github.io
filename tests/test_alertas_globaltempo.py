@@ -26,8 +26,8 @@ def atom(title="XV Carrera Navideña de Prueba - Global Tempo",url=URL,
 def issue(body=None,labels=None):
     record={"id":"3375","nombre":"XV Carrera Navideña de Prueba",
             "url":URL,"fecha_aviso":"2026-11-17"}
-    body=body if body is not None else gt.issue_body(record)
-    body=body.replace("- [ ]","- [x]")
+    if body is None:
+        body=gt.issue_body(record).replace("- [ ]","- [x]")
     return {"state":"open","user":{"login":"github-actions[bot]"},
             "number":123,"body":body,"labels":[{"name":x} for x in (
                 [gt.PENDING,gt.APPROVE] if labels is None else labels)]}
