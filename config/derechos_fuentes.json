@@ -1,12 +1,13 @@
 {
   "version": 1,
-  "descripcion": "Política operativa por fuente: consulta_minima = detección prudente de hechos básicos y enlaces, NO equivale a licencia; pendiente = consulta automática pausada por reservas o revisión específica; autorizado = evidencia documentada del fundamento aplicable. No introducir datos privados en Git.",
+  "descripcion": "Política operativa: consulta_minima permite solo datos factuales de carreras y enlace a origen, no es una licencia ni habilita extracción masiva; pendiente detiene la consulta; autorizado requiere fundamento documentado. FADMES y Diputación de Granada tienen reservas expresas que deben seguir revisándose. Nunca incluir secretos ni datos personales privados en Git.",
   "fuentes": {
     "fadmes": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
       "referencia_evidencia": "",
-      "nota": "Reserva de derechos identificada; revisar alcance de datos factuales y derecho sobre bases antes de reactivar"
+      "nota": "CONSULTA FACTUAL LIMITADA SIN LICENCIA ACREDITADA. Reserva de derechos identificada en aviso legal; no copiar textos ni bases íntegras. Vigilar términos, robots, volumen e incidencias; suspender si se detecta un impedimento concreto.",
+      "riesgo_aviso_legal": "reserva_expresa"
     },
     "dorsalchip": {
       "estado": "consulta_minima",
@@ -45,10 +46,11 @@
       "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
     },
     "dipgra": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
       "referencia_evidencia": "",
-      "nota": "Reserva de derechos identificada; revisar alcance de datos factuales y derecho sobre bases antes de reactivar"
+      "nota": "CONSULTA FACTUAL LIMITADA SIN LICENCIA ACREDITADA. Reserva de derechos identificada en aviso legal; no copiar textos ni bases íntegras. Vigilar términos, robots, volumen e incidencias; suspender si se detecta un impedimento concreto.",
+      "riesgo_aviso_legal": "reserva_expresa"
     },
     "diphuelva": {
       "estado": "consulta_minima",

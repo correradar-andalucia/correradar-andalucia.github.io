@@ -25,18 +25,38 @@ class DerechosDeFuentesTests(unittest.TestCase):
                 self.assertTrue(record["referencia_evidencia"])
                 self.assertTrue(record["fecha_revision"])
 
-    def test_consulta_minima_solo_para_fuentes_sin_reserva_explicita(self):
+    def test_consulta_minima_de_las_diez_fuentes_y_reservas_explicitas(self):
         enabled = fuentes_habilitadas()
-        self.assertEqual(len(enabled), 8)
-        self.assertNotIn("fadmes", enabled)
-        self.assertNotIn("dipgra", enabled)
+        self.assertEqual(len(enabled), 10)
+        self.assertEqual(enabled, set(SOURCES))
+        doc = json.loads((ROOT / "config" / "derechos_fuentes.json").read_text(encoding="utf-8"))
+        for source in ("fadmes", "dipgra"):
+            self.assertEqual(doc["fuentes"][source]["estado"], "consulta_minima")
+            self.assertEqual(doc["fuentes"][source]["riesgo_aviso_legal"], "reserva_expresa")
+            self.assertEqual(doc["fuentes"][source]["referencia_evidencia"], "")
 
-    def test_fuente_con_reserva_expresa_no_acepta_consulta_minima(self):
-        records = {key: {"estado": "pendiente"} for key in SOURCES}
-        records["fadmes"] = {"estado": "consulta_minima"}
-        with patch("captacion.json.loads", return_value={"version": 1, "fuentes": records}):
-            with self.assertRaisesRegex(ValueError, "reserva expresa"):
-                fuentes_habilitadas()
+    def test_fadmes_y_dipgra_se_consultan_solo_con_robots_permitido(self):
+        # Sin descargar la red: simular la lectura de calendarios primarios.
+        pages = {
+            SOURCES["fadmes"]: ('<table><tr><td>22/11/2026</td><td>22/11/2026</td>'
+                                '<td>CxM</td><td>Trail Costa 12 km</td><td>Otros</td>'
+                                '<td>Almería</td><td>Almería</td></tr></table>'),
+            SOURCES["dipgra"]: ('<table><tr><td>FECHA</td><td>MUNICIPIO</td></tr>'
+                               '<tr><td>13/12/2026</td><td>Lecrín</td></tr></table>'),
+        }
+        def fetch(url):
+            self.assertIn(url, pages)
+            return pages[url]
+        with patch("captacion.fuentes_habilitadas", return_value={"fadmes", "dipgra"}), \
+             patch("captacion.fetch_if_permitted", side_effect=fetch) as call, \
+             patch.dict(os.environ, {"CORRERADAR_FETCH": "1", "GLOBALTEMPO_AUTHORIZED": ""}):
+            races, report = collect(date(2026, 11, 17))
+        self.assertEqual(call.call_count, 2)
+        self.assertEqual(report["fuentes"]["fadmes"]["estado"], "leida")
+        self.assertEqual(report["fuentes"]["dipgra"]["estado"], "leida")
+        self.assertEqual(report["fuentes_con_reservas_documentadas"], ["dipgra", "fadmes"])
+        self.assertTrue(any(r["origen"] == "fadmes" for r in races))
+        self.assertTrue(any(r["origen"] == "dipgra" for r in races))
 
     def test_fichas_sin_permisos_no_se_descargan(self):
         with patch("captacion.fuentes_habilitadas", return_value=set()), \

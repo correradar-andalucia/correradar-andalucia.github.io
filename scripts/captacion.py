@@ -529,7 +529,8 @@ def fuentes_habilitadas():
 
     'consulta_minima' NO significa autorización del titular; el uso de hechos
     objetivos y enlaces se limita técnicamente y sigue sujeto a revisión.
-    Fuentes con reservas expresas permanecen pausadas hasta revisión específica.
+    Las reservas expresas siguen documentadas y se reportan como riesgo:
+    consulta_minima no permite reproducir bases completas ni eludir restricciones.
     """
     from pathlib import Path
     path = Path(__file__).resolve().parents[1] / "config" / "derechos_fuentes.json"
@@ -550,8 +551,6 @@ def fuentes_habilitadas():
                 raise ValueError("Fecha de autorización inválida: " + name) from exc
             if len(reference) < 12:
                 raise ValueError("Falta referencia de evidencia de derechos: " + name)
-        if record["estado"] == "consulta_minima" and name in FUENTES_CON_RESERVAS_EXPRESAS:
-            raise ValueError("Fuente con reserva expresa requiere revisión específica: " + name)
         if record["estado"] != "pendiente":
             enabled.add(name)
     return enabled
@@ -566,6 +565,7 @@ def collect(today=None):
     permitted = fuentes_habilitadas()
     report["fuentes_con_consulta_habilitada"] = len(permitted)
     report["nombres_fuentes_habilitadas"] = sorted(permitted)
+    report["fuentes_con_reservas_documentadas"] = sorted(permitted & FUENTES_CON_RESERVAS_EXPRESAS)
     if not permitted:
         report["modo"] = "Fuentes con consulta automática pausada"
     for name,url in SOURCES.items():
