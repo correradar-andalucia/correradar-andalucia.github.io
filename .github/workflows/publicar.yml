@@ -37,6 +37,13 @@ jobs:
         run: python scripts/build.py
       - name: Comprobar informe, fichas y bloqueo de indexación
         run: python scripts/verificar_salida.py
+      - name: Guardar calendario para avisar solo tras despliegue correcto
+        uses: actions/upload-artifact@v4
+        with:
+          name: calendario-para-avisos
+          path: _site/data/carreras.json
+          retention-days: 7
+          if-no-files-found: error
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
       - name: Subir web generada
@@ -53,3 +60,67 @@ jobs:
       - name: Publicar GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  avisos:
+    # NUNCA avisar de carreras que no se hayan publicado correctamente.
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Obtener código de notificaciones
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recuperar calendario recién publicado
+        uses: actions/download-artifact@v4
+        with:
+          name: calendario-para-avisos
+          path: _avisos
+      - name: Recuperar histórico de carreras notificadas
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin refs/heads/estado-correradar-avisos >/dev/null; then
+            git fetch --quiet origin refs/heads/estado-correradar-avisos:refs/remotes/origin/estado-correradar-avisos
+            git show refs/remotes/origin/estado-correradar-avisos:estado.json > "$RUNNER_TEMP/estado-anterior.json"
+          else
+            echo "Primer seguimiento: el calendario existente será el punto de partida."
+          fi
+      - name: Detectar novedades y enviar un único correo si corresponde
+        env:
+          CARRERAS_SMTP_USER: ${{ secrets.CARRERAS_SMTP_USER }}
+          CARRERAS_SMTP_APP_PASSWORD: ${{ secrets.CARRERAS_SMTP_APP_PASSWORD }}
+          CARRERAS_ALERT_EMAIL: ${{ vars.CARRERAS_ALERT_EMAIL }}
+        run: |
+          python scripts/notificar_carreras.py \
+            --calendario _avisos/carreras.json \
+            --estado-anterior "$RUNNER_TEMP/estado-anterior.json" \
+            --estado-siguiente "$RUNNER_TEMP/estado-siguiente.json"
+      - name: Guardar histórico solo si se completó el aviso
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f "$RUNNER_TEMP/estado-siguiente.json" ]; then
+            echo "Novedades pendientes de envío; no se actualizará el histórico."
+            exit 0
+          fi
+          if git show-ref --verify --quiet refs/remotes/origin/estado-correradar-avisos; then
+            git switch --quiet -C estado-correradar-avisos refs/remotes/origin/estado-correradar-avisos
+          else
+            git switch --quiet --orphan estado-correradar-avisos
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          cp "$RUNNER_TEMP/estado-siguiente.json" estado.json
+          git add estado.json
+          if git diff --cached --quiet; then
+            echo "El histórico de carreras ya estaba actualizado."
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit --quiet -m "Estado de avisos de carreras publicadas"
+          git push --quiet origin HEAD:refs/heads/estado-correradar-avisos
+          echo "Histórico de avisos guardado."

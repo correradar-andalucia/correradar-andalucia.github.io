@@ -14,6 +14,12 @@ FADMES y Diputación de Granada vuelven a estar incluidas, **pero sus reservas e
 
 La política de privacidad de la propia web se refiere a visitas, correos y proveedores. La justificación de la consulta de datos factuales ajenos es una cuestión **distinta** relativa a propiedad intelectual, términos de acceso y bases de datos. La ausencia de un permiso general no convierte por sí sola los hechos públicos en obras protegidas, pero el artículo 133 TRLPI sí contempla límites a extracciones repetidas o sistemáticas que perjudiquen la explotación normal de una base de datos. Ver [auditoría](docs/auditoria_fuentes_privacidad_2026-11-17.md).
 
+## Avisos por email de nuevas carreras (preparado, requiere activar Gmail)
+
+Cada vez que GitHub Pages publique **una o varias carreras nuevas**, el trabajo de notificaciones enviará **un correo con todas las novedades de ese despliegue**, con nombre, fecha y enlaces, a `correradarandalucia@gmail.com` (o al destinatario configurado). No envía correos por despliegues sin novedades ni repite carreras ya avisadas; la primera ejecución sirve de referencia y no remite todos los eventos históricos.
+
+**Para activar los envíos hay que añadir una contraseña de aplicación de Gmail como secreto de GitHub `CARRERAS_SMTP_APP_PASSWORD`.** Sin ese secreto, el calendario funciona igual, pero no se envía email y las futuras novedades quedan pendientes. Consulta [instrucciones de avisos por correo](docs/avisos-carreras-email.md). El flujo de Google Alerts de Global Tempo no se modifica: solo se notifica una carrera cuando pasa a formar parte del calendario publicado, no cuando llega una alerta pendiente.
+
 ## Principio editorial
 
 **Fecha publicada en una fuente** no es lo mismo que **aprobación editorial**. El calendario conserva internamente la procedencia y la fecha de consulta; **la portada no muestra etiquetas técnicas redundantes** junto a cada fecha. Las fichas ofrecen el enlace original para comprobar posibles cambios. Distinguimos internamente:
