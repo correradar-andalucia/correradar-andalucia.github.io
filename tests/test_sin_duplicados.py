@@ -44,6 +44,29 @@ class Deduplicacion(unittest.TestCase):
         self.assertNotEqual(rows[0]["slug"],rows[1]["slug"])
         self.assertTrue(verify_unique(rows))
 
+    def test_conservar_25_y_15_km_al_fusionar_lecturas(self):
+        # Antes la segunda lectura se descartaba y quedaban solo 15 km,
+        # por lo que no aparecía al filtrar por carreras >21,1 km.
+        only_15 = race("Trail Dos Distancias", distance="15 km")
+        only_15["fuente_directa"] = True
+        both = race("Trail Dos Distancias", distance="25 km · 15 km")
+        both["fuente_directa"] = True
+        rows = combine([], [only_15, both], slug, km)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["distancia"], "25 km · 15 km")
+        rows_reversed = combine([], [both, only_15], slug, km)
+        self.assertEqual(len(rows_reversed), 1)
+        self.assertEqual(rows_reversed[0]["distancia"], "25 km · 15 km")
+
+    def test_una_ficha_aprobada_no_pierde_su_distancia(self):
+        approved = race("Trail Dos Distancias",distance="15 km")
+        approved["slug"] = "trail-manualmente-aprobada"
+        source = race("Trail Dos Distancias",distance="25 km · 15 km")
+        source["fuente_directa"] = True
+        rows = combine([approved],[source],slug,km)
+        self.assertEqual(len(rows),1)
+        self.assertEqual(rows[0]["distancia"],"15 km")
+
     def test_distinta_prueba_mismo_dia_municipio(self):
         a=race("Trail del Valle",distance="12 km")
         b=race("Cross del Ayuntamiento",distance="12 km")
