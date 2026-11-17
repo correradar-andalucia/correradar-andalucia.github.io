@@ -119,8 +119,15 @@ def inspect_calendar(races, capture_report, today=None):
     live = sorted(key for key, record in sources.items()
                   if isinstance(record, dict) and record.get("estado") == "leida")
     offline = capture_report.get("modo") == "Prueba local sin conexión"
-    if not offline and len(live) < 2:
+    # En situación de revisión de derechos, cero lectores habilitados es
+    # correcto: conservar el calendario cotejado sin extraer bases ajenas.
+    # Cuando se acrediten 1 o más, deben responder todos hasta un máximo de 2.
+    permitted = capture_report.get("fuentes_habilitadas_por_derechos")
+    min_live = min(2, permitted) if isinstance(permitted, int) and permitted >= 0 else 2
+    if not offline and len(live) < min_live:
         reasons.append("Menos de dos fuentes automáticas consultadas; conservar la última web")
+    if permitted == 0 and not offline:
+        notices.append("Captación automática de terceros pausada por falta de derechos acreditados")
     # Si Global Tempo estaba conectado y falla, no publicar de nuevo un
     # calendario sin sus carreras: conservar el último despliegue válido.
     if (capture_report.get("globaltempo_autorizado")
@@ -146,5 +153,6 @@ def inspect_calendar(races, capture_report, today=None):
         "origen_fecha": {p: origin_counts[p] for p in ("editorial", "fuente", "catalogo")},
         "fuentes_automaticas_leidas": live,
         "fuentes_automaticas_leidas_total": len(live),
-        "compilacion_sin_red": offline
+        "compilacion_sin_red": offline,
+        "fuentes_pausadas_por_derechos": permitted == 0
     }
