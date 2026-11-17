@@ -74,7 +74,8 @@ class CalidadEditorial(unittest.TestCase):
         pending = race(confirmada=False, distancia="12 km", consultado="2026-11-16")
         pending_page = detail_page(pending)
         self.assertIn('noindex,follow', pending_page)
-        self.assertIn("Procedencia de fecha", pending_page)
+        self.assertNotIn("Procedencia de fecha", pending_page)
+        self.assertIn("Fuente consultada", pending_page)
         self.assertNotIn("12 km", pending_page)
         self.assertNotIn('"SportsEvent"', pending_page)
         approved = race(confirmada=True, estado="Confirmado", verificado="2026-11-15")
@@ -88,7 +89,9 @@ class CalidadEditorial(unittest.TestCase):
         self.assertEqual(result["fecha_origen"], "fuente")
         self.assertFalse(result["confirmada"])
         page = detail_page(result)
-        self.assertIn("Fecha publicada en la fuente consultada", page)
+        self.assertIn("Fecha", page)
+        self.assertIn("Fuente consultada", page)
+        self.assertNotIn("Fecha publicada en la fuente consultada", page)
         self.assertNotIn("Pendiente de confirmación", page)
 
     def test_distancia_cotejada_visible_sin_aprobacion_manual(self):
