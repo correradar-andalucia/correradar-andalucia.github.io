@@ -49,6 +49,34 @@ El módulo `scripts/enlaces_inscripcion.py` permite **asociar enlaces puntuales 
 
 Los cotejos anteriores de noviembre se mantienen identificados como históricos y **no se convierten en nuevas comprobaciones automáticas**; a partir de ahora no se añaden nuevas carreras basándose exclusivamente en Global Tempo. Esta alternativa permite mejorar la cobertura sin pedir permiso para extraer sistemáticamente su base de datos. No sustituye a la autorización si se quisiera consultar su catálogo directamente cada 12 horas.
 
+## Bandeja editorial de enlaces Global Tempo (detección externa, aprobación humana)
+
+**Objetivo:** detectar algunas fichas de inscripción que los buscadores ya han indexado sin consultar automáticamente Global Tempo, sin copiar su calendario y **sin publicar nada sin aprobación**. Solo nombre + enlace directo; no se extraen fecha, localidad, distancia, imágenes ni textos de Global Tempo. Esto reduce la reutilización, pero **no es una autorización jurídica universal** para hacer una extracción sistemática. Los resultados de Google Alerts pueden ser parciales, tardíos o inexistentes.
+
+### Activar la detección (solo una vez)
+
+1. Con una cuenta de Google, abre [Google Alerts](https://www.google.com/alerts) y crea una alerta que busque `site:global-tempo.com/carreras.php` (puede añadirse otra consulta `"Global Tempo" "carrera" "Granada"` para ampliar resultados).
+2. En las opciones, configura **Entregar a → Feed RSS** si tu cuenta lo permite. Copia la **URL RSS**, sin copiar el contenido del feed.
+3. En GitHub, en **Settings → Secrets and variables → Actions → New repository secret**, crea el secreto `GT_ALERT_RSS_URL` con esa URL. *No* configures `GLOBALTEMPO_AUTHORIZED` ni URL de API de Global Tempo: este mecanismo no la necesita.
+4. En **Actions → Detectar novedades de Global Tempo para revisión → Run workflow**, ejecútalo una primera vez. Después lo hará automáticamente **dos veces al día**. Si falta el secreto, la tarea finaliza sin candidatos y sin consultar ninguna web de Global Tempo.
+
+Este proceso **solo consume el feed RSS de la alerta** y únicamente admite enlaces a `/carreras.php?id=...`; jamás sigue esos enlaces ni descarga fichas de Global Tempo. Rechaza URLs externas, resultados viejos y entradas duplicadas. Puede no localizar carreras que el buscador no indexe.
+
+### Aprobar una carrera, paso a paso (ordenador o móvil)
+
+1. Abre [Issues, candidatas pendientes](https://github.com/correradar-andalucia/correradar-andalucia.github.io/issues?q=is%3Aissue+is%3Aopen+label%3Agt-pendiente). Cada aviso nuevo lleva el título **«Revisar inscripción GT: ...»**.
+2. Abre su enlace de inscripción y **verifica manualmente** la edición, que no esté cancelada, que sea una carrera pertinente y que el nombre no esté ya publicado. En GitHub pulsa **Edit** en el texto de la incidencia y cambia las **tres casillas** de `[ ]` a `[x]`.
+3. En la misma incidencia, en **Labels**, añade **`gt-aprobar`**. Esa es la orden de publicación. Sin las tres casillas marcadas, la ejecución falla con una explicación y no publica nada.
+4. La acción **«Aprobar enlace de Global Tempo y publicar»** valida el enlace, guarda solo el nombre y la URL en `data/globaltempo_enlaces_aprobados.json`, ejecuta las pruebas y publica la web. Si GitHub Pages termina bien, deja un comentario y cierra la incidencia con la etiqueta `gt-publicada`.
+
+Para **descartar** una sugerencia, cierra la incidencia sin la etiqueta `gt-aprobar`. Si la alerta vuelve a encontrar ese mismo identificador, no se crea otra incidencia porque ya existe en el historial. Las diez fichas cotejadas en noviembre tampoco generan incidencias repetidas.
+
+### Dónde se ven las aprobadas
+
+En la portada, debajo del calendario, sección **«Inscripciones revisadas»**, solo aparece **nombre y enlace a Global Tempo**. Es una sección independiente de las carreras con fecha: **no altera las 161 carreras ni inventa sus fechas y localidades**. Si aún no hay enlaces aprobados, la sección permanece oculta. Para añadir una carrera al calendario principal, es necesario revisar y registrar aparte la fecha, el municipio y demás datos mínimos. El repositorio sigue en modo prelanzamiento (`public_launch:false`).
+
+**Aspectos técnicos:** `scripts/alertas_globaltempo.py` valida Atom/RSS Google Alerts, la procedencia y la URL profunda; `.github/workflows/detectar-alertas-globaltempo.yml` crea las incidencias; `.github/workflows/aprobar-enlace-globaltempo.yml` obliga a aprobación manual y despliega con el mismo control de calidad que la web habitual. Al guardar el registro con `GITHUB_TOKEN`, otros flujos no se disparan automáticamente, por eso el flujo de aprobación publica GitHub Pages directamente. El enlace RSS se guarda como **Secret** porque puede contener un identificador privado.
+
 ## Global Tempo — conexión automática preparada (requiere autorización escrita)
 
 El adaptador `scripts/globaltempo_feed.py` ya está integrado en la tarea de GitHub Actions que se ejecuta cada 12 horas. **Por defecto NO se conecta a Global Tempo**: sus condiciones de reutilización requieren autorización escrita. No se han introducido credenciales ni inventado una API.
