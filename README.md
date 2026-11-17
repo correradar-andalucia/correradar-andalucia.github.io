@@ -41,6 +41,47 @@ Existe una **excepción muy restringida**: Corredores Populares, además de un c
 - **Excluidas sin inventar ediciones:** algunas competiciones nacionales de OCR, La Desértica o el Cross de Itálica no tienen una próxima fecha concreta cotejada durante esta revisión; la edición 2026 del Cross de Itálica y el Maratón de Málaga ya pasaron. HYROX Málaga 2027 presenta **discordancia en el comienzo del evento** entre páginas oficiales (14 y 15 de abril), así que no se publica una fecha de salida arbitraria para todas las modalidades.
 - No se incorpora duatlón ni triatlón por defecto: CorreRadar prioriza carreras a pie.
 
+## Global Tempo — conexión automática preparada (requiere autorización escrita)
+
+El adaptador `scripts/globaltempo_feed.py` ya está integrado en la tarea de GitHub Actions que se ejecuta cada 12 horas. **Por defecto NO se conecta a Global Tempo**: sus condiciones de reutilización requieren autorización escrita. No se han introducido credenciales ni inventado una API.
+
+Para habilitarlo, después de conseguir la autorización y una URL de **feed JSON oficial** con los datos mínimos de eventos, configurar los siguientes valores en **Settings → Secrets and variables → Actions** del repositorio:
+
+| Tipo | Nombre | Valor |
+| --- | --- | --- |
+| Variable | `GLOBALTEMPO_AUTHORIZED` | `yes`, únicamente tras permiso escrito |
+| Variable | `GLOBALTEMPO_FEED_HOST` | Host exacto del feed acordado, sin `https://` |
+| Secret | `GLOBALTEMPO_FEED_URL` | URL HTTPS completa del feed autorizado |
+| Secret opcional | `GLOBALTEMPO_FEED_TOKEN` | Token Bearer, si lo exige el proveedor |
+
+**No activar los controles todavía:** no conocemos ningún endpoint/API aprobado por Global Tempo y el permiso aún no consta. El conector no utiliza `global-tempo.com/` como fuente automática, no hace scraping y no sigue redirecciones. La URL y el token no aparecen en los informes públicos.
+
+Formato mínimo del feed acordado (`version=1`; debe adaptarse al contrato que proporcione Global Tempo):
+
+```json
+{
+  "version": 1,
+  "actualizado": "2026-11-17",
+  "eventos": [{
+    "edicion_confirmada": true,
+    "fecha": "2026-12-19",
+    "nombre": "Carrera popular de ejemplo",
+    "localidad": "Alhendín",
+    "provincia": "Granada",
+    "modalidad": "RUNNING",
+    "distancia": "5 km",
+    "hora": "18:00",
+    "url": "https://www.global-tempo.com/carreras.php?id=3325"
+  }]
+}
+```
+
+El ejemplo es **solo ilustrativo**, no un dato que se publicará. Se requiere fecha de la edición, municipio, modalidad válida, enlace profundo a la inscripción y `edicion_confirmada: true` proporcionado por el servicio autorizado. Los eventos con fecha contradictoria respecto al reglamento (`fecha_reglamento` distinta), sin confirmación, de otras comunidades o de triatlón, ciclismo, natación, senderismo, mushing o pasacalles se excluyen. Solo se recuperan hechos y enlaces; nunca datos personales ni textos extensos.
+
+La lectura rechaza feeds sin actualización durante más de 14 días, respuestas demasiado grandes, URLs HTTP o que redirijan a otro host. Sus registros tienen prioridad ante una revisión manual anterior de la misma carrera (las fichas editoriales aprobadas siguen prevaleciendo). **Si el conector se activa y falla la lectura, se bloquea el despliegue para conservar la última versión buena de la web.** El estado real figura en `data/estado_fuentes.json`. Hasta que se active, `globaltempo` permanece «sin consulta automática» y conservamos los cotejos manuales de noviembre.
+
+Contacto de autorización: `info@global-tempo.com`; pedir permiso por escrito para un feed/API reutilizable con fecha, nombre, localidad, provincia, modalidad, distancia y enlace de las carreras andaluzas, actualización dos veces al día y enlace hacia sus inscripciones.
+
 ## Global Tempo: nuevas carreras y control de publicaciones
 
 **Causa de las omisiones:** Global Tempo aparecía en la semilla del 15/11/2026, pero **no formaba parte de los lectores automáticos ejecutados cada 12 horas**. Un evento nuevo podía quedarse fuera indefinidamente.
