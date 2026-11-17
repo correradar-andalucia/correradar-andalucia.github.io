@@ -1,0 +1,83 @@
+name: Aprobar enlace de Global Tempo y publicar
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  aprobar:
+    if: github.event.label.name == 'gt-aprobar' && !github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener rama principal
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar incidencia y registrar exclusivamente nombre y enlace
+        run: python scripts/alertas_globaltempo.py aprobar
+      - name: Comprobar calidad antes de guardar
+        run: |
+          python -m compileall -q scripts tests
+          python -m unittest discover -s tests -q
+          node --check assets/app.js
+      - name: Guardar aprobación editorial en main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/globaltempo_enlaces_aprobados.json
+          if git diff --cached --quiet; then
+            echo "El enlace ya estaba registrado."
+          else
+            git commit -m "Aprobar manualmente enlace Global Tempo de la incidencia #${{ github.event.issue.number }}"
+            git push origin HEAD:main
+          fi
+      - name: Reconstruir calendario habitual sin copiar Global Tempo
+        env:
+          SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL }}
+          GLOBALTEMPO_AUTHORIZED: ${{ vars.GLOBALTEMPO_AUTHORIZED }}
+          GLOBALTEMPO_FEED_HOST: ${{ vars.GLOBALTEMPO_FEED_HOST }}
+          GLOBALTEMPO_FEED_URL: ${{ secrets.GLOBALTEMPO_FEED_URL }}
+          GLOBALTEMPO_FEED_TOKEN: ${{ secrets.GLOBALTEMPO_FEED_TOKEN }}
+        run: python scripts/build.py
+      - name: Revisar fichero de aprobados, fichas y bloqueo de indexación
+        run: python scripts/verificar_salida.py
+      - name: Preparar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Subir la web revisada
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  desplegar:
+    needs: aprobar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Marcar incidencia como publicada solo tras despliegue correcto
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --add-label gt-publicada
+          gh issue comment "$ISSUE_NUMBER" --body "Enlace revisado y publicado. Aparece en la sección de inscripciones revisadas, sin fecha confirmada: https://correradar-andalucia.github.io/#inscripciones-revisadas"
+          gh issue close "$ISSUE_NUMBER"
