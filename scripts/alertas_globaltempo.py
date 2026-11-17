@@ -308,6 +308,11 @@ def existing_candidates():
 
 
 def detect():
+    # Crear las etiquetas de revisión aunque todavía no haya RSS ni candidatos.
+    # Así el enlace de GitHub Issues no devuelve "Invalid value for label".
+    ensure_label(PENDING,"b8a55c","Candidato encontrado en buscador; requiere revisión")
+    ensure_label(APPROVE,"20864c","Revisión manual realizada; publicar solo nombre y enlace")
+    ensure_label(PUBLISHED,"196eae","Enlace revisado y publicado")
     rss=os.environ.get("GT_ALERT_RSS_URL","").strip()
     if not rss:
         print("Global Tempo: detector preparado, pendiente configurar Google Alerts RSS")
@@ -328,10 +333,6 @@ def detect():
         data=json.loads(historic.read_text(encoding="utf-8"))
         known.update(event_id(row.get("fuente","")) for row in data.get("carreras",[]))
     created=0
-    if candidates:
-        ensure_label(PENDING,"b8a55c","Candidato encontrado en buscador; requiere revisión")
-        ensure_label(APPROVE,"20864c","Revisión manual realizada; publicar solo nombre y enlace")
-        ensure_label(PUBLISHED,"196eae","Enlace revisado y publicado")
     for c in candidates:
         if c["id"] in known:
             continue
