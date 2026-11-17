@@ -41,6 +41,14 @@ Existe una **excepción muy restringida**: Corredores Populares, además de un c
 - **Excluidas sin inventar ediciones:** algunas competiciones nacionales de OCR, La Desértica o el Cross de Itálica no tienen una próxima fecha concreta cotejada durante esta revisión; la edición 2026 del Cross de Itálica y el Maratón de Málaga ya pasaron. HYROX Málaga 2027 presenta **discordancia en el comienzo del evento** entre páginas oficiales (14 y 15 de abril), así que no se publica una fecha de salida arbitraria para todas las modalidades.
 - No se incorpora duatlón ni triatlón por defecto: CorreRadar prioriza carreras a pie.
 
+## Descubrimiento oficial + enlace de inscripción (sin permiso de Global Tempo)
+
+**Estrategia activa:** la captación automática consulta **fuentes independientes** (federaciones, diputaciones, circuitos y organizadores), nunca el calendario de Global Tempo. Se añade a los captadores el **Circuito Cordobés de Carreras Populares** (`www.carreraspopularescordoba.com`), con URLs de ficha específica y fecha con año explícito. Solo se crean carreras cuando el nombre, la fecha completa, el municipio y la modalidad son inequívocos. Si la página no puede consultarse según `robots.txt`, falla o cambia de formato, no se inventa ningún evento.
+
+El módulo `scripts/enlaces_inscripcion.py` permite **asociar enlaces puntuales de inscripción de Global Tempo ya cotejados el 17/11/2026** únicamente si una fuente independiente consultada acredita la **misma edición, fecha y municipio**. No descarga nada de Global Tempo, ni genera carreras a partir de ese catálogo de enlaces. Conserva la URL de la fuente de confirmación como `fuente` y pone el enlace directo de inscripción en `enlace` si el enlace anterior era un calendario genérico; si la fuente oficial ya tenía ficha individual, ofrece Global Tempo como opción adicional en la ficha. El informe de deduplicación recoge cuántos enlaces se pudieron asociar y cuántos quedaron sin confirmar.
+
+Los cotejos anteriores de noviembre se mantienen identificados como históricos y **no se convierten en nuevas comprobaciones automáticas**; a partir de ahora no se añaden nuevas carreras basándose exclusivamente en Global Tempo. Esta alternativa permite mejorar la cobertura sin pedir permiso para extraer sistemáticamente su base de datos. No sustituye a la autorización si se quisiera consultar su catálogo directamente cada 12 horas.
+
 ## Global Tempo — conexión automática preparada (requiere autorización escrita)
 
 El adaptador `scripts/globaltempo_feed.py` ya está integrado en la tarea de GitHub Actions que se ejecuta cada 12 horas. **Por defecto NO se conecta a Global Tempo**: sus condiciones de reutilización requieren autorización escrita. No se han introducido credenciales ni inventado una API.
