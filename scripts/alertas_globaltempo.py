@@ -332,9 +332,11 @@ def detect():
         ensure_label(PENDING,"b8a55c","Candidato encontrado en buscador; requiere revisión")
         ensure_label(APPROVE,"20864c","Revisión manual realizada; publicar solo nombre y enlace")
         ensure_label(PUBLISHED,"196eae","Enlace revisado y publicado")
-    for c in candidates[:20]:
+    for c in candidates:
         if c["id"] in known:
             continue
+        if created >= 20:
+            break
         gh_request("POST","/issues",{
             "title":"Revisar inscripción GT: "+c["nombre"][:110],
             "body":issue_body(c),
