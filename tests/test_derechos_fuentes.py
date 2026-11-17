@@ -63,7 +63,7 @@ class DerechosDeFuentesTests(unittest.TestCase):
         self.assertEqual(call.call_count, 2)
         self.assertEqual(report["fuentes"]["fadmes"]["estado"], "leida")
         self.assertEqual(report["fuentes"]["dipgra"]["estado"], "leida")
-        self.assertEqual(report["fuentes_con_reservas_documentadas"], ["dipgra", "faa", "fadmes"])
+        self.assertEqual(report["fuentes_con_reservas_documentadas"], ["dipgra", "fadmes"])  # faa no habilitada en este mock
         self.assertTrue(any(r["origen"] == "fadmes" for r in races))
         self.assertTrue(any(r["origen"] == "dipgra" for r in races))
 
