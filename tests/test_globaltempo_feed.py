@@ -1,6 +1,7 @@
 """Regresiones de Global Tempo sin hacer solicitudes reales al proveedor."""
 import json
 import sys
+import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
@@ -8,7 +9,8 @@ from unittest.mock import patch
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
 from globaltempo_feed import (
-    authorized, event_url, feed_host, fetch_authorized_feed, parse_authorized_feed
+    authorized, event_url, feed_host, feed_authorization_documented,
+    fetch_authorized_feed, parse_authorized_feed
 )
 from deduplicacion import combine
 from build import slugify, km_parse
@@ -64,6 +66,31 @@ class GlobalTempoAutorizado(unittest.TestCase):
         self.assertEqual(status["estado"],"sin consulta automática")
         self.assertFalse(authorized({"GLOBALTEMPO_AUTHORIZED":"true"}))
         self.assertTrue(authorized({"GLOBALTEMPO_AUTHORIZED":"yes"}))
+
+    def test_flag_sin_autorizacion_documentada_no_descarga(self):
+        env={"GLOBALTEMPO_AUTHORIZED":"yes",
+             "GLOBALTEMPO_FEED_URL":"https://feeds.global-tempo.com/public.json",
+             "GLOBALTEMPO_FEED_HOST":"feeds.global-tempo.com"}
+        self.assertFalse(feed_authorization_documented())
+        with patch("globaltempo_feed.build_opener",
+                   side_effect=AssertionError("NO debe acceder a red")):
+            with self.assertRaisesRegex(ValueError, "autorización de feed documentada"):
+                fetch_authorized_feed(TODAY,env)
+
+    def test_una_evidencia_documentada_se_distingue_de_flag(self):
+        import os
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/"fuentes.json"
+            reg={"fuentes_externas":{"globaltempo":{"feed_directo_autorizacion":{
+                "estado":"autorizado",
+                "fecha_revision":"2026-11-17",
+                "referencia_evidencia":"Convenio verificado de proveedor, ejemplo prueba"
+            }}}}
+            path.write_text(json.dumps(reg),encoding="utf-8")
+            self.assertTrue(feed_authorization_documented(path))
+            reg["fuentes_externas"]["globaltempo"]["feed_directo_autorizacion"]["referencia_evidencia"]=""
+            path.write_text(json.dumps(reg),encoding="utf-8")
+            self.assertFalse(feed_authorization_documented(path))
 
     def test_solo_endpoint_https_acordado(self):
         self.assertEqual(feed_host("https://feeds.global-tempo.com/feed",
@@ -141,7 +168,8 @@ class GlobalTempoAutorizado(unittest.TestCase):
         env={"GLOBALTEMPO_AUTHORIZED":"yes",
              "GLOBALTEMPO_FEED_URL":"https://feeds.global-tempo.com/public.json",
              "GLOBALTEMPO_FEED_HOST":"feeds.global-tempo.com"}
-        with patch("globaltempo_feed.build_opener",return_value=FakeOpener(raw)):
+        with patch("globaltempo_feed.feed_authorization_documented",return_value=True), \
+             patch("globaltempo_feed.build_opener",return_value=FakeOpener(raw)):
             rows,status=fetch_authorized_feed(TODAY,env)
         self.assertEqual(status["estado"],"leida")
         self.assertEqual(status["candidatas"],1)

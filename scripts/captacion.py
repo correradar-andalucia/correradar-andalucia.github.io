@@ -22,7 +22,8 @@ from distancias import (extract_distance, extract_races_section,
 
 USER_AGENT = "CorreRadarAndaluciaBot/0.1 (+mailto:correradarandalucia@gmail.com)"
 MAX_DETALLES_POR_FUENTE = 24
-FUENTES_CON_RESERVAS_EXPRESAS = {"fadmes", "dipgra"}
+# Lectores con reserva concreta o general documentada. No implica desactivación.
+FUENTES_CON_RESERVAS_DOCUMENTADAS = {"fadmes", "dipgra", "faa"}
 SOURCES = {
     "fadmes": "https://fadmes.es/calendario-fam/",
     "dorsalchip": "https://dorsalchip.es/view/Inicio.aspx",
@@ -565,7 +566,7 @@ def collect(today=None):
     permitted = fuentes_habilitadas()
     report["fuentes_con_consulta_habilitada"] = len(permitted)
     report["nombres_fuentes_habilitadas"] = sorted(permitted)
-    report["fuentes_con_reservas_documentadas"] = sorted(permitted & FUENTES_CON_RESERVAS_EXPRESAS)
+    report["fuentes_con_reservas_documentadas"] = sorted(permitted & FUENTES_CON_RESERVAS_DOCUMENTADAS)
     if not permitted:
         report["modo"] = "Fuentes con consulta automática pausada"
     for name,url in SOURCES.items():

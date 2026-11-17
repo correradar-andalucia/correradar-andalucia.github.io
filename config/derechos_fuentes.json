@@ -1,13 +1,14 @@
 {
   "version": 1,
-  "descripcion": "Política operativa: consulta_minima permite solo datos factuales de carreras y enlace a origen, no es una licencia ni habilita extracción masiva; pendiente detiene la consulta; autorizado requiere fundamento documentado. FADMES y Diputación de Granada tienen reservas expresas que deben seguir revisándose. Nunca incluir secretos ni datos personales privados en Git.",
+  "descripcion": "Registro común de criterios de reutilización: consulta_minima identifica uso limitado de hechos y enlaces y no es licencia; autorizado exige evidencia; pendiente detiene el lector. Reservas y derechos de bases se evalúan por fuente, sin presumir autorización ni prohibir hechos aislados. Global Tempo es una fuente externa con alertas Google; su feed directo necesita evidencia antes de activarse.",
   "fuentes": {
     "fadmes": {
       "estado": "consulta_minima",
-      "fecha_revision": "",
+      "fecha_revision": "2026-11-18",
       "referencia_evidencia": "",
       "nota": "CONSULTA FACTUAL LIMITADA SIN LICENCIA ACREDITADA. Reserva de derechos identificada en aviso legal; no copiar textos ni bases íntegras. Vigilar términos, robots, volumen e incidencias; suspender si se detecta un impedimento concreto.",
-      "riesgo_aviso_legal": "reserva_expresa"
+      "riesgo_aviso_legal": "reserva_expresa",
+      "aviso_legal_url": "https://fadmes.es/aviso-legal/"
     },
     "dorsalchip": {
       "estado": "consulta_minima",
@@ -23,9 +24,11 @@
     },
     "faa": {
       "estado": "consulta_minima",
-      "fecha_revision": "",
+      "fecha_revision": "2026-11-18",
       "referencia_evidencia": "",
-      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
+      "nota": "La web FAA muestra reserva general © todos los derechos reservados. No se ha localizado licencia específica de reutilización ni prohibición de consulta factual equivalente a Global Tempo en páginas revisadas. Solo nombre/fecha/localidad/enlace, sin copiar contenidos ni clasificaciones; evaluar volumen acumulativo y posibles cambios de condiciones.",
+      "riesgo_aviso_legal": "reserva_general",
+      "aviso_legal_url": "https://atletismofaa.es/carreraspopulares/"
     },
     "gcc": {
       "estado": "consulta_minima",
@@ -47,10 +50,11 @@
     },
     "dipgra": {
       "estado": "consulta_minima",
-      "fecha_revision": "",
+      "fecha_revision": "2026-11-18",
       "referencia_evidencia": "",
-      "nota": "CONSULTA FACTUAL LIMITADA SIN LICENCIA ACREDITADA. Reserva de derechos identificada en aviso legal; no copiar textos ni bases íntegras. Vigilar términos, robots, volumen e incidencias; suspender si se detecta un impedimento concreto.",
-      "riesgo_aviso_legal": "reserva_expresa"
+      "nota": "Aviso legal con reserva sobre bases y prohibición expresamente formulada para reproducción con fines comerciales. No equivale a licencia general para publicar una base pública, ni la web con noindex es privada. Consulta factual limitada de fechas/sedes y enlace, con revisión de Ley 37/2007 y licencia de esta sección.",
+      "riesgo_aviso_legal": "reserva_expresa",
+      "aviso_legal_url": "https://www.dipgra.es/aviso-legal/"
     },
     "diphuelva": {
       "estado": "consulta_minima",
@@ -63,6 +67,20 @@
       "fecha_revision": "",
       "referencia_evidencia": "",
       "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
+    }
+  },
+  "fuentes_externas": {
+    "globaltempo": {
+      "modo": "google_alerts_revision_manual",
+      "aviso_legal_url": "https://www.global-tempo.com/avisolegal.pdf",
+      "fecha_revision": "2026-11-18",
+      "fundamento_de_diferencia": "Aviso legal apartado 8 exige autorización escrita para reproducción/uso de contenidos independientemente de la finalidad; no se ha verificado excepción ni licencia concreta para descarga periódica. Se admiten avisos de buscador y enlaces puntuales revisados, no se reconstruye el catálogo.",
+      "feed_directo_autorizacion": {
+        "fecha_revision": "",
+        "referencia_evidencia": "",
+        "nota": "No declarar autorizado sin permiso o fundamento aplicable documentado y URL de feed del proveedor; no introducir tokens ni credenciales en este registro.",
+        "estado": "pendiente"
+      }
     }
   }
 }
