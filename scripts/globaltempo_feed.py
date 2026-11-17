@@ -56,15 +56,18 @@ def event_url(url):
     """La ficha de evento específica, nunca una portada ni una búsqueda."""
     if not isinstance(url, str) or any(c.isspace() for c in url):
         return False
-    parsed = urlparse(url)
-    if (parsed.scheme != "https" or parsed.hostname not in
-            ("global-tempo.com", "www.global-tempo.com") or
-            parsed.username or parsed.password or parsed.fragment or
-            parsed.port not in (None, 443) or parsed.path != "/carreras.php"):
+    try:
+        parsed = urlparse(url)
+        if (parsed.scheme != "https" or parsed.hostname not in
+                ("global-tempo.com", "www.global-tempo.com") or
+                parsed.username or parsed.password or parsed.fragment or
+                parsed.port not in (None, 443) or parsed.path != "/carreras.php"):
+            return False
+        args = parse_qs(parsed.query, strict_parsing=True)
+        return set(args) == {"id"} and len(args["id"]) == 1 and bool(
+            re.fullmatch(r"[1-9][0-9]{0,7}", args["id"][0]))
+    except ValueError:
         return False
-    args = parse_qs(parsed.query, strict_parsing=True)
-    return set(args) == {"id"} and len(args["id"]) == 1 and bool(
-        re.fullmatch(r"[1-9][0-9]{0,7}", args["id"][0]))
 
 
 def parse_authorized_feed(document, today=None):
@@ -138,6 +141,7 @@ def parse_authorized_feed(document, today=None):
             "enlace": link, "fuente": link,
             "fuente_nombre": "Global Tempo",
             "origen": "globaltempo", "fuente_directa": True,
+            "feed_autorizado": True,
             "cotejada": updated.isoformat(), "estado": "Edición confirmada en feed autorizado",
             "desnivel": "", "precio": "", "bolsa": "", "track": "",
             **({"distancia_fuente": link} if distance else {})
