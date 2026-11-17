@@ -13,7 +13,7 @@ def verify_output(root, config):
     for relative in ("index.html", "robots.txt", "sitemap.xml",
                      "assets/app.js", "assets/styles.css",
                      "data/carreras.json", "data/estado_fuentes.json",
-                     "data/control_calidad.json"):
+                     "data/control_calidad.json", "data/globaltempo_enlaces.json"):
         if not (root / relative).is_file():
             errors.append("Falta archivo: " + relative)
     if errors:
@@ -22,6 +22,11 @@ def verify_output(root, config):
     quality = json.loads((root/"data/control_calidad.json").read_text(encoding="utf-8"))
     if not quality["apto_para_desplegar"] or quality["total_carreras"] != len(races):
         errors.append("Informe de calidad incompatible con el calendario")
+    from alertas_globaltempo import publication_candidates
+    links = json.loads((root/"data/globaltempo_enlaces.json").read_text(encoding="utf-8"))
+    published = publication_candidates(links.get("enlaces", []))
+    if published != links.get("enlaces", []):
+        errors.append("Un enlace sin aprobar contiene campos extra o datos inválidos")
     if len({r["slug"] for r in races}) != len(races):
         errors.append("URLs de carrera duplicadas")
     home = (root/"index.html").read_text(encoding="utf-8")

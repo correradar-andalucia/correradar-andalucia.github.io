@@ -244,6 +244,7 @@ def main():
     from deduplicacion import combine, verify_unique
     from control_calidad import check_launch_ready, inspect_calendar
     from enlaces_inscripcion import match_registrations
+    from alertas_globaltempo import approved_items, publication_candidates
     from captacion import collect
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
@@ -290,6 +291,11 @@ def main():
     (OUT/'data'/'cobertura.json').write_text(json.dumps(cobertura,ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'control_calidad.json').write_text(
         json.dumps(calidad,ensure_ascii=False,indent=2),encoding='utf8')
+    # Independiente del calendario fechado: nombre + enlace solo tras
+    # aprobación editorial manual en GitHub, nunca a partir de la alerta RSS.
+    published_links=publication_candidates(approved_items())
+    (OUT/'data'/'globaltempo_enlaces.json').write_text(
+        json.dumps({"enlaces":published_links},ensure_ascii=False,indent=2),encoding='utf8')
     catalogo = ROOT/'config'/'catalogo_fuentes_maestra.json'
     if catalogo.exists():
         fuentes = json.loads(catalogo.read_text(encoding='utf-8'))

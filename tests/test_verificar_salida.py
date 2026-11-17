@@ -30,6 +30,8 @@ class VerificacionSalida(unittest.TestCase):
         (self.root/"data"/"control_calidad.json").write_text(
             json.dumps({"apto_para_desplegar":True,"total_carreras":1}),
             encoding="utf-8")
+        (self.root/"data"/"globaltempo_enlaces.json").write_text(
+            json.dumps({"enlaces":[]}),encoding="utf-8")
         detail=self.root/"carreras"/self.slug/"index.html"
         detail.parent.mkdir(parents=True)
         detail.write_text(f"<html><head>{ROBOTS}</head></html>",encoding="utf-8")

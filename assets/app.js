@@ -219,4 +219,39 @@ async function init() {
       'Comprueba la publicación de los archivos y vuelve a intentarlo.','!'));
   }
 }
+// Este listado NO forma parte de las carreras fechadas ni altera sus filtros.
+async function loadReviewedLinks() {
+  try {
+    const res=await fetch('/data/globaltempo_enlaces.json',{cache:'no-cache'});
+    if (!res.ok) return;
+    const data=await res.json();
+    const links=Array.isArray(data.enlaces) ? data.enlaces : [];
+    const panel=$('inscripciones-revisadas');
+    const container=$('reviewed-links');
+    const fragment=document.createDocumentFragment();
+    const used=new Set();
+    for (const item of links) {
+      const url=safeLink(item.url);
+      const name=String(item.nombre || '').trim();
+      if (!url || !/^https:\/\/(?:www\.|gateway\.)?global-tempo\.com\/carreras\.php\?id=[1-9][0-9]{0,7}$/.test(url) ||
+          !name || name.length>160 || used.has(url)) continue;
+      used.add(url);
+      const article=el('article','reviewed-link');
+      const title=el('h3','',name);
+      const a=el('a','', 'Ver inscripción ↗');
+      a.href=url;
+      a.target='_blank';
+      a.rel='noopener noreferrer';
+      article.append(title,a);
+      fragment.append(article);
+    }
+    if (fragment.childNodes.length) {
+      container.replaceChildren(fragment);
+      panel.hidden=false;
+    }
+  } catch (error) {
+    console.warn('No se pudieron cargar las inscripciones revisadas',error);
+  }
+}
 init();
+loadReviewedLinks();
