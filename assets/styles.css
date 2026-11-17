@@ -64,3 +64,12 @@
 @media(min-width:391px) and (max-width:900px){.select-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:391px) and (max-width:620px){.select-row>.select-wrap:last-child{grid-column:1/-1}}
 @media(max-width:390px){.select-row{grid-template-columns:1fr}.select-row>.select-wrap:last-child{grid-column:auto}}
+
+/* Prelanzamiento: fecha completa visible, también para las carreras del año siguiente. */
+.race-date{height:98px}
+.race-date .race-year{font-size:10px;font-weight:700;letter-spacing:.07em;color:#aebfb8;margin-top:2px}
+@media(max-width:620px){.race-date{height:86px}}
+/* El foco debe ser perceptible incluso al navegar el calendario sin ratón. */
+.race-actions a:focus-visible,.race-title a:focus-visible,
+.header a:focus-visible,.footer a:focus-visible,
+.hero a:focus-visible{outline:3px solid var(--lime);outline-offset:3px}

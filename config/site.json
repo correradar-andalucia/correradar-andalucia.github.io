@@ -4,5 +4,6 @@
   "legal_address": "",
   "site_url": "https://correradar-andalucia.github.io",
   "monetized": false,
-  "public_launch": false
+  "public_launch": false,
+  "legal_review_complete": false
 }

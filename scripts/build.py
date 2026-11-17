@@ -239,7 +239,10 @@ def main():
     from multifuente import seed_races, backup_runnink
     from oficiales import official_races
     from deduplicacion import combine, verify_unique
+    from control_calidad import check_launch_ready, inspect_calendar
     from captacion import collect
+    # Ninguna configuración accidental puede publicar una web sin revisión legal.
+    check_launch_ready(CONFIG)
     candidatas_en_vivo, informe_captacion = collect()
     oficiales=official_races()
     races, auditoria = combine(transform(load_csv()), oficiales+seed_races()+backup_runnink()+candidatas_en_vivo,
@@ -258,6 +261,11 @@ def main():
         "fecha_fuente":sum(r.get("fecha_origen")=="fuente" for r in races)
     }
     verify_unique(races)
+    calidad = inspect_calendar(races, informe_captacion)
+    if not calidad["apto_para_desplegar"]:
+        raise ValueError("PUBLICACIÓN BLOQUEADA POR CALIDAD: "
+                         + " | ".join(calidad["bloqueos"][:12]))
+    print("CONTROL DE CALIDAD:", json.dumps(calidad,ensure_ascii=False))
     print("AUDITORÍA DUPLICADOS:",json.dumps(auditoria,ensure_ascii=False))
     print("Captación multifuente:", json.dumps(informe_captacion, ensure_ascii=False))
     if OUT.exists():shutil.rmtree(OUT)
@@ -271,6 +279,8 @@ def main():
     (OUT/'data'/'estado_fuentes.json').write_text(json.dumps(informe_captacion,ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'auditoria_duplicados.json').write_text(json.dumps(auditoria,ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'cobertura.json').write_text(json.dumps(cobertura,ensure_ascii=False,indent=2),encoding='utf8')
+    (OUT/'data'/'control_calidad.json').write_text(
+        json.dumps(calidad,ensure_ascii=False,indent=2),encoding='utf8')
     catalogo = ROOT/'config'/'catalogo_fuentes_maestra.json'
     if catalogo.exists():
         fuentes = json.loads(catalogo.read_text(encoding='utf-8'))
