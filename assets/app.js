@@ -69,10 +69,16 @@ function state(title, detail, symbol='↗') {
 }
 function raceCard(r) {
   const card = el('article','race-card');
-  const date = el('div','race-date');
+  // El año es fundamental cuando las pruebas abarcan distintas temporadas.
+  const date = el('time','race-date');
   const d = fmt(r.fecha);
+  date.dateTime = r.fecha;
+  date.setAttribute('aria-label',d.toLocaleDateString('es-ES',{
+    day:'numeric',month:'long',year:'numeric',weekday:'long'
+  }));
   date.append(el('strong','',String(d.getDate()).padStart(2,'0')),
-              el('span','',months[d.getMonth()].slice(0,3).toUpperCase()));
+              el('span','',months[d.getMonth()].slice(0,3).toUpperCase()),
+              el('span','race-year',String(d.getFullYear())));
 
   const info = el('div','race-info');
   const head = el('div','race-head');
@@ -106,7 +112,9 @@ function raceCard(r) {
   }
 
   const actions = el('div','race-actions');
-  const sourceUrl = safeLink(confirmed(r) ? r.enlace : (r.fuente || r.enlace));
+  // Priorizar el enlace de la ficha/inscripción, no el calendario genérico.
+  // La fuente queda como respaldo cuando no existe enlace individual.
+  const sourceUrl = safeLink(r.enlace) || safeLink(r.fuente);
   if (sourceUrl) {
     const link = el('a','register',confirmed(r) ? 'Ver enlace de la carrera ↗' : 'Consultar fuente ↗');
     link.href = sourceUrl;
