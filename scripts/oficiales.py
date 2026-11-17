@@ -12,7 +12,9 @@ from urllib.parse import urlparse
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 FILE = DATA_DIR / "fichas_oficiales_2026-11-16.json"
-FILES = (FILE, DATA_DIR / "fichas_oficiales_2026-11-17.json")
+GLOBALTEMPO_FILE = DATA_DIR / "fichas_globaltempo_2026-11-17.json"
+FILES = (FILE, DATA_DIR / "fichas_oficiales_2026-11-17.json",
+         GLOBALTEMPO_FILE)
 # Directorio de agregadores del Excel recibido. Son para descubrir carreras,
 # no sirven como fuente final de confirmación editorial.
 AGGREGATOR_HOSTS = frozenset({
@@ -83,6 +85,14 @@ def _read_catalog(today, catalog):
         if url.scheme != "https" or not url.hostname or url.username or url.password:
             raise ValueError("Ficha con enlace de fuente inválido")
         host = url.hostname.removeprefix("www.")
+        # Las revisiones manuales de Global Tempo necesitan una ficha específica
+        # de inscripción, no una portada ni un calendario general.
+        if record["fuente_nombre"].startswith("Global Tempo") and not (
+            host in ("global-tempo.com",)
+            and url.path == "/carreras.php"
+            and re.fullmatch(r"id=\d{1,7}", url.query)
+        ):
+            raise ValueError("Global Tempo exige enlace a edición concreta")
         # Corredores Populares también aloja inscripciones REALES de eventos.
         # Única excepción, verificada por inscripción y reglamento de esta edición;
         # no convertir todo su calendario en pruebas confirmadas.

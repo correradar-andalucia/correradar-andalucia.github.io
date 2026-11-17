@@ -41,6 +41,21 @@ Existe una **excepción muy restringida**: Corredores Populares, además de un c
 - **Excluidas sin inventar ediciones:** algunas competiciones nacionales de OCR, La Desértica o el Cross de Itálica no tienen una próxima fecha concreta cotejada durante esta revisión; la edición 2026 del Cross de Itálica y el Maratón de Málaga ya pasaron. HYROX Málaga 2027 presenta **discordancia en el comienzo del evento** entre páginas oficiales (14 y 15 de abril), así que no se publica una fecha de salida arbitraria para todas las modalidades.
 - No se incorpora duatlón ni triatlón por defecto: CorreRadar prioriza carreras a pie.
 
+## Global Tempo: nuevas carreras y control de publicaciones
+
+**Causa de las omisiones:** Global Tempo aparecía en la semilla del 15/11/2026, pero **no formaba parte de los lectores automáticos ejecutados cada 12 horas**. Un evento nuevo podía quedarse fuera indefinidamente.
+
+La revisión del **17/11/2026** incorpora en `data/fichas_globaltempo_2026-11-17.json` diez fichas individuales de la plataforma de inscripciones, mediante **cotejo manual de fechas, municipio y modalidades**. Entre ellas aparecen dos carreras nuevas no presentes en la semilla:
+
+- **VII Carrera San Silvestre Alhendín**, 19/12/2026, 18:00, sin kilómetros comprobados (varían según categoría).
+- **XIII Subida a la Cruz de la Atalaya**, Padul, 31/01/2027, 10:00, 8,72 km. Fecha y distancia contrastadas con el artículo 3 y la tabla técnica del reglamento; el encabezado reutilizado del PDF contiene un año anterior, pero la fecha operativa del artículo es 2027.
+
+Además se completan kilómetros, horarios y enlaces específicos para Neptune Race, CxM Albuñol Trail, CxM Albuñuelas y Carrera Navideña de Escúzar, entre otras, sin crear fichas repetidas. El Trail de la Contraviesa tiene una excepción de deduplicación explícita: FADMES lo ubica en «Albuñol y Sorvilán» y Global Tempo en «Albuñol».
+
+**No se ha incluido Playa Cambriles Race**: Global Tempo muestra 22/11/2026 en la ficha, pero su reglamento sitúa la celebración en 02/08/2026. Tampoco se han importado eventos de natación, ciclismo, duatlón, circuitos genéricos, pasacalles ni inscripciones sin carrera competitiva a pie.
+
+**Importante:** esta revisión puntual no significa que Global Tempo se actualice automáticamente. Su aviso legal requiere autorización para reutilizar contenido del sitio. Antes de integrar un lector o una API en las ejecuciones de GitHub Actions, se debe acordar expresamente con Global Tempo un acceso a sus **datos mínimos de eventos** o una fuente autorizada (enlace, fecha, localidad, modalidad, kilómetros). No se copian descripciones, imágenes, reglamentos ni listados de participantes. Hasta entonces, las fichas se añaden por cotejo puntual, conservan su fecha de revisión y se etiquetan como antiguas tras 30 días. La fuente `globaltempo` sigue declarada **sin consulta automática** en el informe de captación.
+
 ## Arquitectura
 
 - `index.html`, `assets/styles.css` y `assets/app.js`: interfaz estática, búsqueda, filtros por provincia, mes, modalidad agrupada y distancia; paginación de 20 resultados.
