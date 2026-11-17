@@ -84,9 +84,20 @@ En Windows, configura las variables equivalentes para desactivar la captación e
 4. Ejecutar los tests, generar el sitio y comprobar que la carrera se presenta como confirmada.
 5. Si las fuentes discrepan, detener la aprobación y resolver el conflicto manualmente.
 
+## Control automático previo al lanzamiento
+
+Cada actualización programada tiene ahora **dos comprobaciones** antes de desplegar:
+
+- `scripts/control_calidad.py` y `_site/data/control_calidad.json`: validan fechas, localidades, provincias, modalidades, HTTPS y procedencia, y registran cobertura por provincia, distancias y horarios. Cuando menos de **dos fuentes de captación** han podido leerse en una actualización con red, **se detiene la publicación y se conserva el último sitio desplegado**. Las pruebas sin red se identifican claramente y no se hacen pasar por una captura en directo.
+- `scripts/verificar_salida.py`: comprueba que todas las páginas de carrera y archivos esenciales existen y que la portada y **todas las fichas** siguen llevando `noindex,nofollow` mientras `public_launch` sea falso.
+
+La página principal muestra el **año junto al día y al mes** (importante para carreras de 2026 y 2027), y su botón de fuente prioriza el enlace a la **ficha individual** frente a portadas o calendarios generales cuando ambos están disponibles. El recuento de resultados se anuncia de forma accesible sin leer todos los artículos en cada filtro.
+
+Estas comprobaciones detectan errores técnicos y ciertas inconsistencias editoriales: **no confirman de forma autónoma que una carrera vaya a celebrarse**. El enlace al organizador sigue siendo necesario.
+
 ## Antes de abrir el sitio a buscadores
 
-Completar la identidad del titular y revisar el aviso legal, privacidad y cookies. Confirmar calidad de las fuentes principales, comprobar enlaces y usabilidad. Solo entonces cambiar `public_launch` a `true`. Las fichas provisionales conservarán `noindex`; el sitemap incluye solo eventos confirmados.
+Completar la identidad del titular y revisar el aviso legal, privacidad y cookies, incluida la conveniencia de informar un domicilio según corresponda. Confirmar calidad de las fuentes principales, comprobar enlaces y usabilidad. **No basta con poner `public_launch: true`:** se exige además un correo de contacto, `legal_name` y `legal_review_complete: true`, que solo debe introducirse tras la revisión del responsable. Mientras tanto, mantener `public_launch: false`. Las fichas provisionales conservarán `noindex`; el sitemap incluye solo eventos aprobados editorialmente.
 
 ## Limitaciones conocidas
 
