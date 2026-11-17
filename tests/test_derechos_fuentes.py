@@ -47,7 +47,7 @@ class DerechosDeFuentesTests(unittest.TestCase):
         def fetch(url):
             self.assertIn(url, pages)
             return pages[url]
-        with patch("captacion.fuentes_habilitadas", return_value={"fadmes", "dipgra"}), \\
+        with patch("captacion.fuentes_habilitadas", return_value={"fadmes", "dipgra"}), \
              patch("captacion.fetch_if_permitted", side_effect=fetch) as call, \\
              patch.dict(os.environ, {"CORRERADAR_FETCH": "1", "GLOBALTEMPO_AUTHORIZED": ""}):
             races, report = collect(date(2026, 11, 17))
