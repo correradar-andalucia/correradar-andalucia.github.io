@@ -75,7 +75,7 @@ class CalidadEditorial(unittest.TestCase):
         pending_page = detail_page(pending)
         self.assertIn('noindex,follow', pending_page)
         self.assertNotIn("Procedencia de fecha", pending_page)
-        self.assertIn("Fuente consultada", pending_page)
+        self.assertIn("Consulta anterior de la fuente", pending_page)
         self.assertNotIn("12 km", pending_page)
         self.assertNotIn('"SportsEvent"', pending_page)
         approved = race(confirmada=True, estado="Confirmado", verificado="2026-11-15")
