@@ -122,10 +122,11 @@ Contacto de autorización: `info@global-tempo.com`; pedir permiso por escrito pa
 
 **Causa de las omisiones:** Global Tempo aparecía en la semilla del 15/11/2026, pero **no formaba parte de los lectores automáticos ejecutados cada 12 horas**. Un evento nuevo podía quedarse fuera indefinidamente.
 
-La revisión del **17/11/2026** incorpora en `data/fichas_globaltempo_2026-11-17.json` diez fichas individuales de la plataforma de inscripciones, mediante **cotejo manual de fechas, municipio y modalidades**. Entre ellas aparecen dos carreras nuevas no presentes en la semilla:
+La revisión del **17/11/2026** incorpora en `data/fichas_globaltempo_2026-11-17.json` once fichas individuales de la plataforma de inscripciones, mediante **cotejo manual de fechas, municipio y modalidades**. Entre ellas aparecen tres carreras nuevas no presentes en la semilla:
 
 - **VII Carrera San Silvestre Alhendín**, 19/12/2026, 18:00, sin kilómetros comprobados (varían según categoría).
 - **XIII Subida a la Cruz de la Atalaya**, Padul, 31/01/2027, 10:00, 8,72 km. Fecha y distancia contrastadas con el artículo 3 y la tabla técnica del reglamento; el encabezado reutilizado del PDF contiene un año anterior, pero la fecha operativa del artículo es 2027.
+- **Carrera Solidaria de Navidad Villa de Otura**, Otura, 22/12/2026 a las 18:00; recorrido aproximado de 300 m a 4,3 km según categoría. Ficha de la edición: https://www.global-tempo.com/carreras.php?id=3327. La plataforma indica «inscripción cerrada» a la fecha de cotejo; no prometer plazas disponibles. Se añade por revisión puntual de hechos básicos, **no por el RSS de Google Alerts**, que sigue sin `entry` para esta carrera.
 
 Además se completan kilómetros, horarios y enlaces específicos para Neptune Race, CxM Albuñol Trail, CxM Albuñuelas y Carrera Navideña de Escúzar, entre otras, sin crear fichas repetidas. El Trail de la Contraviesa tiene una excepción de deduplicación explícita: FADMES lo ubica en «Albuñol y Sorvilán» y Global Tempo en «Albuñol».
 
