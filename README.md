@@ -27,6 +27,20 @@ CorreRadar incorpora **fichas puntuales cotejadas** en fuentes identificables de
 
 La cobertura actual no garantiza que aparezcan **todas** las carreras. Solo deben añadirse eventos verificables; las nuevas provincias y fuentes se incorporarán de forma incremental y con pruebas automatizadas.
 
+## Ampliación de fuentes del 17/11/2026
+
+El archivo aportado `fuentes_oficiales_carreras_andalucia_ampliado.xlsx` contiene **45 fuentes en seis pestañas**, no 45 carreras ni 45 conectores habilitados. `config/fuentes_ampliadas_2026-11-17.json` conserva los 45 registros y su enlace original, clasificados por rol. Parte de ellos se solapan con las 50 fuentes del catálogo anterior: **no deben sumarse como si fueran fuentes diferentes**.
+
+**Política editorial obligatoria:** los calendarios recopilatorios de terceros (Andalucía Running, Runnea, Corredores Populares, CarrerasPopulares.com, ClubRunning, RunAgain, Hybrid Race Map, Hybrid Race Hub, Metahíbrida y Sportplan) son **solo pistas para investigar**. No permiten crear una carrera, validar su fecha ni atribuirle distancias. Una carrera se incorpora únicamente si la edición actual está publicada por el organizador, una federación, un circuito provincial institucional o la plataforma responsable de su inscripción, y si se dispone de fecha, nombre, municipio y enlace de procedencia. `scripts/oficiales.py` impide usar estos diez dominios de agregadores como fuente final, incluso si alguien los etiqueta incorrectamente como «organizador».
+
+Existe una **excepción muy restringida**: Corredores Populares, además de un calendario recopilatorio, aloja inscripciones activas con reglamento. La carrera de Navidad de El Rubio (20/12/2026) ya incluida anteriormente se cotejó en ese listado de inscripciones y se admite únicamente esa combinación de prueba/fecha/URL. Los demás resultados de ese dominio siguen sin validar fechas automáticamente. La excepción no autoriza a replicar su calendario.
+
+- `data/fichas_oficiales_2026-11-17.json`: once carreras nuevas con año, fecha, localidad, distancia, origen y horarios contrastados en fuente primaria; incluyen el Medio Maratón de Sevilla que cambió al **13/12/2026**, pruebas de diciembre del Circuito Cordobés, Zurich Maratón de Sevilla 2027, Ultra Sierra Nevada 2027 y 101 km en 24 h de La Legión 2027.
+- `data/distancias_cotejadas_2026-11-17.json`: mejora los kilómetros de cuatro fichas cordobesas ya presentes, sin añadir carreras duplicadas ni modificar sus fechas. Los cotejos nunca reemplazan distancias contradictorias leídas de fuentes actuales.
+- Los dos lotes fechados del 16 y 17 de noviembre conservan sus **fechas de revisión individuales**: añadir una fuente nueva no convierte datos antiguos en datos recién consultados.
+- **Excluidas sin inventar ediciones:** algunas competiciones nacionales de OCR, La Desértica o el Cross de Itálica no tienen una próxima fecha concreta cotejada durante esta revisión; la edición 2026 del Cross de Itálica y el Maratón de Málaga ya pasaron. HYROX Málaga 2027 presenta **discordancia en el comienzo del evento** entre páginas oficiales (14 y 15 de abril), así que no se publica una fecha de salida arbitraria para todas las modalidades.
+- No se incorpora duatlón ni triatlón por defecto: CorreRadar prioriza carreras a pie.
+
 ## Arquitectura
 
 - `index.html`, `assets/styles.css` y `assets/app.js`: interfaz estática, búsqueda, filtros por provincia, mes, modalidad agrupada y distancia; paginación de 20 resultados.
@@ -40,7 +54,7 @@ La cobertura actual no garantiza que aparezcan **todas** las carreras. Solo debe
 - `config/site.json`: correo, titularidad y bandera `public_launch` (mantener `false` hasta completar los requisitos de lanzamiento).
 - `data/carreras.csv`: datos editoriales locales; en GitHub Actions puede sustituirse por el CSV publicado mediante la variable `SHEET_CSV_URL`. El archivo `data/carreras.json` del repositorio NO representa el calendario desplegado: se genera en el build.
 - `data/respaldo_runnink_2026-11-16.json`: copia de las 13 referencias obtenidas de Runnink el 16/11/2026, usada como respaldo cuando falla temporalmente la consulta en vivo. Se muestran como «fecha cotejada», nunca como consulta reciente; tras 30 días exigen reconfirmación.
-- `data/distancias_cotejadas_2026-11-16.json`: kilómetros corroborados para la edición y municipio exactos en páginas de organizadores o de inscripción. Solo se rellenan campos vacíos: los conflictos con fuentes actuales no se sobreescriben y se auditan.
+- `data/distancias_cotejadas_2026-11-16.json` y `data/distancias_cotejadas_2026-11-17.json`: kilómetros corroborados para la edición y municipio exactos en fuentes oficiales. Solo se rellenan campos vacíos: los conflictos con fuentes actuales no se sobreescriben y se auditan.
 
 ## Desarrollo y pruebas locales
 

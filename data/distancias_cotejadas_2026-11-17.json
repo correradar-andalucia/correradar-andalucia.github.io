@@ -1,0 +1,42 @@
+{
+  "revision": "2026-11-17",
+  "criterio": "Completa exclusivamente kilómetros de pruebas ya presentes en el calendario, comprobados en el calendario oficial del Circuito Cordobés de Carreras Populares 2026. No crea carreras ni modifica las fechas.",
+  "carreras": [
+    {
+      "fecha": "2026-11-28",
+      "nombre": "Benamejí",
+      "localidad": "Benamejí",
+      "provincia": "Córdoba",
+      "distancia": "7 km",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "cotejada": "2026-11-17"
+    },
+    {
+      "fecha": "2026-12-07",
+      "nombre": "Rute",
+      "localidad": "Rute",
+      "provincia": "Córdoba",
+      "distancia": "5,5 km",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "cotejada": "2026-11-17"
+    },
+    {
+      "fecha": "2026-12-07",
+      "nombre": "Carrera de Rute",
+      "localidad": "Rute",
+      "provincia": "Córdoba",
+      "distancia": "5,5 km",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "cotejada": "2026-11-17"
+    },
+    {
+      "fecha": "2026-12-31",
+      "nombre": "42º San Silvestre Cordobesa",
+      "localidad": "Córdoba",
+      "provincia": "Córdoba",
+      "distancia": "10 km",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "cotejada": "2026-11-17"
+    }
+  ]
+}

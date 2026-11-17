@@ -1,0 +1,138 @@
+{
+  "revision": "2026-11-17",
+  "criterio": "Solo ediciones 2026/2027 verificadas en reglamentos, calendario oficial provincial o web del organizador el 17/11/2026. Agregadores no justifican la confirmación. En carreras de varias jornadas se indica la salida de la modalidad a pie (101 km marcha 8 mayo).",
+  "carreras": [
+    {
+      "fecha": "2026-11-22",
+      "nombre": "XXXV Carrera Popular Cañada Real Soriana",
+      "localidad": "Córdoba",
+      "provincia": "Córdoba",
+      "modalidad": "RUNNING",
+      "distancia": "11 km",
+      "hora": "",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "fuente_nombre": "Circuito Provincial de Carreras Populares de Córdoba",
+      "tipo_fuente": "administracion"
+    },
+    {
+      "fecha": "2026-12-06",
+      "nombre": "XLII Carrera Popular Ciudad de Palma del Río",
+      "localidad": "Palma del Río",
+      "provincia": "Córdoba",
+      "modalidad": "RUNNING",
+      "distancia": "10 km",
+      "hora": "",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "fuente_nombre": "Circuito Provincial de Carreras Populares de Córdoba",
+      "tipo_fuente": "administracion"
+    },
+    {
+      "fecha": "2026-12-12",
+      "nombre": "XVI Cross El Hecho de Guadalcázar",
+      "localidad": "Guadalcázar",
+      "provincia": "Córdoba",
+      "modalidad": "CROSS",
+      "distancia": "6 km",
+      "hora": "",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "fuente_nombre": "Circuito Provincial de Carreras Populares de Córdoba",
+      "tipo_fuente": "administracion"
+    },
+    {
+      "fecha": "2026-12-13",
+      "nombre": "XXXII Medio Maratón de Sevilla",
+      "localidad": "Sevilla",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "21,097 km",
+      "hora": "09:00",
+      "fuente": "https://www.mediomaratondesevilla.es/mms-reglamento",
+      "fuente_nombre": "Medio Maratón de Sevilla · reglamento 2026",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2027-02-20",
+      "nombre": "VI 5K Breakfast Run Zurich Maratón de Sevilla",
+      "localidad": "Sevilla",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "5 km",
+      "hora": "09:30",
+      "fuente": "https://www.zurichmaratonsevilla.es/zms-reglamento-5k-breakfast-run--zurich-maraton-de-sevilla",
+      "fuente_nombre": "Zurich Maratón Sevilla · reglamento 5K",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2027-02-21",
+      "nombre": "XLII Zurich Maratón de Sevilla",
+      "localidad": "Sevilla",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "42,195 km",
+      "hora": "08:30",
+      "fuente": "https://www.zurichmaratonsevilla.es/mse-reglamento",
+      "fuente_nombre": "Zurich Maratón Sevilla · reglamento 2027",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2027-04-02",
+      "nombre": "Unicaja Ultra Sierra Nevada 2027 — Ultra",
+      "localidad": "Granada",
+      "provincia": "Granada",
+      "modalidad": "ULTRA",
+      "distancia": "100 km",
+      "hora": "22:00",
+      "fuente": "https://ultrasierranevada.com/reglamento/",
+      "fuente_nombre": "Ultra Sierra Nevada · reglamento 2027",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2027-04-03",
+      "nombre": "Unicaja Ultra Sierra Nevada 2027 — Trail",
+      "localidad": "Cenes de la Vega",
+      "provincia": "Granada",
+      "modalidad": "TRAIL",
+      "distancia": "62 km",
+      "hora": "06:00",
+      "fuente": "https://ultrasierranevada.com/reglamento/",
+      "fuente_nombre": "Ultra Sierra Nevada · reglamento 2027",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2027-04-03",
+      "nombre": "Unicaja Ultra Sierra Nevada 2027 — Maratón",
+      "localidad": "Quéntar",
+      "provincia": "Granada",
+      "modalidad": "TRAIL",
+      "distancia": "40 km",
+      "hora": "08:00",
+      "fuente": "https://ultrasierranevada.com/reglamento/",
+      "fuente_nombre": "Ultra Sierra Nevada · reglamento 2027",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2027-04-04",
+      "nombre": "Unicaja Ultra Sierra Nevada 2027 — Media",
+      "localidad": "Pinos Genil",
+      "provincia": "Granada",
+      "modalidad": "TRAIL",
+      "distancia": "25 km",
+      "hora": "09:00",
+      "fuente": "https://ultrasierranevada.com/reglamento/",
+      "fuente_nombre": "Ultra Sierra Nevada · reglamento 2027",
+      "tipo_fuente": "organizador"
+    },
+    {
+      "fecha": "2027-05-08",
+      "nombre": "101 km en 24 h de La Legión 2027 — marcha",
+      "localidad": "Ronda",
+      "provincia": "Málaga",
+      "modalidad": "ULTRA",
+      "distancia": "101 km",
+      "hora": "",
+      "fuente": "https://www.lalegion101.com/",
+      "fuente_nombre": "Club Deportivo La Legión 101 km",
+      "tipo_fuente": "organizador"
+    }
+  ]
+}

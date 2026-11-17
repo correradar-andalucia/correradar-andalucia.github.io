@@ -10,7 +10,17 @@ from pathlib import Path
 import re
 from urllib.parse import urlparse
 
-FILE = Path(__file__).resolve().parents[1] / "data" / "fichas_oficiales_2026-11-16.json"
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+FILE = DATA_DIR / "fichas_oficiales_2026-11-16.json"
+FILES = (FILE, DATA_DIR / "fichas_oficiales_2026-11-17.json")
+# Directorio de agregadores del Excel recibido. Son para descubrir carreras,
+# no sirven como fuente final de confirmación editorial.
+AGGREGATOR_HOSTS = frozenset({
+    "andaluciarunning.com", "runnea.com", "corredorespopulares.es",
+    "carreraspopulares.com", "clubrunning.es", "runagain.com",
+    "hybridracemap.com", "hybridracehub.com", "metahibrida.com",
+    "sportplan.es",
+})
 MAX_AGE = 30
 PROVINCES = {"Almería", "Cádiz", "Córdoba", "Granada",
              "Huelva", "Jaén", "Málaga", "Sevilla"}
@@ -23,9 +33,22 @@ FIELDS = ("fecha", "nombre", "localidad", "provincia", "modalidad",
 
 
 def official_races(today=None, catalog=None):
+    """Une cotejos fechados, sin renovar implícitamente los cotejos antiguos."""
     today = today or date.today()
-    if catalog is None:
-        catalog = json.loads(FILE.read_text(encoding="utf-8"))
+    if catalog is not None:
+        return _read_catalog(today, catalog)
+    result = []
+    for path in FILES:
+        if path.exists():
+            record=json.loads(path.read_text(encoding="utf-8"))
+            # En pruebas históricas no introducir información cotejada después.
+            if date.fromisoformat(record["revision"]) > today:
+                continue
+            result.extend(_read_catalog(today, record))
+    return result
+
+
+def _read_catalog(today, catalog):
     reviewed = date.fromisoformat(catalog["revision"])
     if reviewed > today:
         raise ValueError("Catálogo oficial con fecha de cotejo futura")
@@ -59,6 +82,19 @@ def official_races(today=None, catalog=None):
         url = urlparse(record["fuente"])
         if url.scheme != "https" or not url.hostname or url.username or url.password:
             raise ValueError("Ficha con enlace de fuente inválido")
+        host = url.hostname.removeprefix("www.")
+        # Corredores Populares también aloja inscripciones REALES de eventos.
+        # Única excepción, verificada por inscripción y reglamento de esta edición;
+        # no convertir todo su calendario en pruebas confirmadas.
+        signup_exception=(
+            host=="corredorespopulares.es"
+            and url.path=="/inscripciones.php"
+            and record["tipo_fuente"]=="cronometraje"
+            and record["fecha"]=="2026-12-20"
+            and record["nombre"]=="III Carrera Popular de Navidad El Rubio"
+        )
+        if host in AGGREGATOR_HOSTS and not signup_exception:
+            raise ValueError("Una web agregadora no acredita la confirmación: "+host)
         race = {field: record[field] for field in FIELDS}
         race.update({"enlace":record["fuente"],
                      "origen":"oficial", "fuente_directa":not stale,
