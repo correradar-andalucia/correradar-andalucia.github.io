@@ -187,10 +187,12 @@ def main():
     parser.add_argument("--estado-anterior", required=True)
     parser.add_argument("--estado-siguiente", required=True)
     args = parser.parse_args()
+    default_email = json.loads((Path(__file__).resolve().parents[1] / "config"
+                                / "site.json").read_text(encoding="utf-8")).get("contact_email", "")
     process(args.calendario, args.estado_anterior, args.estado_siguiente,
-            sender=os.environ.get("CARRERAS_SMTP_USER", "").strip(),
+            sender=os.environ.get("CARRERAS_SMTP_USER", "").strip() or default_email,
             password=os.environ.get("CARRERAS_SMTP_APP_PASSWORD", "").replace(" ", ""),
-            recipient=os.environ.get("CARRERAS_ALERT_EMAIL", "").strip())
+            recipient=os.environ.get("CARRERAS_ALERT_EMAIL", "").strip() or default_email)
 
 
 if __name__ == "__main__":
