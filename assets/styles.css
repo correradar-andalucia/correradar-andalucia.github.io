@@ -73,3 +73,15 @@
 .race-actions a:focus-visible,.race-title a:focus-visible,
 .header a:focus-visible,.footer a:focus-visible,
 .hero a:focus-visible{outline:3px solid var(--lime);outline-offset:3px}
+
+/* Prelanzamiento móvil: primero encontrar carreras, después la decoración. */
+@media(max-width:620px){
+  .hero{min-height:0}
+  .hero-content{padding:32px 0 28px}
+  .hero h1{font-size:clamp(40px,10vw,54px);margin:16px 0}
+  .hero-content>p{font-size:14px;line-height:1.52;max-width:360px;margin:0}
+  .hero-link{margin-top:15px;padding:13px 16px;gap:30px}
+  .hero-secondary{margin:12px 0 0}
+  .hero-metrics{display:none}
+  .calendar-section{padding-top:35px}
+}
