@@ -67,6 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
     steps:
       - name: Obtener código de notificaciones
         uses: actions/checkout@v4
@@ -89,22 +90,42 @@ jobs:
           else
             echo "Primer seguimiento: el calendario existente será el punto de partida."
           fi
-      - name: Detectar novedades y enviar un único correo si corresponde
-        env:
-          CARRERAS_SMTP_USER: ${{ secrets.CARRERAS_SMTP_USER }}
-          CARRERAS_SMTP_APP_PASSWORD: ${{ secrets.CARRERAS_SMTP_APP_PASSWORD }}
-          CARRERAS_ALERT_EMAIL: ${{ vars.CARRERAS_ALERT_EMAIL }}
+      - name: Detectar carreras nuevas sin crear correos directamente
         run: |
           python scripts/notificar_carreras.py \
             --calendario _avisos/carreras.json \
             --estado-anterior "$RUNNER_TEMP/estado-anterior.json" \
-            --estado-siguiente "$RUNNER_TEMP/estado-siguiente.json"
-      - name: Guardar histórico solo si se completó el aviso
+            --estado-siguiente "$RUNNER_TEMP/estado-siguiente.json" \
+            --aviso-titulo "$RUNNER_TEMP/aviso-titulo.txt" \
+            --aviso-cuerpo "$RUNNER_TEMP/aviso-cuerpo.md"
+      - name: Abrir incidencia de novedades para notificaciones GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -s "$RUNNER_TEMP/aviso-cuerpo.md" ]; then
+            echo "Sin carreras nuevas: no se crea ninguna incidencia."
+            exit 0
+          fi
+          marker=$(grep -oE 'correradar-avisos:[a-f0-9]{24}' "$RUNNER_TEMP/aviso-cuerpo.md" | head -1)
+          test -n "$marker" || (echo "No se encontró identificador anti-duplicados" && exit 1)
+          if gh issue list --repo "$GH_REPO" --state all --limit 1000 --json body | \
+            jq -e --arg mark "$marker" 'any(.[]; (.body // "") | contains($mark))' >/dev/null; then
+            echo "La incidencia del lote ya existe; no repetir."
+          else
+            gh issue create --repo "$GH_REPO" \
+              --title "$(cat "$RUNNER_TEMP/aviso-titulo.txt")" \
+              --body-file "$RUNNER_TEMP/aviso-cuerpo.md"
+            echo "Incidencia creada. GitHub notificará a quienes sigan Issues por email."
+          fi
+      - name: Guardar histórico solo tras registrar las incidencias
         shell: bash
         run: |
           set -euo pipefail
           if [ ! -f "$RUNNER_TEMP/estado-siguiente.json" ]; then
-            echo "Novedades pendientes de envío; no se actualizará el histórico."
+            echo "Estado incompleto; no se actualizará el histórico."
             exit 0
           fi
           if git show-ref --verify --quiet refs/remotes/origin/estado-correradar-avisos; then
