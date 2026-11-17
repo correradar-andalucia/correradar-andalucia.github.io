@@ -18,7 +18,8 @@ class AuditoriaPrivacidad(unittest.TestCase):
 
     def test_info_de_titular_no_inventada(self):
         legal=self.pages["aviso-legal"][1]
-        self.assertIn("NOMBRE Y APELLIDOS DEL TITULAR PENDIENTES",legal)
+        self.assertIn("Iván Amador Dueñas",legal)
+        self.assertNotIn("NOMBRE Y APELLIDOS DEL TITULAR PENDIENTES",legal)
         self.assertIn("NIF",legal)
         self.assertIn("revisión",legal)
         self.assertFalse(self.config["public_launch"])
