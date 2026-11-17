@@ -32,6 +32,7 @@ class DerechosDeFuentesTests(unittest.TestCase):
             races, report = collect(date(2026, 11, 17))
         self.assertEqual(races, [])
         self.assertEqual(report["fuentes_habilitadas_por_derechos"], 0)
+        self.assertEqual(report["nombres_fuentes_habilitadas"], [])
         self.assertEqual(set(SOURCES).issubset(set(report["fuentes"])), True)
         for source in SOURCES:
             self.assertEqual(report["fuentes"][source]["estado"], "sin consulta automática")
@@ -50,6 +51,29 @@ class DerechosDeFuentesTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "incompleto"):
                 fuentes_con_derechos_acreditados()
 
+    def test_feed_ajeno_no_reemplaza_una_fuente_autorizada_caida(self):
+        race = {
+            "fecha": "2026-12-20", "nombre": "Prueba de muestra",
+            "localidad": "Sevilla", "provincia": "Sevilla",
+            "modalidad": "RUNNING", "fecha_origen": "catalogo",
+            "consultado": "2026-11-16",
+            "enlace": "https://example.org/carrera",
+            "fuente": "https://example.org/carrera", "slug": "prueba-de-muestra"
+        }
+        capture = {
+            "fuentes_habilitadas_por_derechos": 1,
+            "nombres_fuentes_habilitadas": ["fadmes"],
+            "fuentes": {"fadmes": {"estado": "no disponible"},
+                         "globaltempo": {"estado": "leida"}}
+        }
+        quality = inspect_calendar([race], capture, date(2026, 11, 17))
+        self.assertFalse(quality["apto_para_desplegar"])
+        self.assertTrue(any("autorizadas insuficientes" in reason
+                            for reason in quality["bloqueos"]))
+        capture["fuentes"]["fadmes"]["estado"] = "leida"
+        quality = inspect_calendar([race], capture, date(2026, 11, 17))
+        self.assertTrue(quality["apto_para_desplegar"], quality["bloqueos"])
+
     def test_calidad_permite_pausa_real_y_la_comunica(self):
         race = {
             "fecha": "2026-12-20", "nombre": "Prueba de muestra",
@@ -60,6 +84,7 @@ class DerechosDeFuentesTests(unittest.TestCase):
         }
         report = inspect_calendar([race], {
             "fuentes_habilitadas_por_derechos": 0,
+            "nombres_fuentes_habilitadas": [],
             "fuentes": {key: {"estado": "sin consulta automática"} for key in SOURCES}
         }, date(2026, 11, 17))
         self.assertTrue(report["apto_para_desplegar"], report["bloqueos"])
