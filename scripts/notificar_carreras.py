@@ -135,7 +135,7 @@ def make_issue(events):
         raise ValueError("No hay carreras nuevas para notificar")
     count = len(events)
     label = "carrera nueva" if count == 1 else "carreras nuevas"
-    title = f"CorreRadar: {count} {label} publicadas"
+    title = f"CorreRadar: {count} {label} en el calendario"
     marker = f"<!-- correradar-avisos:{fingerprint(events)} -->"
     body = [
         marker, f"## {count} {label.capitalize()}",
