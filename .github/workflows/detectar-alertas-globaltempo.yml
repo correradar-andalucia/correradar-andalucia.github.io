@@ -1,0 +1,32 @@
+name: Detectar novedades de Global Tempo para revisión
+on:
+  schedule:
+    - cron: '41 7,19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: globaltempo-alertas
+  cancel-in-progress: false
+
+jobs:
+  detectar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código seguro (rama principal)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Buscar enlaces indexados y crear incidencias pendientes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GT_ALERT_RSS_URL: ${{ secrets.GT_ALERT_RSS_URL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/alertas_globaltempo.py detectar
