@@ -78,7 +78,8 @@
       "feed_directo_autorizacion": {
         "fecha_revision": "",
         "referencia_evidencia": "",
-        "nota": "No declarar autorizado sin permiso o fundamento aplicable documentado y URL de feed del proveedor; no introducir tokens ni credenciales en este registro."
+        "nota": "No declarar autorizado sin permiso o fundamento aplicable documentado y URL de feed del proveedor; no introducir tokens ni credenciales en este registro.",
+        "estado": "pendiente"
       }
     }
   }
