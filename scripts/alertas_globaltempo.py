@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 import re
 import sys
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, quote, urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 import xml.etree.ElementTree as ET
@@ -312,7 +312,13 @@ def detect():
     if not rss:
         print("Global Tempo: detector preparado, pendiente configurar Google Alerts RSS")
         return
-    alert=read_feed(rss)
+    try:
+        alert=read_feed(rss)
+    except (HTTPError, URLError, TimeoutError, OSError) as exc:
+        # La URL de Google Alerts puede incluir un token en su ruta:
+        # NUNCA escribirla en los logs, ni siquiera al fallar HTTP.
+        raise ValueError("No se pudo obtener el RSS de Google Alerts; "
+                         "comprobar la URL secreta en GitHub") from None
     candidates=parse_feed(alert)
     known=existing_candidates()
     known.update(event_id(row.get("url","")) for row in approved_items())
