@@ -30,6 +30,10 @@ jobs:
       - name: Generar web y fichas de carreras
         env:
           SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL }}
+          GLOBALTEMPO_AUTHORIZED: ${{ vars.GLOBALTEMPO_AUTHORIZED }}
+          GLOBALTEMPO_FEED_HOST: ${{ vars.GLOBALTEMPO_FEED_HOST }}
+          GLOBALTEMPO_FEED_URL: ${{ secrets.GLOBALTEMPO_FEED_URL }}
+          GLOBALTEMPO_FEED_TOKEN: ${{ secrets.GLOBALTEMPO_FEED_TOKEN }}
         run: python scripts/build.py
       - name: Comprobar informe, fichas y bloqueo de indexación
         run: python scripts/verificar_salida.py
