@@ -125,8 +125,12 @@ def add_curated_distances(races, catalog=None):
     Los conflictos NO sustituyen lo que diga una fuente consultada en vivo.
     """
     if catalog is None:
-        path=ROOT/"data"/"distancias_cotejadas_2026-11-16.json"
-        catalog=json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"carreras":[]}
+        # Cada cotejo conserva su fecha; agregar un archivo no renueva los antiguos.
+        entries=[]
+        for path in sorted((ROOT/"data").glob("distancias_cotejadas_*.json")):
+            document=json.loads(path.read_text(encoding="utf-8"))
+            entries.extend(document.get("carreras",[]))
+        catalog={"carreras":entries}
     applied=0;conflicts=0
     seen=set()
     by_key={(r["fecha"],norm(r["nombre"]),norm(r["localidad"]),norm(r["provincia"])):r
