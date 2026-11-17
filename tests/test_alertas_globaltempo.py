@@ -91,10 +91,14 @@ class AlertasGT(unittest.TestCase):
             with self.subTest(link=link),self.assertRaises(ValueError):
                 gt.alert_feed_url(link)
 
-    def test_sin_alerta_no_hace_peticiones_ni_publica(self):
+    def test_sin_alerta_crea_etiquetas_pero_no_lee_fuentes(self):
+        created=[]
         with patch.dict("os.environ",{"GT_ALERT_RSS_URL":""}):
-            with patch.object(gt,"read_feed",side_effect=AssertionError("no red")):
-                gt.detect()
+            with patch.object(gt,"read_feed",side_effect=AssertionError("no leer RSS")):
+                with patch.object(gt,"gh_request",side_effect=AssertionError("no crear incidencias")):
+                    with patch.object(gt,"ensure_label",side_effect=lambda name,*args:created.append(name)):
+                        gt.detect()
+        self.assertEqual(created,[gt.PENDING,gt.APPROVE,gt.PUBLISHED])
 
     def test_issue_pide_tres_comprobaciones(self):
         body=gt.issue_body({"id":"3375","nombre":"XV Carrera Navideña de Prueba",
