@@ -64,6 +64,15 @@ class InterfazSimplificada(unittest.TestCase):
         self.assertNotIn("Distancia no disponible", self.script)
         self.assertIn("if (r.distancia && r.distancia_origen)", self.script)
 
+    def test_ano_completo_accesible_y_enlace_de_evento_prioritario(self):
+        self.assertIn("el('time','race-date')", self.script)
+        self.assertIn("date.dateTime = r.fecha", self.script)
+        self.assertIn("el('span','race-year'", self.script)
+        self.assertIn("d.toLocaleDateString('es-ES'", self.script)
+        self.assertIn("safeLink(r.enlace) || safeLink(r.fuente)", self.script)
+        self.assertIn('id="shown-count" aria-live="polite"', self.page)
+        self.assertNotIn('class="cards" aria-live="polite"', self.page)
+
     def test_las_categorias_siguen_accesibles(self):
         self.assertIn("r.modalidad === 'TRAIL' || r.modalidad === 'ULTRA'", self.script)
         self.assertIn("r.modalidad === 'OCR' || r.modalidad === 'HIBRIDA'", self.script)
