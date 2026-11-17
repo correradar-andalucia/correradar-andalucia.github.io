@@ -21,6 +21,8 @@ from distancias import (extract_distance, extract_races_section,
                        extract_modalities_distance)
 
 USER_AGENT = "CorreRadarAndaluciaBot/0.1 (+mailto:correradarandalucia@gmail.com)"
+MAX_DETALLES_POR_FUENTE = 24
+FUENTES_CON_RESERVAS_EXPRESAS = {"fadmes", "dipgra"}
 SOURCES = {
     "fadmes": "https://fadmes.es/calendario-fam/",
     "dorsalchip": "https://dorsalchip.es/view/Inicio.aspx",
@@ -522,11 +524,12 @@ def enrich_booking_distance(row,page,booking_url):
     return True
 
 
-def fuentes_con_derechos_acreditados():
-    """Lista de lectores habilitados con evidencia revisada en Git.
+def fuentes_habilitadas():
+    """Consulta prudente de hechos básicos sin confundir uso mínimo con licencia.
 
-    La mera accesibilidad, el permiso de robots.txt o una variable de entorno
-    no se consideran autorización para extraer sistemáticamente calendarios.
+    'consulta_minima' NO significa autorización del titular; el uso de hechos
+    objetivos y enlaces se limita técnicamente y sigue sujeto a revisión.
+    Fuentes con reservas expresas permanecen pausadas hasta revisión específica.
     """
     from pathlib import Path
     path = Path(__file__).resolve().parents[1] / "config" / "derechos_fuentes.json"
@@ -536,7 +539,7 @@ def fuentes_con_derechos_acreditados():
         raise ValueError("Registro de derechos de fuentes incompleto o inválido")
     enabled = set()
     for name, record in records.items():
-        if not isinstance(record, dict) or record.get("estado") not in ("pendiente", "autorizado"):
+        if not isinstance(record, dict) or record.get("estado") not in ("pendiente", "consulta_minima", "autorizado"):
             raise ValueError("Estado de derechos inválido: " + name)
         if record["estado"] == "autorizado":
             reference = str(record.get("referencia_evidencia") or "").strip()
@@ -547,6 +550,9 @@ def fuentes_con_derechos_acreditados():
                 raise ValueError("Fecha de autorización inválida: " + name) from exc
             if len(reference) < 12:
                 raise ValueError("Falta referencia de evidencia de derechos: " + name)
+        if record["estado"] == "consulta_minima" and name in FUENTES_CON_RESERVAS_EXPRESAS:
+            raise ValueError("Fuente con reserva expresa requiere revisión específica: " + name)
+        if record["estado"] != "pendiente":
             enabled.add(name)
     return enabled
 
@@ -557,16 +563,16 @@ def collect(today=None):
     if os.environ.get('CORRERADAR_FETCH')=='0':
         report['modo']='Prueba local sin conexión'
         return events,report
-    permitted = fuentes_con_derechos_acreditados()
-    report["fuentes_habilitadas_por_derechos"] = len(permitted)
+    permitted = fuentes_habilitadas()
+    report["fuentes_con_consulta_habilitada"] = len(permitted)
     report["nombres_fuentes_habilitadas"] = sorted(permitted)
     if not permitted:
-        report["modo"] = "Fuentes pausadas por derechos de reutilización"
+        report["modo"] = "Fuentes con consulta automática pausada"
     for name,url in SOURCES.items():
         if name not in permitted:
             report["fuentes"][name] = {
                 "estado": "sin consulta automática",
-                "motivo": "Pendiente de acreditar derechos de reutilización",
+                "motivo": "Consulta pausada: reserva expresa o revisión pendiente",
                 "url": url}
             continue
         try:
@@ -582,7 +588,7 @@ def collect(today=None):
                 rows=[]
                 links=circuito_links(page)
                 detail_errors=0
-                for link,title in links:
+                for link,title in links[:MAX_DETALLES_POR_FUENTE]:
                     try:
                         candidate=circuito_detail(fetch_if_permitted(link),link,title,today)
                         if candidate:rows.append(candidate)
@@ -590,13 +596,13 @@ def collect(today=None):
                         detail_errors+=1
                     time.sleep(0.2)
                 report["fuentes"]["circuito_cordoba_detalle"]={
-                    "consultadas":len(links),"carreras_documentadas":len(rows),
+                    "consultadas":min(len(links),MAX_DETALLES_POR_FUENTE),"carreras_documentadas":len(rows),
                     "incidencias":detail_errors}
             elif name=="runnink":
                 from captacion_extra import runnink
                 rows=runnink(page,today)
                 detail_success=0;detail_errors=0;fetched=0
-                for row in rows[:24]:
+                for row in (rows[:24] if os.environ.get("CORRERADAR_DISTANCE_ENRICHMENT") == "yes" else []):
                     if row.get("distancia"):
                         continue
                     try:
@@ -620,7 +626,7 @@ def collect(today=None):
                 rows=gesconchip(page,today)
                 detail_success=0;detail_errors=0;fetched=0
                 with_headline=0;with_section=0;with_text=0
-                for row in rows[:30]:
+                for row in (rows[:24] if os.environ.get("CORRERADAR_DISTANCE_ENRICHMENT") == "yes" else []):
                     if row.get("distancia"):
                         continue
                     try:
@@ -644,7 +650,7 @@ def collect(today=None):
                 rows=parse_faa(page,today)
             elif name=="gcc":
                 rows=[]
-                for detail in gcc_links(page):
+                for detail in gcc_links(page)[:MAX_DETALLES_POR_FUENTE]:
                     try:
                         candidate=parse_gcc_detail(fetch_if_permitted(detail),detail,today)
                         if candidate:rows.append(candidate)
@@ -653,7 +659,7 @@ def collect(today=None):
                     time.sleep(0.3)
             elif name=="dorsalchip":
                 rows=[];links=dorsal_links(page,today)
-                for detail in links:
+                for detail in links[:MAX_DETALLES_POR_FUENTE]:
                     try:
                         candidate=dorsal_detail(fetch_if_permitted(detail),detail,today)
                         if candidate:rows.append(candidate)
@@ -662,7 +668,7 @@ def collect(today=None):
                     time.sleep(0.2)
             else:
                 rows=[];links=cruzando_links(page)
-                for detail in links:
+                for detail in links[:MAX_DETALLES_POR_FUENTE]:
                     try:
                         candidate=parse_cruzando_detail(fetch_if_permitted(detail),detail,today)
                         if candidate:rows.append(candidate)
