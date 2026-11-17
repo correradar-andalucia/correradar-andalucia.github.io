@@ -551,7 +551,7 @@ def fuentes_habilitadas():
                 raise ValueError("Fecha de autorización inválida: " + name) from exc
             if len(reference) < 12:
                 raise ValueError("Falta referencia de evidencia de derechos: " + name)
-         if record["estado"] != "pendiente":
+        if record["estado"] != "pendiente":
             enabled.add(name)
     return enabled
 
