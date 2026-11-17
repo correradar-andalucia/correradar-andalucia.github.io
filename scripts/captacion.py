@@ -619,6 +619,15 @@ def collect(today=None):
         "motivo":"No se ha verificado un calendario estructurado accesible ni método autorizado"}
     report["fuentes"]["dip_almeria"]={"estado":"sin próximas carreras",
         "motivo":"El circuito provincial 2026 finalizó en octubre; no extrapolar fechas de 2027"}
-    report["fuentes"]["globaltempo"]={"estado":"sin consulta automática",
-        "motivo":"Condiciones de reutilización pendientes; solo fichas cotejadas manualmente"}
+    # Solo feed facilitado por Global Tempo tras autorización; jamás
+    # raspado de su web ni importación de listados de participantes.
+    from globaltempo_feed import fetch_authorized_feed, authorized
+    report["globaltempo_autorizado"]=authorized()
+    try:
+        gt_events,gt_status=fetch_authorized_feed(today)
+        events.extend(gt_events)
+        report["fuentes"]["globaltempo"]=gt_status
+    except Exception as exc:
+        report["fuentes"]["globaltempo"]={"estado":"no disponible",
+            "motivo":str(exc)[:170]}
     return events,report

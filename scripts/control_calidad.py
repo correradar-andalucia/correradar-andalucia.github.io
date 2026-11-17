@@ -115,6 +115,12 @@ def inspect_calendar(races, capture_report, today=None):
     offline = capture_report.get("modo") == "Prueba local sin conexión"
     if not offline and len(live) < 2:
         reasons.append("Menos de dos fuentes automáticas consultadas; conservar la última web")
+    # Si Global Tempo estaba conectado y falla, no publicar de nuevo un
+    # calendario sin sus carreras: conservar el último despliegue válido.
+    if (capture_report.get("globaltempo_autorizado")
+            and not offline
+            and (sources.get("globaltempo") or {}).get("estado") != "leida"):
+        reasons.append("Feed autorizado de Global Tempo no disponible: conservar última web")
 
     if len(province_counts) < 8:
         notices.append("No hay carreras próximas en las ocho provincias")
