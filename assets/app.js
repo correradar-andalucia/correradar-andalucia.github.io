@@ -93,7 +93,7 @@ function raceCard(r) {
 
   const facts = el('div','race-facts');
   if (r.distancia && r.distancia_origen) facts.append(el('span','','↗  '+r.distancia));
-  else facts.append(el('span','fact-pending','Distancia no disponible'));
+  // Sin kilómetros comprobados, no llenar cada tarjeta con avisos repetitivos.
   if (r.hora && r.hora_origen) facts.append(el('span','','◷  '+r.hora+' h · según fuente'));
   if (confirmed(r)) {
     if (r.desnivel) facts.append(el('span','','⌁  '+r.desnivel));
