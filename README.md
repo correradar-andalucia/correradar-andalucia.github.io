@@ -2,6 +2,12 @@
 
 Calendario independiente de carreras populares, trail, cross, ultradistancia, obstáculos e híbridas de Andalucía. Proyecto en preparación.
 
+## Pausa preventiva de captación externa (17/11/2026)
+
+**Los diez lectores de terceros están desactivados por defecto** mientras se comprueba para cada fuente su régimen jurídico o autorización de reutilización recurrente. No significa que sus páginas dejen de ser públicas ni que todos los hechos estén protegidos; significa que **no se presume el derecho a extraer sus calendarios de forma sistemática**. El despliegue de la web sigue generando el calendario con fichas y cotejos existentes, sujetos a caducidad, sin convertirlos en nuevas consultas. Global Tempo mantiene su conector directo desactivado hasta obtener autorización escrita.
+
+El registro `config/derechos_fuentes.json` identifica los diez lectores. Solo puede habilitarse un lector mediante cambio revisado en Git a `estado: autorizado`, con `fecha_revision` y `referencia_evidencia` real de la licencia, acuerdo, autorización o análisis jurídico aplicable. **Nunca incluir secretos ni comunicaciones privadas en el repositorio público.** `scripts/captacion.py` impide solicitudes a las fuentes pendientes; `data/estado_fuentes.json` muestra el bloqueo y el control de calidad permite el modo de pausa explícita sin fingir lecturas automáticas. Se mantienen los bloqueos de lanzamiento y de indexación.
+
 ## Principio editorial
 
 **Fecha publicada en una fuente** no es lo mismo que **aprobación editorial**. El calendario conserva internamente la procedencia y la fecha de consulta; **la portada no muestra etiquetas técnicas redundantes** junto a cada fecha. Las fichas ofrecen el enlace original para comprobar posibles cambios. Distinguimos internamente:
@@ -43,7 +49,7 @@ Existe una **excepción muy restringida**: Corredores Populares, además de un c
 
 ## Descubrimiento oficial + enlace de inscripción (sin permiso de Global Tempo)
 
-**Estrategia activa:** la captación automática consulta **fuentes independientes** (federaciones, diputaciones, circuitos y organizadores), nunca el calendario de Global Tempo. Se añade a los captadores el **Circuito Cordobés de Carreras Populares** (`www.carreraspopularescordoba.com`), con URLs de ficha específica y fecha con año explícito. Solo se crean carreras cuando el nombre, la fecha completa, el municipio y la modalidad son inequívocos. Si la página no puede consultarse según `robots.txt`, falla o cambia de formato, no se inventa ningún evento.
+**Estrategia técnica preparada, temporalmente pausada por derechos:** los lectores de fuentes independientes (federaciones, diputaciones, circuitos y organizadores) solo podrán volver a consultar su calendario cuando exista evidencia documentada de un régimen de reutilización aplicable. No se consulta el calendario de Global Tempo. Se añade a los captadores el **Circuito Cordobés de Carreras Populares** (`www.carreraspopularescordoba.com`), con URLs de ficha específica y fecha con año explícito. Solo se crean carreras cuando el nombre, la fecha completa, el municipio y la modalidad son inequívocos. Si la página no puede consultarse según `robots.txt`, falla o cambia de formato, no se inventa ningún evento.
 
 El módulo `scripts/enlaces_inscripcion.py` permite **asociar enlaces puntuales de inscripción de Global Tempo ya cotejados el 17/11/2026** únicamente si una fuente independiente consultada acredita la **misma edición, fecha y municipio**. No descarga nada de Global Tempo, ni genera carreras a partir de ese catálogo de enlaces. Conserva la URL de la fuente de confirmación como `fuente` y pone el enlace directo de inscripción en `enlace` si el enlace anterior era un calendario genérico; si la fuente oficial ya tenía ficha individual, ofrece Global Tempo como opción adicional en la ficha. El informe de deduplicación recoge cuántos enlaces se pudieron asociar y cuántos quedaron sin confirmar.
 
