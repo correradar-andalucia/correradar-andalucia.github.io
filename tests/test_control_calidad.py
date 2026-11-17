@@ -96,10 +96,25 @@ class ControlCalidad(unittest.TestCase):
             check_launch_ready({"public_launch":True,
                                 "contact_email":"ejemplo@correo.test",
                                 "legal_name":"Persona responsable"})
-        check_launch_ready({"public_launch":True,
-                            "contact_email":"ejemplo@correo.test",
-                            "legal_name":"Persona responsable",
-                            "legal_review_complete":True})
+        with self.assertRaisesRegex(ValueError,"source_rights_review_complete"):
+            check_launch_ready({"public_launch":True,
+                                "contact_email":"ejemplo@correo.test",
+                                "legal_name":"Persona responsable",
+                                "legal_review_complete":True})
+        complete={"public_launch":True,
+                  "contact_email":"ejemplo@correo.test",
+                  "legal_name":"Persona responsable",
+                  "legal_review_complete":True,
+                  "source_rights_review_complete":True,
+                  "hosting_privacy_review_complete":True,
+                  "cookie_behavior_review_complete":True}
+        for field in ("source_rights_review_complete",
+                      "hosting_privacy_review_complete",
+                      "cookie_behavior_review_complete"):
+            broken=dict(complete,**{field:False})
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError,field):
+                check_launch_ready(broken)
+        check_launch_ready(complete)
 
 
 if __name__=="__main__":
