@@ -50,6 +50,20 @@ class InterfazSimplificada(unittest.TestCase):
         self.assertNotIn("50</strong><small>FUENTES", self.page)
         self.assertIn("Comprueba los detalles en su fuente", self.page)
 
+    def test_fecha_visible_sin_etiquetas_tecnicas(self):
+        self.assertNotIn("FECHA EN FUENTE", self.script)
+        self.assertNotIn("FECHA COTEJADA", self.script)
+        self.assertNotIn("dateLabel(", self.script)
+        self.assertIn("date.append(", self.script)
+        self.assertIn("Fuente consultada: ", self.script)
+        self.assertIn("Consulta anterior: ", self.script)
+        self.assertIn("sourceName(r)", self.script)
+        self.assertIn("const sourceUrl = safeLink(", self.script)
+
+    def test_solo_se_muestra_distancia_si_se_conoce(self):
+        self.assertNotIn("Distancia no disponible", self.script)
+        self.assertIn("if (r.distancia && r.distancia_origen)", self.script)
+
     def test_las_categorias_siguen_accesibles(self):
         self.assertIn("r.modalidad === 'TRAIL' || r.modalidad === 'ULTRA'", self.script)
         self.assertIn("r.modalidad === 'OCR' || r.modalidad === 'HIBRIDA'", self.script)

@@ -29,11 +29,10 @@ const safeLink = (url) => {
   catch { return null; }
 };
 const confirmed = (r) => r.confirmada === true;
-const publishedDate = (r) => confirmed(r) || r.fecha_origen === 'fuente';
-const dateLabel = (r) => confirmed(r) ? 'REVISADA'
-  : r.fecha_origen === 'fuente' ? 'FECHA EN FUENTE' : 'FECHA COTEJADA';
-const distanceLabel = (r) => r.distancia_origen === 'catalogo'
-  ? 'Cotejada' : r.distancia_origen === 'fuente' ? 'En fuente' : 'Revisada';
+const readableDate = (iso) => {
+  const found = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+  return found ? found[3]+'/'+found[2]+'/'+found[1] : String(iso || '');
+};
 const distanceNumbers = (raw) => [...String(raw || '').matchAll(/(\d+(?:[.,]\d+)?)\s*(km|m)\b/gi)]
   .map(m => Number(m[1].replace(',', '.')) / (m[2].toLowerCase() === 'm' ? 1000 : 1))
   .filter(n => Number.isFinite(n) && n > 0);
@@ -88,14 +87,13 @@ function raceCard(r) {
     head.append(el('span','tag '+String(r.modalidad).toLowerCase(),
                    modeLabels[r.modalidad] || r.modalidad));
   }
-  head.append(el('span',confirmed(r) ? 'tag tag-verified' :
-    publishedDate(r) ? 'tag tag-sourced' : 'tag tag-pending',dateLabel(r)));
+  // La fecha ya destaca en su propio bloque: no repetirla con una etiqueta técnica.
   if (sourceName(r)) head.append(el('span','tag source-tag',sourceName(r)));
   info.append(head,el('p','race-location','⌖  '+[r.localidad,r.provincia].filter(Boolean).join(' · ')));
 
   const facts = el('div','race-facts');
-  if (r.distancia && r.distancia_origen) facts.append(el('span','','↗  '+r.distancia+' · '+distanceLabel(r)));
-  else facts.append(el('span','fact-pending','Distancia no disponible'));
+  if (r.distancia && r.distancia_origen) facts.append(el('span','','↗  '+r.distancia));
+  // Sin kilómetros comprobados, no llenar cada tarjeta con avisos repetitivos.
   if (r.hora && r.hora_origen) facts.append(el('span','','◷  '+r.hora+' h · según fuente'));
   if (confirmed(r)) {
     if (r.desnivel) facts.append(el('span','','⌁  '+r.desnivel));
@@ -104,7 +102,7 @@ function raceCard(r) {
   info.append(facts);
   if (!confirmed(r) && r.consultado) {
     info.append(el('p','source-meta',
-      (r.fecha_origen === 'catalogo' ? 'Cotejada el ' : 'Fuente consultada el ')+r.consultado));
+      (r.fecha_origen === 'catalogo' ? 'Consulta anterior: ' : 'Fuente consultada: ')+readableDate(r.consultado)));
   }
 
   const actions = el('div','race-actions');
