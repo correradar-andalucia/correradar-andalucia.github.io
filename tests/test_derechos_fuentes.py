@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from captacion import SOURCES, collect, fuentes_con_derechos_acreditados
+from captacion import SOURCES, collect, fuentes_habilitadas
 from control_calidad import inspect_calendar
 
 
@@ -18,20 +18,33 @@ class DerechosDeFuentesTests(unittest.TestCase):
         doc = json.loads((ROOT / "config" / "derechos_fuentes.json").read_text(encoding="utf-8"))
         self.assertEqual(doc["version"], 1)
         self.assertEqual(set(doc["fuentes"]), set(SOURCES))
-        self.assertTrue(all(record["estado"] in {"pendiente", "autorizado"}
+        self.assertTrue(all(record["estado"] in {"pendiente", "consulta_minima", "autorizado"}
                             for record in doc["fuentes"].values()))
         for record in doc["fuentes"].values():
             if record["estado"] == "autorizado":
                 self.assertTrue(record["referencia_evidencia"])
                 self.assertTrue(record["fecha_revision"])
 
+    def test_consulta_minima_solo_para_fuentes_sin_reserva_explicita(self):
+        enabled = fuentes_habilitadas()
+        self.assertEqual(len(enabled), 8)
+        self.assertNotIn("fadmes", enabled)
+        self.assertNotIn("dipgra", enabled)
+
+    def test_fuente_con_reserva_expresa_no_acepta_consulta_minima(self):
+        records = {key: {"estado": "pendiente"} for key in SOURCES}
+        records["fadmes"] = {"estado": "consulta_minima"}
+        with patch("captacion.json.loads", return_value={"version": 1, "fuentes": records}):
+            with self.assertRaisesRegex(ValueError, "reserva expresa"):
+                fuentes_habilitadas()
+
     def test_fichas_sin_permisos_no_se_descargan(self):
-        with patch("captacion.fuentes_con_derechos_acreditados", return_value=set()), \
+        with patch("captacion.fuentes_habilitadas", return_value=set()), \
              patch("captacion.fetch_if_permitted", side_effect=AssertionError("No debe solicitar red")), \
              patch.dict(os.environ, {"CORRERADAR_FETCH": "1", "GLOBALTEMPO_AUTHORIZED": ""}):
             races, report = collect(date(2026, 11, 17))
         self.assertEqual(races, [])
-        self.assertEqual(report["fuentes_habilitadas_por_derechos"], 0)
+        self.assertEqual(report["fuentes_con_consulta_habilitada"], 0)
         self.assertEqual(report["nombres_fuentes_habilitadas"], [])
         self.assertEqual(set(SOURCES).issubset(set(report["fuentes"])), True)
         for source in SOURCES:
@@ -44,12 +57,12 @@ class DerechosDeFuentesTests(unittest.TestCase):
                              "referencia_evidencia": ""}
         with patch("captacion.json.loads", return_value={"version": 1, "fuentes": records}):
             with self.assertRaisesRegex(ValueError, "evidencia"):
-                fuentes_con_derechos_acreditados()
+                fuentes_habilitadas()
 
     def test_rechazar_registro_incompleto(self):
         with patch("captacion.json.loads", return_value={"version": 1, "fuentes": {}}):
             with self.assertRaisesRegex(ValueError, "incompleto"):
-                fuentes_con_derechos_acreditados()
+                fuentes_habilitadas()
 
     def test_feed_ajeno_no_reemplaza_una_fuente_autorizada_caida(self):
         race = {
@@ -61,14 +74,14 @@ class DerechosDeFuentesTests(unittest.TestCase):
             "fuente": "https://example.org/carrera", "slug": "prueba-de-muestra"
         }
         capture = {
-            "fuentes_habilitadas_por_derechos": 1,
+            "fuentes_con_consulta_habilitada": 1,
             "nombres_fuentes_habilitadas": ["fadmes"],
             "fuentes": {"fadmes": {"estado": "no disponible"},
                          "globaltempo": {"estado": "leida"}}
         }
         quality = inspect_calendar([race], capture, date(2026, 11, 17))
         self.assertFalse(quality["apto_para_desplegar"])
-        self.assertTrue(any("autorizadas insuficientes" in reason
+        self.assertTrue(any("habilitadas insuficientes" in reason
                             for reason in quality["bloqueos"]))
         capture["fuentes"]["fadmes"]["estado"] = "leida"
         quality = inspect_calendar([race], capture, date(2026, 11, 17))
@@ -83,7 +96,7 @@ class DerechosDeFuentesTests(unittest.TestCase):
             "fuente": "https://example.org/ficha", "slug": "prueba-de-muestra"
         }
         report = inspect_calendar([race], {
-            "fuentes_habilitadas_por_derechos": 0,
+            "fuentes_con_consulta_habilitada": 0,
             "nombres_fuentes_habilitadas": [],
             "fuentes": {key: {"estado": "sin consulta automática"} for key in SOURCES}
         }, date(2026, 11, 17))

@@ -119,24 +119,24 @@ def inspect_calendar(races, capture_report, today=None):
     live = sorted(key for key, record in sources.items()
                   if isinstance(record, dict) and record.get("estado") == "leida")
     offline = capture_report.get("modo") == "Prueba local sin conexión"
-    # En situación de revisión de derechos, cero lectores habilitados es
-    # correcto: conservar el calendario cotejado sin extraer bases ajenas.
-    # Cuando se acrediten 1 o más, deben responder todos hasta un máximo de 2.
-    permitted = capture_report.get("fuentes_habilitadas_por_derechos")
+    # La consulta mínima no acredita una licencia general: se habilita con
+    # límites y se verifica que al menos dos fuentes elegidas responden.
+    # Cero lectores habilitados significa una pausa preventiva deliberada.
+    permitted = capture_report.get("fuentes_con_consulta_habilitada")
     permitted_names = capture_report.get("nombres_fuentes_habilitadas")
     if isinstance(permitted, int) and permitted >= 0:
         if (not isinstance(permitted_names, list) or len(permitted_names) != permitted
                 or len(set(permitted_names)) != len(permitted_names)):
-            reasons.append("Informe de lectores autorizados incompleto")
+            reasons.append("Informe de lectores habilitados incompleto")
         else:
             live_approved = [name for name in permitted_names
                              if (sources.get(name) or {}).get("estado") == "leida"]
             if not offline and len(live_approved) < min(2, permitted):
-                reasons.append("Fuentes autorizadas insuficientes o no disponibles; conservar última web")
+                reasons.append("Fuentes habilitadas insuficientes o no disponibles; conservar última web")
     elif not offline and len(live) < 2:
         reasons.append("Menos de dos fuentes automáticas consultadas; conservar la última web")
     if permitted == 0 and not offline:
-        notices.append("Captación automática de terceros pausada por falta de derechos acreditados")
+        notices.append("Captación automática de terceros pausada por revisión específica")
     # Si Global Tempo estaba conectado y falla, no publicar de nuevo un
     # calendario sin sus carreras: conservar el último despliegue válido.
     if (capture_report.get("globaltempo_autorizado")
