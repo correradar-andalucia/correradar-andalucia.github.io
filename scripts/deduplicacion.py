@@ -58,9 +58,21 @@ def similarity(a,b):
     return score>=.77 and coverage>=.82
 
 def same_place(a,b):
-    return (norm(a.get("provincia"))==norm(b.get("provincia"))
-            and norm(a.get("localidad"))==norm(b.get("localidad"))
-            and bool(norm(a.get("localidad"))))
+    province = norm(a.get("provincia"))
+    if not province or province != norm(b.get("provincia")):
+        return False
+    ca,cb=norm(a.get("localidad")),norm(b.get("localidad"))
+    if ca and ca==cb:
+        return True
+    # El VI Trail de la Contraviesa figura como 'Albuñol' en la inscripción
+    # y 'Albuñol y Sorvilán' en FADMES. Sólo esta edición concreta debe unirse;
+    # no normalizar indiscriminadamente localidades compuestas.
+    if (province=="granada"
+            and {ca,cb}=={"albunol","albunol y sorvilan"}
+            and all("contraviesa" in norm(x.get("nombre"))
+                    and "albunol" in norm(x.get("nombre")) for x in (a,b))):
+        return True
+    return False
 
 def specific_event_link(item):
     """URL profunda de ficha, nunca una portada ni un calendario general."""
