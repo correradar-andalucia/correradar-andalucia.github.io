@@ -1,7 +1,0 @@
-{
-  // El sitio se sirve exclusivamente desde private/worker.mjs.
-  // No usar assets.directory: Cloudflare Assets no propaga ctx.access.
-  "name": "correradar-consulta-privada",
-  "main": "private/worker.mjs",
-  "compatibility_date": "2026-11-17"
-}
