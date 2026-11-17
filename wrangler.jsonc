@@ -1,0 +1,12 @@
+{
+  // Requiere Cloudflare Access para el Worker y un secreto privado
+  // CORRERADAR_PRIVATE_EMAIL. Sin ambos la aplicación responde 403/503.
+  "name": "correradar-consulta-privada",
+  "main": "private/worker.js",
+  "compatibility_date": "2026-11-17",
+  "assets": {
+    "directory": "./_site",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  }
+}
