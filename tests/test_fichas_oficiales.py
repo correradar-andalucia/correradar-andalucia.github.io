@@ -80,6 +80,21 @@ class FichasOficiales(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "agregadora"):
             official_races(date(2026, 11, 17), bad)
 
+    def test_inscripcion_real_no_es_importacion_de_agregador(self):
+        rows=official_races(date(2026,11,17))
+        original=next(r for r in rows if r["nombre"]=="III Carrera Popular de Navidad El Rubio")
+        self.assertEqual(original["fecha"],"2026-12-20")
+        self.assertEqual(original["tipo_fuente"],"cronometraje")
+        # Un evento hipotético en ese mismo listado NO pasa como confirmado.
+        wrong=dict(original)
+        wrong["nombre"]="Carrera no corroborada"
+        entry={k:wrong[k] for k in (
+            "fecha","nombre","localidad","provincia","modalidad","distancia",
+            "hora","fuente","fuente_nombre","tipo_fuente")}
+        with self.assertRaisesRegex(ValueError,"agregadora"):
+            official_races(date(2026,11,17),{"revision":"2026-11-17",
+                                              "carreras":[entry]})
+
     def test_fuente_no_https_rechazada(self):
         bad = {
             "revision": "2026-11-16",
