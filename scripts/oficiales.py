@@ -83,7 +83,17 @@ def _read_catalog(today, catalog):
         if url.scheme != "https" or not url.hostname or url.username or url.password:
             raise ValueError("Ficha con enlace de fuente inválido")
         host = url.hostname.removeprefix("www.")
-        if host in AGGREGATOR_HOSTS:
+        # Corredores Populares también aloja inscripciones REALES de eventos.
+        # Única excepción, verificada por inscripción y reglamento de esta edición;
+        # no convertir todo su calendario en pruebas confirmadas.
+        signup_exception=(
+            host=="corredorespopulares.es"
+            and url.path=="/inscripciones.php"
+            and record["tipo_fuente"]=="cronometraje"
+            and record["fecha"]=="2026-12-20"
+            and record["nombre"]=="III Carrera Popular de Navidad El Rubio"
+        )
+        if host in AGGREGATOR_HOSTS and not signup_exception:
             raise ValueError("Una web agregadora no acredita la confirmación: "+host)
         race = {field: record[field] for field in FIELDS}
         race.update({"enlace":record["fuente"],
