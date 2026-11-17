@@ -1,5 +1,8 @@
 name: Detectar novedades de Global Tempo para revisión
 on:
+  push:
+    branches: [main]
+    paths: ['scripts/alertas_globaltempo.py']
   schedule:
     - cron: '41 7,19 * * *'
   workflow_dispatch:
