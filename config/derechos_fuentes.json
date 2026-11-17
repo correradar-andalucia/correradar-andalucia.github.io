@@ -1,56 +1,66 @@
 {
   "version": 1,
-  "descripcion": "Registro operativo. Sólo habilitar un captador después de revisar y documentar el fundamento aplicable de reutilización recurrente por fuente. No colocar correos privados, DNI, domicilios ni tokens en Git.",
+  "descripcion": "Política operativa por fuente: consulta_minima = detección prudente de hechos básicos y enlaces, NO equivale a licencia; pendiente = consulta automática pausada por reservas o revisión específica; autorizado = evidencia documentada del fundamento aplicable. No introducir datos privados en Git.",
   "fuentes": {
     "fadmes": {
       "estado": "pendiente",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Reserva de derechos identificada; revisar alcance de datos factuales y derecho sobre bases antes de reactivar"
     },
     "dorsalchip": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
     },
     "cruzandolameta": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
     },
     "faa": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
     },
     "gcc": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
     },
     "runnink": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
     },
     "gesconchip": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
     },
     "dipgra": {
       "estado": "pendiente",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Reserva de derechos identificada; revisar alcance de datos factuales y derecho sobre bases antes de reactivar"
     },
     "diphuelva": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
     },
     "circuito_cordoba": {
-      "estado": "pendiente",
+      "estado": "consulta_minima",
       "fecha_revision": "",
-      "referencia_evidencia": ""
+      "referencia_evidencia": "",
+      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
     }
   }
 }
