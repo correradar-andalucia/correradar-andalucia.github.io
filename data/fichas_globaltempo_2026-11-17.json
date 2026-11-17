@@ -1,0 +1,126 @@
+{
+  "revision": "2026-11-17",
+  "criterio": "Revisión manual de datos factuales mínimos de fichas específicas de inscripción de Global Tempo (NO importación ni scraping automático). Para Albuñuelas, hora de la modalidad TRAIL, no la hora del senderismo. Cruz de la Atalaya cotejada también en normativa art. 3 (31/01/2027). Se excluye Playa Cambriles por discrepancia 22/11/2026 en ficha frente a 02/08/2026 en reglamento; no publicar fecha sin resolver. Alhendín es carrera competitiva, excluido el pasacalles no competitivo. No se reproducen textos, diseños ni listados de inscritos.",
+  "carreras": [
+    {
+      "fecha": "2026-11-22",
+      "nombre": "VI CxM Albuñol Trail La Contraviesa",
+      "localidad": "Albuñol",
+      "provincia": "Granada",
+      "modalidad": "TRAIL",
+      "distancia": "25 km · 12 km",
+      "hora": "09:00",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3204",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-11-22",
+      "nombre": "X Carrera de Fondo Peligros Suena",
+      "localidad": "Peligros",
+      "provincia": "Granada",
+      "modalidad": "RUNNING",
+      "distancia": "10 km",
+      "hora": "11:00",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3299",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-05",
+      "nombre": "Neptune Race - Circuito Provincial de Obstáculos",
+      "localidad": "Torrenueva Costa",
+      "provincia": "Granada",
+      "modalidad": "OCR",
+      "distancia": "6 km",
+      "hora": "10:00",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3100",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-12",
+      "nombre": "II San Silvestre de Armilla",
+      "localidad": "Armilla",
+      "provincia": "Granada",
+      "modalidad": "RUNNING",
+      "distancia": "3 km",
+      "hora": "19:00",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3319",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-19",
+      "nombre": "VII Carrera San Silvestre Alhendín 2026",
+      "localidad": "Alhendín",
+      "provincia": "Granada",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "hora": "18:00",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3325",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-20",
+      "nombre": "CxM Albuñuelas",
+      "localidad": "Albuñuelas",
+      "provincia": "Granada",
+      "modalidad": "TRAIL",
+      "distancia": "20 km · 13,5 km",
+      "hora": "10:30",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3315",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-27",
+      "nombre": "III Carrera Navideña Escúzar 2026",
+      "localidad": "Escúzar",
+      "provincia": "Granada",
+      "modalidad": "RUNNING",
+      "distancia": "6 km",
+      "hora": "11:00",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3314",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2026-12-30",
+      "nombre": "XXV Carrera Nocturna Ciudad de Las Gabias",
+      "localidad": "Las Gabias",
+      "provincia": "Granada",
+      "modalidad": "RUNNING",
+      "distancia": "",
+      "hora": "18:30",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3322",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2027-01-31",
+      "nombre": "XIII Subida a la Cruz de la Atalaya",
+      "localidad": "Padul",
+      "provincia": "Granada",
+      "modalidad": "TRAIL",
+      "distancia": "8,72 km",
+      "hora": "10:00",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3311",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    },
+    {
+      "fecha": "2027-05-01",
+      "nombre": "La Última Fortaleza - Carrera de Obstáculos Lanjarón",
+      "localidad": "Lanjarón",
+      "provincia": "Granada",
+      "modalidad": "OCR",
+      "distancia": "9 km",
+      "hora": "09:30",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3291",
+      "fuente_nombre": "Global Tempo · inscripción de la edición",
+      "tipo_fuente": "cronometraje"
+    }
+  ]
+}
