@@ -31,6 +31,14 @@ class InterfazSimplificada(unittest.TestCase):
         self.parser = Markup()
         self.parser.feed(self.page)
 
+    def test_portada_movil_prioriza_calendario(self):
+        css = (ROOT / "assets/styles.css").read_text(encoding="utf-8")
+        self.assertIn("Prelanzamiento móvil: primero encontrar carreras", css)
+        self.assertIn(".hero-metrics{display:none}", css)
+        self.assertIn(".calendar-section{padding-top:35px}", css)
+        self.assertIn(".hero-content{padding:32px 0 28px}", css)
+        self.assertIn(".hero{min-height:0}", css)
+
     def test_solo_filtros_utiles(self):
         self.assertEqual(set(self.parser.selects), {"province", "month", "distance"})
         self.assertEqual(self.parser.modes,
