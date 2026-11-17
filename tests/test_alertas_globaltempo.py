@@ -151,6 +151,26 @@ class AlertasGT(unittest.TestCase):
                 gt.approve()
                 self.assertEqual(len(gt.approved_items(path)),1)
 
+    def test_siguientes_lotes_tambien_generan_incidencias(self):
+        candidates=[{"id":str(4000+i),
+                     "nombre":f"Carrera de prueba {i}",
+                     "url":f"https://www.global-tempo.com/carreras.php?id={4000+i}",
+                     "fecha_aviso":"2026-11-17"} for i in range(35)]
+        posted=[]
+        with patch.dict("os.environ",{"GT_ALERT_RSS_URL":"rss-configurado"}):
+            with patch.object(gt,"read_feed",return_value=b"feed"):
+                with patch.object(gt,"parse_feed",return_value=candidates):
+                    with patch.object(gt,"existing_candidates",
+                                      return_value={c["id"] for c in candidates[:20]}):
+                        with patch.object(gt,"ensure_label"):
+                            with patch.object(gt,"gh_request",
+                                              side_effect=lambda method,path,data:
+                                              posted.append((method,path,data))):
+                                gt.detect()
+        self.assertEqual(len(posted),15)
+        self.assertTrue(all(item[0]=="POST" for item in posted))
+        self.assertIn("Carrera de prueba 34",posted[-1][2]["title"])
+
     def test_aprobar_rechaza_otras_etiquetas(self):
         with tempfile.TemporaryDirectory() as folder:
             event=Path(folder)/"event.json"
