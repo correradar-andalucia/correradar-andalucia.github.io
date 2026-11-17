@@ -59,8 +59,8 @@ class FichasOficiales(unittest.TestCase):
 
     def test_carreras_nuevas_solo_con_fuentes_primarias(self):
         rows = official_races(date(2026, 11, 17))
-        self.assertEqual(len(rows), 23)
-        self.assertEqual(len({(r["fecha"], r["nombre"], r["localidad"]) for r in rows}), 23)
+        self.assertEqual(len(rows), 33)
+        self.assertEqual(len({(r["fecha"], r["nombre"], r["localidad"]) for r in rows}), 33)
         by_name = {r["nombre"]: r for r in rows}
         self.assertEqual(by_name["XXXII Medio Maratón de Sevilla"]["fecha"], "2026-12-13")
         self.assertEqual(by_name["XXXII Medio Maratón de Sevilla"]["hora"], "09:00")
