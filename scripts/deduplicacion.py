@@ -225,7 +225,17 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
             if not locks[match_idx] and not matches.get("hora") and r.get("hora"):
                 matches["hora"]=r["hora"]
                 matches["hora_origen"]=r.get("hora_origen","")
-            if not locks[match_idx] and not matches.get("distancia") and not is_approved and r.get("distancia"):
+            # Una lectura «15 km» y otra «25 km · 15 km» identifican la misma
+            # edición: conservar todas las distancias comprobadas. No mezclar
+            # distancias disjuntas ni alterar una ficha aprobada manualmente.
+            old_distances = distance_set(matches)
+            new_distances = distance_set(r)
+            fuller_current_reading = (
+                old_distances < new_distances
+                and (r.get("fuente_directa") or matches.get("fecha_origen") != "fuente")
+            )
+            if (not locks[match_idx] and not is_approved and r.get("distancia")
+                    and (not matches.get("distancia") or fuller_current_reading)):
                 matches["distancia"]=r["distancia"]
                 matches["distancia_origen"]=r["distancia_origen"]
                 if r.get("distancia_fuente"):
