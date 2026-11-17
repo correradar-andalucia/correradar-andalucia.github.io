@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 import json
 import os
+from pathlib import Path
 import re
 from urllib.parse import urlparse, parse_qs
 from urllib.request import Request, build_opener, HTTPRedirectHandler
@@ -36,6 +37,27 @@ class NoRedirect(HTTPRedirectHandler):
 def authorized(env=None):
     env = os.environ if env is None else env
     return env.get("GLOBALTEMPO_AUTHORIZED") == "yes"
+
+
+def feed_authorization_documented(config_path=None):
+    """Exige un permiso/fundamento registrado ANTES de abrir un feed externo.
+
+    Un flag de GitHub Actions NO constituye autorización. La prueba documental
+    se revisa editorialmente; este control solo comprueba que quedó registrada.
+    """
+    path = Path(config_path) if config_path is not None else (
+        Path(__file__).resolve().parents[1] / "config" / "derechos_fuentes.json")
+    document = json.loads(path.read_text(encoding="utf-8"))
+    other = document.get("fuentes_externas") or {}
+    record = (other.get("globaltempo") or {}).get("feed_directo_autorizacion") or {}
+    if record.get("estado") != "autorizado":
+        return False
+    reference = str(record.get("referencia_evidencia") or "").strip()
+    try:
+        reviewed = date.fromisoformat(str(record.get("fecha_revision") or ""))
+    except ValueError:
+        return False
+    return len(reference) >= 12 and reviewed <= date.today()
 
 
 def feed_host(url, allowed):
@@ -158,6 +180,10 @@ def fetch_authorized_feed(today=None, env=None):
     if not authorized(env):
         return [], {"estado": "sin consulta automática",
                     "motivo": "Pendiente permiso escrito y feed autorizado"}
+    # Fallar ANTES de crear la petición de red si alguien activa el flag
+    # sin documentar primero el fundamento de reutilización del feed.
+    if not feed_authorization_documented():
+        raise ValueError("Global Tempo: flag activado sin autorización de feed documentada")
     address = env.get("GLOBALTEMPO_FEED_URL", "").strip()
     hostname = env.get("GLOBALTEMPO_FEED_HOST", "").strip()
     if not address or not hostname:
