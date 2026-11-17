@@ -85,3 +85,16 @@
   .hero-metrics{display:none}
   .calendar-section{padding-top:35px}
 }
+
+/* Enlaces revisados editorialmente: NO son fichas del calendario fechado. */
+.reviewed-section{padding:64px 0;background:#111d19}
+.reviewed-section[hidden]{display:none}
+.reviewed-section h2{font-weight:850;font-size:clamp(28px,5vw,48px);line-height:1.1;letter-spacing:-.045em;margin:16px 0}
+.reviewed-section h2 span{color:#b9fb45}
+.reviewed-section .wrap>p{max-width:760px;color:#d0ddd5;line-height:1.65;margin:0 0 24px}
+.reviewed-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:12px}
+.reviewed-link{border:1px solid #385148;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:16px;justify-content:space-between;background:#15251e}
+.reviewed-link h3{font-size:17px;font-weight:750;line-height:1.36;margin:0}
+.reviewed-link a{color:#b9fb45;font-weight:750;text-underline-offset:3px}
+.reviewed-link a:focus-visible{outline:3px solid #b9fb45;outline-offset:4px}
+@media(max-width:620px){.reviewed-section{padding:44px 0}.reviewed-link{padding:18px}}
