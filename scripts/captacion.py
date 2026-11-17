@@ -30,6 +30,7 @@ SOURCES = {
     "gesconchip": "https://gesconchip.es/app/proximas-pruebas",
     "dipgra": "https://www.dipgra.es/servicios/areas/deportes/deporte-competicion/circuito-provincial-campo-a-traves/",
     "diphuelva": "https://www.diphuelva.es/deportes/contenidos/Circuitos-Carreras-Atleticas-2026/",
+    "circuito_cordoba": "https://www.carreraspopularescordoba.com/",
 }
 PROVINCES = {"ALMERIA":"Almería","CADIZ":"Cádiz","CORDOBA":"Córdoba",
              "GRANADA":"Granada","HUELVA":"Huelva","JAEN":"Jaén",
@@ -449,6 +450,7 @@ ALLOWED_HOSTS = frozenset((
     "gesconchip.es", "www.gesconchip.es",
     "www.dipgra.es", "dipgra.es",
     "www.diphuelva.es", "diphuelva.es",
+    "www.carreraspopularescordoba.com", "carreraspopularescordoba.com",
 ))
 def is_allowed_url(url):
     parsed=urlparse(url)
@@ -534,6 +536,21 @@ def collect(today=None):
             elif name=="diphuelva":
                 from captacion_extra import diputacion_huelva
                 rows=diputacion_huelva(page,today)
+            elif name=="circuito_cordoba":
+                from circuito_cordoba import circuito_links, circuito_detail
+                rows=[]
+                links=circuito_links(page)
+                detail_errors=0
+                for link,title in links:
+                    try:
+                        candidate=circuito_detail(fetch_if_permitted(link),link,title,today)
+                        if candidate:rows.append(candidate)
+                    except Exception:
+                        detail_errors+=1
+                    time.sleep(0.2)
+                report["fuentes"]["circuito_cordoba_detalle"]={
+                    "consultadas":len(links),"carreras_documentadas":len(rows),
+                    "incidencias":detail_errors}
             elif name=="runnink":
                 from captacion_extra import runnink
                 rows=runnink(page,today)

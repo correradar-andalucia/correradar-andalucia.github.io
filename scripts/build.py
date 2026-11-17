@@ -216,6 +216,9 @@ def detail_page(r):
     if r.get('fuente') and r['fuente']!=r.get('enlace'):buttons+=f'<a class="secondary" href="{esc(r["fuente"])}" rel="noopener noreferrer" target="_blank">Fuente de verificación ↗</a>'
     if r.get("distancia") and url_clean(r.get("distancia_fuente","")) and r.get("distancia_fuente") != r.get("enlace"):
         buttons+=f'<a class="secondary" href="{esc(r["distancia_fuente"])}" rel="noopener noreferrer" target="_blank">Ver distancia en la fuente ↗</a>'
+    if (r.get("inscripcion_enlace") and url_clean(r["inscripcion_enlace"])
+            and r["inscripcion_enlace"]!=r.get("enlace")):
+        buttons+=f'<a class="secondary" href="{esc(r["inscripcion_enlace"])}" rel="noopener noreferrer" target="_blank">Inscripción en Global Tempo ↗</a>'
     if is_confirmed and r['track']:buttons+=f'<a class="secondary" href="{esc(r["track"])}" rel="noopener noreferrer" target="_blank">Ver track ↗</a>'
     if not buttons:buttons='<p>Enlaces oficiales pendientes de verificación.</p>'
     ld={'@context':'https://schema.org','@type':'SportsEvent','name':r['nombre'],'startDate':r['fecha'],
@@ -240,6 +243,7 @@ def main():
     from oficiales import official_races
     from deduplicacion import combine, verify_unique
     from control_calidad import check_launch_ready, inspect_calendar
+    from enlaces_inscripcion import match_registrations
     from captacion import collect
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
@@ -247,6 +251,11 @@ def main():
     oficiales=official_races()
     races, auditoria = combine(transform(load_csv()), oficiales+seed_races()+backup_runnink()+candidatas_en_vivo,
                                slugify, km_parse, with_audit=True)
+    # Las fichas de Global Tempo solo aportan enlaces si una fuente diferente
+    # prueba la MISMA edición; el directorio jamás crea carreras.
+    auditoria["enlaces_globaltempo"]=match_registrations(
+        races, [*candidatas_en_vivo,
+                *(r for r in oficiales if r.get("origen") not in ("globaltempo_cotejo",))])
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
     auditoria["fichas_oficiales_cotejadas"]=len(oficiales)
     provincias=["Almería","Cádiz","Córdoba","Granada","Huelva","Jaén","Málaga","Sevilla"]

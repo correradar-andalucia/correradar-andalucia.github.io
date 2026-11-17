@@ -7,6 +7,7 @@ const sources = {
   globaltempo:'Global Tempo', dorsalchip:'Dorsalchip', fadmes:'FADMES',
   faa:'FAA', cruzandolameta:'Cruzando la Meta', gcc:'GCC Sport Events',
   dipgra:'Diputación de Granada', diphuelva:'Diputación de Huelva',
+  circuito_cordoba:'Circuito Cordobés',
   runnink:'Runnink', gesconchip:'Gesconchip', rockthesport:'RockTheSport',
   oficial:'Fuentes cotejadas'
 };
