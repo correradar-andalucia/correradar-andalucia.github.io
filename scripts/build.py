@@ -383,6 +383,8 @@ def detail_page(r):
         consultado=consultado[8:10]+'/'+consultado[5:7]+'/'+consultado[:4]
     consulta_label=('Consulta anterior de la fuente' if fecha_origen=='catalogo'
                     else 'Fuente consultada')
+    if r.get('respaldo_temporal'):
+        entries.append(('Estado de consulta','Fuente temporalmente no disponible. Fecha pendiente de reconfirmar.'))
     entries += [(consulta_label,consultado if not is_confirmed else ''),
                 ('Última revisión editorial',r.get('verificado','') if is_confirmed else '')]
     lines='\n'.join(f'<div class="detail-line"><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>' for k,v in entries if v)
@@ -424,6 +426,7 @@ def main():
     from enlaces_inscripcion import match_registrations
     from alertas_globaltempo import approved_items, publication_candidates
     from captacion import collect
+    from persistencia import read_previous, restore_missing, distance_backlog
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
     candidatas_en_vivo, informe_captacion = collect()
@@ -435,6 +438,9 @@ def main():
     auditoria["enlaces_globaltempo"]=match_registrations(
         races, [*candidatas_en_vivo,
                 *(r for r in oficiales if r.get("origen") not in ("globaltempo_cotejo",))])
+    auditoria["respaldo_carreras"]=restore_missing(races,
+        read_previous(os.environ.get("CORRERADAR_PREVIOUS_CALENDAR")),
+        informe_captacion,slugify,km_parse)
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
     auditoria["distancias_conservadas"]=preserve_previous_distances(races)
     auditoria["cross_distancias_orientativas"]=add_granada_cross_notes(races)
@@ -469,6 +475,8 @@ def main():
     (OUT/'data'/'estado_fuentes.json').write_text(json.dumps(informe_captacion,ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'auditoria_duplicados.json').write_text(json.dumps(auditoria,ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'cobertura.json').write_text(json.dumps(cobertura,ensure_ascii=False,indent=2),encoding='utf8')
+    (OUT/'data'/'distancias_pendientes.json').write_text(
+        json.dumps(distance_backlog(races),ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'control_calidad.json').write_text(
         json.dumps(calidad,ensure_ascii=False,indent=2),encoding='utf8')
     # Independiente del calendario fechado: nombre + enlace solo tras
