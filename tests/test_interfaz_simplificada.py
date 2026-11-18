@@ -40,7 +40,10 @@ class InterfazSimplificada(unittest.TestCase):
         self.assertIn(".hero{min-height:0}", css)
 
     def test_solo_filtros_utiles(self):
-        self.assertEqual(set(self.parser.selects), {"province", "month", "distance"})
+        self.assertEqual(set(self.parser.selects), {"province", "month", "distance", "registration"})
+        self.assertIn("registrationState(r) !== registration", self.script)
+        self.assertIn("['search','province','month','distance','registration']", self.script)
+        self.assertIn('<option value="desconocida">Sin estado confirmado</option>', self.page)
         self.assertEqual(self.parser.modes,
                          ["TODAS", "RUNNING", "TRAIL", "CROSS", "OBSTACULOS", "OTRAS"])
         self.assertNotIn("confirmed-only", self.page)
