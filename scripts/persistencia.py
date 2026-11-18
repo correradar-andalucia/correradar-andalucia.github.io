@@ -39,10 +39,7 @@ def restore_missing(races, previous, report, slugify, km_parse, today=None):
         origin=old.get("origen")
         if origin not in failed or old.get("confirmada"):
             continue
-        # No recuperar un evento si otra fuente ya lo ha leído o cambiado de fecha.
-        if any(same_event(old,r) or conflicting_date(old,r) for r in races+restored):
-            continue
-        if not old.get("nombre") or len(old["nombre"])>170 or not valid_locality(old.get("localidad")):
+        if not isinstance(old.get("nombre"),str) or not old["nombre"] or len(old["nombre"])>170 or not valid_locality(old.get("localidad")):
             continue
         if old.get("provincia") not in PROVINCES or old.get("modalidad") not in MODES:
             continue
@@ -61,6 +58,9 @@ def restore_missing(races, previous, report, slugify, km_parse, today=None):
         def host_key(url):
             return (urlparse(url).hostname or "").removeprefix("www.")
         if host_key(source)!=host.removeprefix("www.") or host_key(link)!=host.removeprefix("www."):
+            continue
+        # No recuperar un evento si otra fuente ya lo ha leído o cambiado de fecha.
+        if any(same_event(old,r) or conflicting_date(old,r) for r in races+restored):
             continue
         slug=old.get("slug")
         if not isinstance(slug,str) or slugify(slug)!=slug or any(r.get("slug")==slug for r in races+restored):
@@ -83,6 +83,8 @@ def restore_missing(races, previous, report, slugify, km_parse, today=None):
             and dist_source in (source,link) and checked and 0<=(today-checked).days<=30):
             row.update(distancia=dist,distancia_origen="catalogo",distancia_fuente=dist_source,
                        distancia_cotejada=checked.isoformat(),km=km_parse(dist))
+            if old.get("distancia_aproximada") is True:
+                row["distancia_aproximada"]=True
         restored.append(row)
     races.extend(restored)
     races.sort(key=lambda r:(r["fecha"],r["nombre"].casefold()))
