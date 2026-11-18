@@ -1,0 +1,42 @@
+{
+  "revision": "2026-11-18",
+  "criterio": "Cotejo puntual de la misma edición; solo distancias de carrera expresadas por el organizador. Las Palomas: modalidad 24K mide 23,5 km según art. 8; Antequera: las dos carreras principales, sin senderismo.",
+  "carreras": [
+    {
+      "fecha": "2026-11-21",
+      "nombre": "VII Carrera contra la violencia de genero San Roque",
+      "localidad": "San Roque",
+      "provincia": "Cádiz",
+      "distancia": "3 km",
+      "fuente": "https://www.sanroque.app/noticias-1/i/181585/san-roque-correra-contra-la-violencia-de-genero-el-proximo-21-de-noviembre",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-11-28",
+      "nombre": "Antequera Trail",
+      "localidad": "Antequera",
+      "provincia": "Málaga",
+      "distancia": "24 km · 14 km",
+      "fuente": "https://www.deportes.antequera.es/actividades/agenda/la-v-antequera-trail-race-se-celebrara-el-28-de-noviembre-y-abrira-sus-inscripciones-este-martes-15-de-septiembre.html",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-06",
+      "nombre": "Montesierra Trail La Teja",
+      "localidad": "Jerez de la Frontera",
+      "provincia": "Cádiz",
+      "distancia": "18 km · 10 km",
+      "fuente": "https://www.runnink.com/evento/montesierra-trail-la-teja/100",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-12",
+      "nombre": "XV Trail Las Palomas",
+      "localidad": "Zahara de la Sierra",
+      "provincia": "Cádiz",
+      "distancia": "39 km · 23,5 km",
+      "fuente": "https://gccsportevents.es/index.php/component/jdownloads/send/3-reglamentos/47-reglamento-trail-las-palomas-2026?Itemid=101",
+      "cotejada": "2026-11-18"
+    }
+  ]
+}
