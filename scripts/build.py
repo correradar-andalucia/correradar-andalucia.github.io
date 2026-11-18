@@ -156,6 +156,8 @@ def add_curated_distances(races, catalog=None):
         race["distancia_origen"]="fuente"
         race["distancia_fuente"]=item["fuente"]
         race["distancia_cotejada"]=item["cotejada"]
+        if item.get("aproximada") is True:
+            race["distancia_aproximada"]=True
         race["km"]=km_parse(item["distancia"])
         applied+=1
     return {"aplicadas":applied,"conflictos_no_sobrescritos":conflicts}
@@ -244,6 +246,8 @@ def preserve_previous_distances(races, previous_path=None, today=None):
         row.update(distancia=distance,distancia_origen="catalogo",
                    distancia_fuente=source,distancia_cotejada=stamp,
                    km=km_parse(distance))
+        if item.get("distancia_aproximada") is True:
+            row["distancia_aproximada"]=True
         recovered+=1
     return {"recuperadas":recovered,"estado":"respaldo consultado"}
 
@@ -370,7 +374,7 @@ def detail_page(r):
              ('Hora de salida',r.get('hora','')+' h' if r.get('hora') else ''),
              ('Localidad',city),('Modalidad',mode)]
     if r.get('distancia') and distancia_origen:
-        entries.append(('Distancia',r['distancia']+' · '+distancia_origen))
+        entries.append(('Distancia',r['distancia']+(' (aprox.)' if r.get('distancia_aproximada') else '')+' · '+distancia_origen))
     if r.get("distancia_cotejada"):
         entries.append(("Distancia cotejada el",r["distancia_cotejada"]))
     if not r.get("distancia") and r.get("distancia_orientativa"):
@@ -383,6 +387,8 @@ def detail_page(r):
         consultado=consultado[8:10]+'/'+consultado[5:7]+'/'+consultado[:4]
     consulta_label=('Consulta anterior de la fuente' if fecha_origen=='catalogo'
                     else 'Fuente consultada')
+    if r.get('respaldo_temporal'):
+        entries.append(('Estado de consulta','Fuente temporalmente no disponible. Fecha pendiente de reconfirmar.'))
     entries += [(consulta_label,consultado if not is_confirmed else ''),
                 ('Última revisión editorial',r.get('verificado','') if is_confirmed else '')]
     lines='\n'.join(f'<div class="detail-line"><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>' for k,v in entries if v)
@@ -424,6 +430,7 @@ def main():
     from enlaces_inscripcion import match_registrations
     from alertas_globaltempo import approved_items, publication_candidates
     from captacion import collect
+    from persistencia import read_previous, restore_missing, distance_backlog
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
     candidatas_en_vivo, informe_captacion = collect()
@@ -435,6 +442,9 @@ def main():
     auditoria["enlaces_globaltempo"]=match_registrations(
         races, [*candidatas_en_vivo,
                 *(r for r in oficiales if r.get("origen") not in ("globaltempo_cotejo",))])
+    auditoria["respaldo_carreras"]=restore_missing(races,
+        read_previous(os.environ.get("CORRERADAR_PREVIOUS_CALENDAR")),
+        informe_captacion,slugify,km_parse)
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
     auditoria["distancias_conservadas"]=preserve_previous_distances(races)
     auditoria["cross_distancias_orientativas"]=add_granada_cross_notes(races)
@@ -469,6 +479,8 @@ def main():
     (OUT/'data'/'estado_fuentes.json').write_text(json.dumps(informe_captacion,ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'auditoria_duplicados.json').write_text(json.dumps(auditoria,ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'cobertura.json').write_text(json.dumps(cobertura,ensure_ascii=False,indent=2),encoding='utf8')
+    (OUT/'data'/'distancias_pendientes.json').write_text(
+        json.dumps(distance_backlog(races),ensure_ascii=False,indent=2),encoding='utf8')
     (OUT/'data'/'control_calidad.json').write_text(
         json.dumps(calidad,ensure_ascii=False,indent=2),encoding='utf8')
     # Independiente del calendario fechado: nombre + enlace solo tras

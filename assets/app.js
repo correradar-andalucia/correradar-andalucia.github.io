@@ -108,7 +108,7 @@ function raceCard(r) {
   info.append(head,el('p','race-location','⌖  '+[r.localidad,r.provincia].filter(Boolean).join(' · ')));
 
   const facts = el('div','race-facts');
-  if (r.distancia && r.distancia_origen) facts.append(el('span','','↗  '+r.distancia));
+  if (r.distancia && r.distancia_origen) facts.append(el('span','','↗  '+r.distancia+(r.distancia_aproximada?' (aprox.)':'')));
   else if (r.distancia_orientativa) facts.append(el('span','','Distancias orientativas · ver ficha'));
   // Sin kilómetros comprobados, no llenar cada tarjeta con avisos repetitivos.
   if (r.hora && r.hora_origen) facts.append(el('span','','◷  '+r.hora+' h · según fuente'));
@@ -117,6 +117,7 @@ function raceCard(r) {
     if (r.precio) facts.append(el('span','','◈  '+r.precio));
   }
   info.append(facts);
+  if (r.respaldo_temporal) info.append(el('p','source-meta','Fuente temporalmente no disponible · reconfirmar fecha'));
   if (!confirmed(r) && r.consultado) {
     info.append(el('p','source-meta',
       (r.fecha_origen === 'catalogo' ? 'Consulta anterior: ' : 'Fuente consultada: ')+readableDate(r.consultado)));

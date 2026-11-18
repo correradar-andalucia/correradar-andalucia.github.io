@@ -10,7 +10,8 @@ from html import unescape
 import time
 from urllib.parse import urlparse, urljoin, unquote
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
+import socket
 from urllib.robotparser import RobotFileParser
 import re
 import unicodedata
@@ -569,6 +570,22 @@ def fuentes_habilitadas():
     return enabled
 
 
+def is_transient_failure(exc):
+    """Solo identificar fallos de red; nunca confundir vetos con indisponibilidad."""
+    for _ in range(5):
+        if isinstance(exc,HTTPError):
+            return exc.code in (408, 429, 500, 502, 503, 504)
+        if isinstance(exc,(TimeoutError, ConnectionError, socket.gaierror)):
+            return True
+        if isinstance(exc,URLError):
+            exc=exc.reason
+        else:
+            exc=getattr(exc,"__cause__",None)
+        if exc is None:
+            return False
+    return False
+
+
 def collect(today=None):
     today=today or date.today()
     events=[];report={"consultado":today.isoformat(),"fuentes":{}}
@@ -686,7 +703,8 @@ def collect(today=None):
             report["fuentes"][name]={"estado":"leida","candidatas":len(rows),"url":url,
                 "con_distancia":sum(bool(r.get("distancia")) for r in rows)}
         except Exception as exc:
-            report["fuentes"][name]={"estado":"no disponible","motivo":str(exc)[:170],"url":url}
+            report["fuentes"][name]={"estado":"no disponible","motivo":str(exc)[:170],"url":url,
+                "fallo_temporal":is_transient_failure(exc)}
     report["fuentes"]["sportmaniacs"]={"estado":"sin consulta automática",
         "motivo":"No se ha verificado un calendario estructurado accesible ni método autorizado"}
     report["fuentes"]["dip_almeria"]={"estado":"sin próximas carreras",
