@@ -156,6 +156,8 @@ def add_curated_distances(races, catalog=None):
         race["distancia_origen"]="fuente"
         race["distancia_fuente"]=item["fuente"]
         race["distancia_cotejada"]=item["cotejada"]
+        if item.get("aproximada") is True:
+            race["distancia_aproximada"]=True
         race["km"]=km_parse(item["distancia"])
         applied+=1
     return {"aplicadas":applied,"conflictos_no_sobrescritos":conflicts}
