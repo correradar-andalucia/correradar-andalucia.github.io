@@ -494,6 +494,7 @@ def main():
     from captacion import collect
     from persistencia import read_previous, restore_missing, distance_backlog
     from estado_inscripciones import apply_current_registrations
+    from panel import panel_page
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
     candidatas_en_vivo, informe_captacion = collect()
@@ -505,8 +506,9 @@ def main():
     auditoria["enlaces_globaltempo"]=match_registrations(
         races, [*candidatas_en_vivo,
                 *(r for r in oficiales if r.get("origen") not in ("globaltempo_cotejo",))])
+    previous_calendar=read_previous(os.environ.get("CORRERADAR_PREVIOUS_CALENDAR"))
     auditoria["respaldo_carreras"]=restore_missing(races,
-        read_previous(os.environ.get("CORRERADAR_PREVIOUS_CALENDAR")),
+        previous_calendar,
         informe_captacion,slugify,km_parse)
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
     auditoria["horarios_cotejados"]=add_curated_times(races)
@@ -568,6 +570,9 @@ def main():
     for slug,(title,body) in legal_pages().items():
         folder=OUT/slug;folder.mkdir(parents=True)
         (folder/'index.html').write_text(legal_page(title,body,noindex=(not CONTACT and slug in ('contacto','privacidad','aviso-legal'))),encoding='utf8')
+    (OUT/'panel').mkdir()
+    (OUT/'panel'/'index.html').write_text(panel_page(races,informe_captacion,auditoria,calidad,
+        previous=previous_calendar,run_id=os.environ.get('GITHUB_RUN_ID')),encoding='utf8')
     (OUT/'sitemap.xml').write_text(sitemap(races),encoding='utf8')
     if not PUBLIC_LAUNCH:
         # Protege frente a indexación prematura durante la preparación, incluso en las páginas generadas.
