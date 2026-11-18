@@ -51,7 +51,7 @@ def check_launch_ready(config):
         raise ValueError("LANZAMIENTO BLOQUEADO: falta " + ", ".join(missing))
 
 
-def inspect_calendar(races, capture_report, today=None):
+def inspect_calendar(races, capture_report, today=None, continuidad=None):
     today = today or date.today()
     reasons, notices = [], []
     province_counts = Counter()
@@ -152,6 +152,13 @@ def inspect_calendar(races, capture_report, today=None):
             and (sources.get("globaltempo") or {}).get("estado") != "leida"):
         reasons.append("Feed autorizado de Global Tempo no disponible: conservar última web")
 
+    continuidad=continuidad or {}
+    for source, info in continuidad.get("fuentes_con_lectura_anomala",{}).items():
+        notices.append(f"{source}: descenso anómalo de {info['ausentes']} carreras futuras respecto a la publicación anterior")
+    residual=continuidad.get("perdidas_residuales",{})
+    if not offline and (any(r["ausentes"]>=5 for r in residual.values())
+                        or sum(r["ausentes"] for r in residual.values())>=10):
+        reasons.append("Pérdida anómala de carreras futuras no recuperada; revisar captación antes de publicar")
     if len(province_counts) < 8:
         notices.append("No hay carreras próximas en las ocho provincias")
     if races and totals["con_distancia"] / len(races) < .5:
