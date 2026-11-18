@@ -22,6 +22,43 @@ def read_previous(path):
     except (OSError,ValueError,TypeError,AttributeError):
         return []
 
+def coverage_anomalies(races, previous, report, today=None):
+    """Descenso por fuente respecto a ediciones futuras de la última publicación.
+
+    Se ignoran fechas ya transcurridas y rectificaciones reconocibles.
+    """
+    today=today or date.today()
+    if report.get("modo")=="Prueba local sin conexión":
+        return {}
+    records=report.get("fuentes",{})
+    permitted=set(report.get("nombres_fuentes_habilitadas",[]))
+    by_source={}
+    for old in previous:
+        source=old.get("origen")
+        if source not in permitted or old.get("confirmada"):
+            continue
+        try:
+            day=date.fromisoformat(old["fecha"])
+            checked=date.fromisoformat(old["consultado"])
+        except (KeyError,TypeError,ValueError):
+            continue
+        if day<today or not 0<=(today-checked).days<=MAX_AGE:
+            continue
+        by_source.setdefault(source,[]).append(old)
+    result={}
+    for source,rows in by_source.items():
+        item=records.get(source,{})
+        if item.get("estado") not in ("leida","no disponible") or item.get("acceso_restringido") or item.get("detalle_restringido"):
+            continue
+        missing=sum(not any(same_event(dict(old,distancia=""),dict(r,distancia=""))
+                            or conflicting_date(dict(old,distancia=""),dict(r,distancia=""))
+                            for r in races) for old in rows)
+        if missing>=3 and missing*2>=len(rows):
+            result[source]={"futuras_previas":len(rows),"ausentes":missing,
+                            "lectura_correcta":item.get("estado")=="leida"}
+    return result
+
+
 def restore_missing(races, previous, report, slugify, km_parse, today=None):
     """Solo ante fallo temporal acreditado, nunca ante ausencia en lectura correcta.
 
@@ -33,11 +70,15 @@ def restore_missing(races, previous, report, slugify, km_parse, today=None):
     statuses=report.get("fuentes") or {}
     allowed=set(report.get("nombres_fuentes_habilitadas") or []) & set(SOURCES)
     failed={s for s in allowed if statuses.get(s,{}).get("estado")=="no disponible"
-            and statuses[s].get("fallo_temporal") is True}
+            and statuses[s].get("fallo_temporal") is True
+            and not statuses[s].get("acceso_restringido")}
+    anomalous=coverage_anomalies(races,previous,report,today)
+    partial={s for s,a in anomalous.items() if a["lectura_correcta"]}
+    eligible=failed|partial
     restored=[]
     for old in previous:
         origin=old.get("origen")
-        if origin not in failed or old.get("confirmada"):
+        if origin not in eligible or old.get("confirmada"):
             continue
         if not isinstance(old.get("nombre"),str) or not old["nombre"] or len(old["nombre"])>170 or not valid_locality(old.get("localidad")):
             continue
@@ -60,7 +101,8 @@ def restore_missing(races, previous, report, slugify, km_parse, today=None):
         if host_key(source)!=host.removeprefix("www.") or host_key(link)!=host.removeprefix("www."):
             continue
         # No recuperar un evento si otra fuente ya lo ha leído o cambiado de fecha.
-        if any(same_event(old,r) or conflicting_date(old,r) for r in races+restored):
+        if any(same_event(dict(old,distancia=""),dict(r,distancia=""))
+               or conflicting_date(dict(old,distancia=""),dict(r,distancia="")) for r in races+restored):
             continue
         slug=old.get("slug")
         if not isinstance(slug,str) or slugify(slug)!=slug or any(r.get("slug")==slug for r in races+restored):
@@ -88,7 +130,12 @@ def restore_missing(races, previous, report, slugify, km_parse, today=None):
         restored.append(row)
     races.extend(restored)
     races.sort(key=lambda r:(r["fecha"],r["nombre"].casefold()))
+    residual=coverage_anomalies(races,previous,report,today)
+    for source, anomaly in anomalous.items():
+        statuses[source]["lectura_anomala"]=True
+        statuses[source]["ausentes_frente_anterior"]=anomaly["ausentes"]
     return {"recuperadas":len(restored),"fuentes_con_fallo_temporal":sorted(failed),
+            "fuentes_con_lectura_anomala":anomalous,"perdidas_residuales":residual,
             "caducidad_dias":MAX_AGE}
 
 def distance_backlog(races,today=None):

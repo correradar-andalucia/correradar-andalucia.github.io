@@ -574,6 +574,20 @@ def fuentes_habilitadas():
     return enabled
 
 
+def is_access_restriction(exc):
+    """Un veto de acceso no debe clasificarse como una caída recuperable."""
+    for _ in range(8):
+        if isinstance(exc,HTTPError) and exc.code in (401,403,451):
+            return True
+        if any(marker in str(exc).lower() for marker in (
+                "robots.txt prohíbe", "url no autorizada", "redirección fuera del dominio")):
+            return True
+        exc=exc.reason if isinstance(exc,URLError) else getattr(exc,"__cause__",None)
+        if exc is None:
+            break
+    return False
+
+
 def is_transient_failure(exc):
     """Solo identificar fallos de red; nunca confundir vetos con indisponibilidad."""
     for _ in range(5):
@@ -611,6 +625,7 @@ def collect(today=None):
             continue
         try:
             page=fetch_if_permitted(url)
+            detail_errors=0;detail_restricted=False
             if name=="dipgra":
                 from captacion_extra import diputacion_granada
                 rows=diputacion_granada(page,today)
@@ -626,8 +641,9 @@ def collect(today=None):
                     try:
                         candidate=circuito_detail(fetch_if_permitted(link),link,title,today)
                         if candidate:rows.append(candidate)
-                    except Exception:
+                    except Exception as exc:
                         detail_errors+=1
+                        detail_restricted |= is_access_restriction(exc)
                     time.sleep(0.2)
                 report["fuentes"]["circuito_cordoba_detalle"]={
                     "consultadas":min(len(links),MAX_DETALLES_POR_FUENTE),"carreras_documentadas":len(rows),
@@ -650,8 +666,9 @@ def collect(today=None):
                         if enrich_distance_from_detail(row,detail,"runnink"):
                             row["distancia_cotejada"]=today.isoformat()
                             detail_success+=1
-                    except Exception:
+                    except Exception as exc:
                         detail_errors+=1
+                        detail_restricted |= is_access_restriction(exc)
                     finally:
                         time.sleep(0.5)
                 report["fuentes"]["runnink_detalle"]={
@@ -678,8 +695,9 @@ def collect(today=None):
                     try:
                         candidate=parse_gcc_detail(fetch_if_permitted(detail),detail,today)
                         if candidate:rows.append(candidate)
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        detail_errors+=1
+                        detail_restricted |= is_access_restriction(exc)
                     time.sleep(0.3)
             elif name=="dorsalchip":
                 rows=[];links=dorsal_links(page,today)
@@ -687,8 +705,9 @@ def collect(today=None):
                     try:
                         candidate=dorsal_detail(fetch_if_permitted(detail),detail,today)
                         if candidate:rows.append(candidate)
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        detail_errors+=1
+                        detail_restricted |= is_access_restriction(exc)
                     time.sleep(0.2)
             else:
                 rows=[];links=cruzando_links(page)
@@ -696,8 +715,9 @@ def collect(today=None):
                     try:
                         candidate=parse_cruzando_detail(fetch_if_permitted(detail),detail,today)
                         if candidate:rows.append(candidate)
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        detail_errors+=1
+                        detail_restricted |= is_access_restriction(exc)
                     time.sleep(0.3)
             for row in rows:
                 if row.get("distancia"):
@@ -705,10 +725,12 @@ def collect(today=None):
                     row.setdefault("distancia_cotejada",today.isoformat())
             events.extend(rows)
             report["fuentes"][name]={"estado":"leida","candidatas":len(rows),"url":url,
-                "con_distancia":sum(bool(r.get("distancia")) for r in rows)}
+                "con_distancia":sum(bool(r.get("distancia")) for r in rows),
+                "incidencias_detalle":detail_errors,"detalle_restringido":detail_restricted}
         except Exception as exc:
             report["fuentes"][name]={"estado":"no disponible","motivo":str(exc)[:170],"url":url,
-                "fallo_temporal":is_transient_failure(exc)}
+                "fallo_temporal":is_transient_failure(exc) and not is_access_restriction(exc),
+                "acceso_restringido":is_access_restriction(exc)}
     report["fuentes"]["sportmaniacs"]={"estado":"sin consulta automática",
         "motivo":"No se ha verificado un calendario estructurado accesible ni método autorizado"}
     report["fuentes"]["dip_almeria"]={"estado":"sin próximas carreras",

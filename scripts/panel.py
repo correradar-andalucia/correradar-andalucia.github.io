@@ -70,6 +70,8 @@ def panel_page(races,capture,audit,quality,previous=None,now=None,run_id=None):
             label,cls="Sin consulta (prueba local)","neutral"
         elif key not in permitted:
             label,cls="Pausada / no habilitada","neutral"
+        elif item.get("lectura_anomala"):
+            label,cls="Lectura anómala / revisar","warn"
         elif status=="leida":
             label,cls="Leída","ok"
         elif item.get("fallo_temporal") is True:
@@ -78,9 +80,11 @@ def panel_page(races,capture,audit,quality,previous=None,now=None,run_id=None):
             label,cls="No disponible / revisar","warn"
         details=report.get(key+"_detalle",{})
         # No incluir motivos de excepción ni texto arbitrario del informe.
-        errors=count(details.get("incidencias"))
+        errors=max(count(details.get("incidencias")),count(item.get("incidencias_detalle")))
         candidates=str(count(item.get("candidatas"))) if status=="leida" else "—"
         detail=f'{errors} incidencias de detalle' if errors else "—"
+        if item.get("lectura_anomala"):
+            detail=f'{count(item.get("ausentes_frente_anterior"))} carreras ausentes antes del respaldo · {detail}'
         source_rows.append(f'<tr><th scope="row">{e(NAMES[key])}</th><td><span class="status {cls}">{e(label)}</span></td><td>{candidates}</td><td>{e(detail)}</td></tr>')
     gt="Feed autorizado: "+("leído" if report.get("globaltempo",{}).get("estado")=="leida" else "no disponible") if capture.get("globaltempo_autorizado") else "Google Alerts y revisión manual; sin lectura directa"
     findings=[]

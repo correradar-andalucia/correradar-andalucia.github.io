@@ -529,7 +529,7 @@ def main():
         "fecha_fuente":sum(r.get("fecha_origen")=="fuente" for r in races)
     }
     verify_unique(races)
-    calidad = inspect_calendar(races, informe_captacion)
+    calidad = inspect_calendar(races, informe_captacion, continuidad=auditoria["respaldo_carreras"])
     if not calidad["apto_para_desplegar"]:
         raise ValueError("PUBLICACIÓN BLOQUEADA POR CALIDAD: "
                          + " | ".join(calidad["bloqueos"][:12]))
