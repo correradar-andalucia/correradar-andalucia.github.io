@@ -99,7 +99,7 @@ def inspect_calendar(races, capture_report, today=None):
         else:
             totals["con_enlace"] += 1
         # No publicar enlaces con javascript:/http:/credenciales ni en las fichas.
-        for key in ("enlace", "fuente", "distancia_fuente", "track"):
+        for key in ("enlace", "fuente", "distancia_fuente", "hora_fuente", "track"):
             url = race.get(key)
             if url and not valid_source(url):
                 reasons.append(f"{label}: enlace inseguro en {key}")
