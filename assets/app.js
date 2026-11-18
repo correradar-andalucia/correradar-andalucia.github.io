@@ -117,6 +117,7 @@ function raceCard(r) {
     if (r.precio) facts.append(el('span','','◈  '+r.precio));
   }
   info.append(facts);
+  if (r.respaldo_temporal) info.append(el('p','source-meta','Fuente temporalmente no disponible · reconfirmar fecha'));
   if (!confirmed(r) && r.consultado) {
     info.append(el('p','source-meta',
       (r.fecha_origen === 'catalogo' ? 'Consulta anterior: ' : 'Fuente consultada: ')+readableDate(r.consultado)));
