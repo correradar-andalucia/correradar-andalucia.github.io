@@ -27,8 +27,16 @@ jobs:
           python -m compileall -q scripts tests
           python -m unittest discover -s tests -v
           node --check assets/app.js
+      - name: Recuperar distancias de la última publicación propia
+        run: |
+          if ! curl --fail --silent --show-error --proto '=https' --max-time 20 --max-filesize 3000000 https://correradar-andalucia.github.io/data/carreras.json -o "$RUNNER_TEMP/calendario-previo.json"; then
+            rm -f "$RUNNER_TEMP/calendario-previo.json"
+            echo "Respaldo de distancias no disponible; continuar sin él."
+          fi
       - name: Generar web y fichas de carreras
         env:
+          CORRERADAR_DISTANCE_ENRICHMENT: ${{ vars.CORRERADAR_DISTANCE_ENRICHMENT || 'yes' }}
+          CORRERADAR_PREVIOUS_CALENDAR: ${{ runner.temp }}/calendario-previo.json
           SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL }}
           GLOBALTEMPO_AUTHORIZED: ${{ vars.GLOBALTEMPO_AUTHORIZED }}
           GLOBALTEMPO_FEED_HOST: ${{ vars.GLOBALTEMPO_FEED_HOST }}
