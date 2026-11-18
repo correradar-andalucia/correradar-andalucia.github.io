@@ -85,6 +85,54 @@
         "nota": "No declarar autorizado sin permiso o fundamento aplicable documentado y URL de feed del proveedor; no introducir tokens ni credenciales en este registro.",
         "estado": "pendiente"
       }
+    },
+    "deportime": {
+      "nombre": "DeporTime",
+      "url": "https://deportime.es/",
+      "aviso_legal_url": "https://deportime.es/aviso-legal/",
+      "fecha_revision": "2026-11-18",
+      "modo": "revision_editorial",
+      "riesgo_aviso_legal": "reserva_expresa",
+      "robots": "no verificado",
+      "nota": "Cláusula de propiedad intelectual: autorización escrita con independencia de finalidad.",
+      "estado": "pendiente",
+      "referencia_evidencia": ""
+    },
+    "cronofinisher": {
+      "nombre": "Cronofinisher",
+      "url": "https://www.cronofinisher.com/",
+      "aviso_legal_url": "https://www.cronofinisher.com/aviso-legal/",
+      "fecha_revision": "2026-11-18",
+      "modo": "revision_editorial",
+      "riesgo_aviso_legal": "reserva_expresa",
+      "robots": "no verificado",
+      "nota": "Apartado 2: autorización escrita previa para reproducción parcial y uso con independencia del fin.",
+      "estado": "pendiente",
+      "referencia_evidencia": ""
+    },
+    "croniussport": {
+      "nombre": "CroniusSport",
+      "url": "https://www.croniussport.es/",
+      "aviso_legal_url": "https://www.croniussport.es/legal.html",
+      "fecha_revision": "2026-11-18",
+      "modo": "revision_editorial",
+      "riesgo_aviso_legal": "reserva_expresa",
+      "robots": "no verificado",
+      "nota": "Apartado 6: reserva general, reproducción comercial sujeta a autorización; copias para uso personal privado. Aclarar alcance antes de activar.",
+      "estado": "pendiente",
+      "referencia_evidencia": ""
+    },
+    "patronato_jaen": {
+      "nombre": "Patronato Municipal de Deportes de Jaén",
+      "url": "https://patronatodeportesjaen.es/calendario/",
+      "aviso_legal_url": "https://patronatodeportesjaen.es/privacy-policy/",
+      "fecha_revision": "2026-11-18",
+      "modo": "revision_editorial",
+      "riesgo_aviso_legal": "reserva_expresa",
+      "robots": "no verificado",
+      "nota": "Reutilización habitual para uso público exige autorización expresa municipal; revisar además régimen del sector público.",
+      "estado": "pendiente",
+      "referencia_evidencia": ""
     }
   }
 }
