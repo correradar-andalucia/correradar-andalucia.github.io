@@ -161,6 +161,27 @@ def add_curated_distances(races, catalog=None):
     return {"aplicadas":applied,"conflictos_no_sobrescritos":conflicts}
 
 
+def add_granada_cross_notes(races):
+    """Distancias orientativas 2026/27: nunca tratarlas como kilómetros exactos."""
+    rounds={
+        "2026-12-13":"Lecrín", "2026-12-19":"La Zubia",
+        "2027-01-16":"Baza", "2027-01-24":"Freila", "2027-01-31":"Las Gabias",
+        "2027-02-07":"Quéntar", "2027-02-13":"Moraleda de Zafayona",
+        "2027-02-27":"Guadix", "2027-03-07":"Alhendín", "2027-03-13":"Íllora",
+    }
+    count=0
+    for race in races:
+        city=rounds.get(race.get("fecha"))
+        if (city and norm(race.get("localidad",""))==norm(city)
+                and race.get("provincia")=="Granada"
+                and norm(race.get("nombre","")).startswith("xxx circuito provincial de campo a traves")
+                and not race.get("distancia")):
+            race["distancia_orientativa"]="Senior/Sub-23: 5,5–8 km; máster: 3,5–5,5 km. Aproximadas según sede; confirmar cada categoría."
+            race["distancia_orientativa_fuente"]="https://www.dipgra.es/export/sites/diputaciongranada/servicios/areas/deportes/.galleries/AREAS-Deportes-Documentos/Normativa-Cross-2027.pdf"
+            count+=1
+    return count
+
+
 def preserve_previous_distances(races, previous_path=None, today=None):
     """Recuperar un dato de una publicación propia, sin revalidarlo por silencio.
 
@@ -352,6 +373,8 @@ def detail_page(r):
         entries.append(('Distancia',r['distancia']+' · '+distancia_origen))
     if r.get("distancia_cotejada"):
         entries.append(("Distancia cotejada el",r["distancia_cotejada"]))
+    if not r.get("distancia") and r.get("distancia_orientativa"):
+        entries.append(("Distancias orientativas",r["distancia_orientativa"]))
     if is_confirmed:
         entries += [('Desnivel',r['desnivel']),
                     ('Precio',r['precio']),('Bolsa del corredor',r['bolsa'])]
@@ -369,6 +392,8 @@ def detail_page(r):
     if r.get('fuente') and r['fuente']!=r.get('enlace'):buttons+=f'<a class="secondary" href="{esc(r["fuente"])}" rel="noopener noreferrer" target="_blank">Fuente de verificación ↗</a>'
     if r.get("distancia") and url_clean(r.get("distancia_fuente","")) and r.get("distancia_fuente") != r.get("enlace"):
         buttons+=f'<a class="secondary" href="{esc(r["distancia_fuente"])}" rel="noopener noreferrer" target="_blank">Ver distancia en la fuente ↗</a>'
+    if not r.get("distancia") and url_clean(r.get("distancia_orientativa_fuente","")):
+        buttons+=f'<a class="secondary" href="{esc(r["distancia_orientativa_fuente"])}" rel="noopener noreferrer" target="_blank">Normativa de distancias orientativas ↗</a>'
     if (r.get("inscripcion_enlace") and url_clean(r["inscripcion_enlace"])
             and r["inscripcion_enlace"]!=r.get("enlace")):
         buttons+=f'<a class="secondary" href="{esc(r["inscripcion_enlace"])}" rel="noopener noreferrer" target="_blank">Inscripción en Global Tempo ↗</a>'
@@ -412,6 +437,7 @@ def main():
                 *(r for r in oficiales if r.get("origen") not in ("globaltempo_cotejo",))])
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
     auditoria["distancias_conservadas"]=preserve_previous_distances(races)
+    auditoria["cross_distancias_orientativas"]=add_granada_cross_notes(races)
     auditoria["fichas_oficiales_cotejadas"]=len(oficiales)
     provincias=["Almería","Cádiz","Córdoba","Granada","Huelva","Jaén","Málaga","Sevilla"]
     cobertura={
