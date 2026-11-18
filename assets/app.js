@@ -55,6 +55,35 @@ function distanceMatches(r, filter) {
     || filter === 'long' && n > 21.1 && n <= 42.2
     || filter === 'ultra' && n > 42.2);
 }
+const registrationLabels = {
+  abierta:'Inscripciones abiertas', cerrada:'Inscripciones cerradas',
+  agotada:'Dorsales agotados', proximamente:'Próxima apertura',
+  desconocida:'Inscripción sin confirmar'
+};
+function registrationClock(now = new Date()) {
+  const fields = new Intl.DateTimeFormat('en-GB', {
+    timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+  }).formatToParts(now);
+  const p=Object.fromEntries(fields.map(x=>[x.type,x.value]));
+  return {day:p.year+'-'+p.month+'-'+p.day,time:p.hour+':'+p.minute};
+}
+function registrationState(r, now = new Date()) {
+  const status=r.inscripcion_estado;
+  if (!['abierta','cerrada','agotada','proximamente'].includes(status)
+      || !r.inscripcion_fuente || r.respaldo_temporal) return 'desconocida';
+  const clock=registrationClock(now);
+  const stamp=String(r.inscripcion_consultada || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(stamp)) return 'desconocida';
+  const age=(Date.parse(clock.day)-Date.parse(stamp))/86400000;
+  if (!Number.isFinite(age) || age<0 || age>1 || r.fecha<clock.day) return 'desconocida';
+  if (status==='abierta' && r.inscripcion_limite &&
+      (clock.day>r.inscripcion_limite || (clock.day===r.inscripcion_limite &&
+       (!r.inscripcion_hora_limite || clock.time>=r.inscripcion_hora_limite)))) return 'desconocida';
+  if (status==='proximamente' && r.inscripcion_apertura && clock.day>r.inscripcion_apertura)
+    return 'desconocida';
+  return status;
+}
 let races = [];
 const modalityGroup = (r) => {
   if (r.modalidad_conflicto) return 'OTRAS';
@@ -117,6 +146,16 @@ function raceCard(r) {
     if (r.precio) facts.append(el('span','','◈  '+r.precio));
   }
   info.append(facts);
+  const registration=registrationState(r);
+  if (registration !== 'desconocida') {
+    const label=el('span','registration-state registration-'+registration,registrationLabels[registration]+' · según fuente');
+    info.append(label);
+  }
+  if (r.inscripcion_limite) {
+    info.append(el('p','source-meta','Cierre anunciado: '+readableDate(r.inscripcion_limite)+(r.inscripcion_hora_limite?' · '+r.inscripcion_hora_limite+' h':'')));
+  } else if (registration==='proximamente' && r.inscripcion_apertura) {
+    info.append(el('p','source-meta','Apertura anunciada: '+readableDate(r.inscripcion_apertura)));
+  }
   if (r.respaldo_temporal) info.append(el('p','source-meta','Fuente temporalmente no disponible · reconfirmar fecha'));
   if (!confirmed(r) && r.consultado) {
     info.append(el('p','source-meta',
@@ -140,12 +179,13 @@ function raceCard(r) {
   card.append(date,info,actions);
   return card;
 }
-function matches(r, search, province, month, distance, today) {
+function matches(r, search, province, month, distance, today, registration = '') {
   if (!r.fecha || fmt(r.fecha) < today) return false;
   if (search && !normalize([r.nombre,r.localidad,r.provincia,sourceName(r)].join(' ')).includes(search)) return false;
   if (province && normalize(r.provincia) !== province) return false;
   if (month && r.fecha.slice(0,7) !== month) return false;
   if (!distanceMatches(r, distance)) return false;
+  if (registration && registrationState(r) !== registration) return false;
   if (currentMode !== 'TODAS' && modalityGroup(r) !== currentMode) return false;
   return true;
 }
@@ -154,16 +194,17 @@ function render() {
   const province = normalize($('province').value);
   const month = $('month').value;
   const distance = $('distance').value;
+  const registration = $('registration').value;
   const today = new Date();
   today.setHours(0,0,0,0);
-  const filtered = races.filter(r => matches(r,search,province,month,distance,today));
+  const filtered = races.filter(r => matches(r,search,province,month,distance,today,registration));
   $('result-count').textContent = String(filtered.length);
   const root = $('cards');
   root.replaceChildren();
   if (!filtered.length) {
     root.append(state(
       races.length ? 'No hay carreras con estos filtros' : 'El calendario está preparado',
-      races.length ? 'Prueba otra provincia, tipo de carrera o distancia. Las carreras sin kilómetros aparecen al elegir «Todas».'
+      races.length ? 'Prueba otra provincia, modalidad, distancia o estado de inscripción. Las carreras sin kilómetros aparecen al elegir «Todas».'
                    : 'Todavía no hay carreras disponibles en el calendario.'
     ));
   } else {
@@ -184,7 +225,7 @@ function filter() {
 }
 async function init() {
   $('year').textContent = new Date().getFullYear();
-  for (const id of ['search','province','month','distance']) {
+  for (const id of ['search','province','month','distance','registration']) {
     $(id).addEventListener(id==='search' ? 'input' : 'change',filter);
   }
   document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click',()=>{
@@ -197,7 +238,7 @@ async function init() {
     filter();
   }));
   $('clear').addEventListener('click',()=>{
-    for (const id of ['search','province','month','distance']) $(id).value='';
+    for (const id of ['search','province','month','distance','registration']) $(id).value='';
     document.querySelector('[data-mode="TODAS"]').click();
   });
   $('more').addEventListener('click',()=>{visibleLimit+=PAGE_SIZE;render();});
@@ -220,7 +261,8 @@ async function init() {
     $('updated').textContent=result.actualizado?'Generado el '+result.actualizado:'';
     const withDistance=active.filter(r=>distanceNumbers(r.distancia).length).length;
     const withTime=active.filter(r=>r.hora && r.hora_origen).length;
-    $('coverage').textContent=withDistance+' con distancia · '+withTime+' con horario';
+    const withRegistration=active.filter(r=>registrationState(r)!=='desconocida').length;
+    $('coverage').textContent=withDistance+' con distancia · '+withTime+' con horario · '+withRegistration+' con estado de inscripción';
     filter();
   } catch (error) {
     console.error(error);

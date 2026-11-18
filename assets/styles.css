@@ -98,3 +98,10 @@
 .reviewed-link a{color:#b9fb45;font-weight:750;text-underline-offset:3px}
 .reviewed-link a:focus-visible{outline:3px solid #b9fb45;outline-offset:4px}
 @media(max-width:620px){.reviewed-section{padding:44px 0}.reviewed-link{padding:18px}}
+
+/* Cuatro filtros del calendario y estados con contraste legible. */
+@media(min-width:901px){.select-row{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(min-width:391px) and (max-width:900px){.select-row{grid-template-columns:repeat(2,minmax(0,1fr))}.select-row>.select-wrap:last-child{grid-column:auto}}
+.registration-state{display:inline-block;font-size:11px;font-weight:700;line-height:1.4;margin-top:9px;padding:4px 8px;border:1px solid #42604d;border-radius:5px;color:#c9e7d2;background:#20382c}
+.registration-proximamente{color:#d0e9fa;background:#20333e;border-color:#3c6275}
+.registration-agotada,.registration-cerrada{color:#ffd7b9;background:#3a2c26;border-color:#795642}

@@ -373,9 +373,11 @@ def parse_faa(page,today=None):
         typ=("ULTRA" if "ULTRA" in upper else
              "TRAIL" if re.search("TRAIL|CXM|MONTANA",upper) else
              "CROSS" if "CROSS" in upper else "RUNNING")
+        from estado_inscripciones import faa_label
         results.append({"fecha":day.isoformat(),"nombre":title,"localidad":city,
                         "provincia":prov,"modalidad":typ,"distancia":extract_distance(title),
-                        "enlace":SOURCES["faa"],"fuente":SOURCES["faa"],"origen":"faa"})
+                        "enlace":SOURCES["faa"],"fuente":SOURCES["faa"],"origen":"faa",
+                        **faa_label(title,SOURCES["faa"],today)})
     return results
 
 
@@ -445,10 +447,12 @@ def parse_gcc_detail(page,url,today=None):
               "ULTRA" if "ULTRA" in upper else
               "TRAIL" if re.search(r"TRAIL|CXM|MONTANA",upper) else
               "CROSS" if "CROSS" in upper else "RUNNING")
+    from estado_inscripciones import gcc_fields
     return {"fecha":day.isoformat(),"nombre":title,"localidad":city,
             "provincia":province,"modalidad":modality,"distancia":(extract_distance(title,p.words)
                 or extract_modalities_distance(p.words)),
-            "enlace":url,"fuente":url,"origen":"gcc"}
+            "enlace":url,"fuente":url,"origen":"gcc",
+            **gcc_fields(p.words,url,day,today)}
 
 
 ALLOWED_HOSTS = frozenset((

@@ -103,6 +103,14 @@ def inspect_calendar(races, capture_report, today=None):
             url = race.get(key)
             if url and not valid_source(url):
                 reasons.append(f"{label}: enlace inseguro en {key}")
+        # Los estados caducables no pueden publicarse sin evidencia reciente.
+        from estado_inscripciones import STATES, FIELDS, valid_observation
+        status = race.get("inscripcion_estado", "desconocida")
+        if status not in STATES:
+            reasons.append(f"{label}: estado de inscripción inválido")
+        elif status != "desconocida" or any(race.get(k) for k in FIELDS if k != "inscripcion_estado"):
+            if not valid_observation(race,today):
+                reasons.append(f"{label}: información de inscripción sin procedencia válida o caducada")
         consulted = str(race.get("consultado") or "").strip()
         if consulted:
             try:

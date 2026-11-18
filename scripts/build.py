@@ -417,6 +417,18 @@ def detail_page(r):
              ('Localidad',city),('Modalidad',mode)]
     if r.get('distancia') and distancia_origen:
         entries.append(('Distancia',r['distancia']+(' (aprox.)' if r.get('distancia_aproximada') else '')+' · '+distancia_origen))
+    from estado_inscripciones import LABELS
+    registration_status=r.get("inscripcion_estado","desconocida")
+    if registration_status!="desconocida" and r.get("inscripcion_consultada"):
+        entries.append(("Inscripciones en última consulta",LABELS.get(registration_status,"Sin información actual")))
+    else:
+        entries.append(("Inscripciones","Sin estado actual comprobado"))
+    if r.get("inscripcion_apertura"):
+        entries.append(("Apertura anunciada",r["inscripcion_apertura"]))
+    if r.get("inscripcion_limite"):
+        entries.append(("Cierre anunciado",r["inscripcion_limite"]+(" "+r["inscripcion_hora_limite"]+" h" if r.get("inscripcion_hora_limite") else "")))
+    if r.get("inscripcion_consultada"):
+        entries.append(("Inscripción consultada el",r["inscripcion_consultada"]))
     if r.get("hora_nota"):
         entries.append(("Detalle de salidas",r["hora_nota"]))
     if r.get("hora_cotejada"):
@@ -446,6 +458,8 @@ def detail_page(r):
         buttons+=f'<a class="secondary" href="{esc(r["distancia_fuente"])}" rel="noopener noreferrer" target="_blank">Ver distancia en la fuente ↗</a>'
     if r.get("hora") and url_clean(r.get("hora_fuente","")) and r.get("hora_fuente") not in (r.get("enlace"),r.get("distancia_fuente")):
         buttons+=f'<a class="secondary" href="{esc(r["hora_fuente"])}" rel="noopener noreferrer" target="_blank">Ver horarios en la fuente ↗</a>'
+    if r.get("inscripcion_fuente") and url_clean(r["inscripcion_fuente"]) and r["inscripcion_fuente"] not in (r.get("enlace"),r.get("fuente"),r.get("distancia_fuente"),r.get("hora_fuente")):
+        buttons+=f'<a class="secondary" href="{esc(r["inscripcion_fuente"])}" rel="noopener noreferrer" target="_blank">Comprobar estado de inscripción ↗</a>'
     if not r.get("distancia") and url_clean(r.get("distancia_orientativa_fuente","")):
         buttons+=f'<a class="secondary" href="{esc(r["distancia_orientativa_fuente"])}" rel="noopener noreferrer" target="_blank">Normativa de distancias orientativas ↗</a>'
     if (r.get("inscripcion_enlace") and url_clean(r["inscripcion_enlace"])
@@ -479,6 +493,7 @@ def main():
     from alertas_globaltempo import approved_items, publication_candidates
     from captacion import collect
     from persistencia import read_previous, restore_missing, distance_backlog
+    from estado_inscripciones import apply_current_registrations
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
     candidatas_en_vivo, informe_captacion = collect()
@@ -495,6 +510,7 @@ def main():
         informe_captacion,slugify,km_parse)
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
     auditoria["horarios_cotejados"]=add_curated_times(races)
+    auditoria["inscripciones"]=apply_current_registrations(races,candidatas_en_vivo)
     auditoria["distancias_conservadas"]=preserve_previous_distances(races)
     auditoria["cross_distancias_orientativas"]=add_granada_cross_notes(races)
     auditoria["fichas_oficiales_cotejadas"]=len(oficiales)
@@ -504,6 +520,7 @@ def main():
         "total":len(races),
         "con_distancia":sum(bool(r.get("distancia")) for r in races),
         "con_hora":sum(bool(r.get("hora")) for r in races),
+        "inscripciones":auditoria["inscripciones"],
         "por_provincia":{p:len([r for r in races if r.get("provincia")==p]) for p in provincias},
         "fuentes_oficiales_cotejadas":len(oficiales),
         "fecha_cotejada":sum(r.get("fecha_origen")=="catalogo" for r in races),
