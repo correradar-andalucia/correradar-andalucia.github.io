@@ -11,7 +11,8 @@ def verify_output(root, config):
     check_launch_ready(config)
     errors = []
     for relative in ("index.html", "robots.txt", "sitemap.xml",
-                     "assets/app.js", "assets/styles.css",
+                     "assets/app.js", "assets/styles.css", "assets/panel.css",
+                     "panel/index.html", "data/distancias_pendientes.json",
                      "data/carreras.json", "data/estado_fuentes.json",
                      "data/control_calidad.json", "data/globaltempo_enlaces.json"):
         if not (root / relative).is_file():
@@ -34,6 +35,11 @@ def verify_output(root, config):
     for page in pages:
         if not page.is_file():
             errors.append("Ficha no generada: " + str(page.relative_to(root)))
+    panel=(root/"panel/index.html").read_text(encoding="utf-8")
+    if '<meta name="robots" content="noindex,nofollow">' not in panel:
+        errors.append("Panel de mantenimiento indexable")
+    if "/panel/" in (root/"sitemap.xml").read_text(encoding="utf-8"):
+        errors.append("Panel incluido en sitemap")
     if not config.get("public_launch",False):
         # No bloquear robots.txt: el crawler debe poder leer la etiqueta noindex.
         marker = '<meta name="robots" content="noindex,nofollow">'
