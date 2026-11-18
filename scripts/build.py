@@ -161,6 +161,93 @@ def add_curated_distances(races, catalog=None):
     return {"aplicadas":applied,"conflictos_no_sobrescritos":conflicts}
 
 
+def add_granada_cross_notes(races):
+    """Distancias orientativas 2026/27: nunca tratarlas como kilómetros exactos."""
+    rounds={
+        "2026-12-13":"Lecrín", "2026-12-19":"La Zubia",
+        "2027-01-16":"Baza", "2027-01-24":"Freila", "2027-01-31":"Las Gabias",
+        "2027-02-07":"Quéntar", "2027-02-13":"Moraleda de Zafayona",
+        "2027-02-27":"Guadix", "2027-03-07":"Alhendín", "2027-03-13":"Íllora",
+    }
+    count=0
+    for race in races:
+        city=rounds.get(race.get("fecha"))
+        if (city and norm(race.get("localidad",""))==norm(city)
+                and race.get("provincia")=="Granada"
+                and norm(race.get("nombre","")).startswith("xxx circuito provincial de campo a traves")
+                and not race.get("distancia")):
+            race["distancia_orientativa"]="Senior/Sub-23: 5,5–8 km; máster: 3,5–5,5 km. Aproximadas según sede; confirmar cada categoría."
+            race["distancia_orientativa_fuente"]="https://www.dipgra.es/export/sites/diputaciongranada/servicios/areas/deportes/.galleries/AREAS-Deportes-Documentos/Normativa-Cross-2027.pdf"
+            count+=1
+    return count
+
+
+def preserve_previous_distances(races, previous_path=None, today=None):
+    """Recuperar un dato de una publicación propia, sin revalidarlo por silencio.
+
+    Solo misma edición y enlace de fuente, con cotejo fechado reciente.
+    No se conserva una contradicción ni se crea una carrera desde la caché.
+    """
+    from control_calidad import valid_source
+    from distancias import extract_distance
+    from captacion import SOURCES, fuentes_habilitadas
+    today=today or dt.date.today()
+    previous_path=previous_path or os.environ.get("CORRERADAR_PREVIOUS_CALENDAR")
+    if not previous_path:
+        return {"recuperadas":0,"estado":"sin respaldo"}
+    try:
+        path=Path(previous_path)
+        if path.stat().st_size>3_000_000:
+            raise ValueError("Respaldo demasiado grande")
+        old=json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(old,dict) or not isinstance(old.get("carreras"),list):
+            raise ValueError("Respaldo inválido")
+    except (OSError,ValueError,TypeError):
+        return {"recuperadas":0,"estado":"respaldo no disponible"}
+    allowed={urlparse(SOURCES[s]).hostname for s in fuentes_habilitadas()}
+    # No extrapolar por nombre parecido, no usar fichas de otra edición/municipio.
+    def key(r):
+        return tuple(str(r.get(k) or "") for k in ("fecha","nombre","localidad","provincia"))
+    by_key={}
+    for item in old["carreras"]:
+        if isinstance(item,dict):
+            by_key.setdefault(key(item),[]).append(item)
+    recovered=0
+    for row in races:
+        if row.get("distancia") or row.get("confirmada"):
+            continue
+        candidates=by_key.get(key(row),[])
+        if len(candidates)!=1:
+            continue
+        item=candidates[0]
+        source=item.get("distancia_fuente")
+        distance=item.get("distancia")
+        if not valid_source(source) or not isinstance(distance,str):
+            continue
+        if urlparse(source).hostname not in allowed:
+            continue
+        if source not in (row.get("enlace"),row.get("fuente")):
+            continue
+        # Sólo valores explícitos normalizados de la propia lectura anterior.
+        if extract_distance(distance)!=distance or not distance or len(distance)>140:
+            continue
+        if item.get("distancia_origen") not in ("fuente","catalogo"):
+            continue
+        stamp=item.get("distancia_cotejada")
+        try:
+            checked=dt.date.fromisoformat(stamp)
+            event_day=dt.date.fromisoformat(row["fecha"])
+        except (TypeError,ValueError):
+            continue
+        if not (0<=(today-checked).days<=30 and event_day>=today):
+            continue
+        row.update(distancia=distance,distancia_origen="catalogo",
+                   distancia_fuente=source,distancia_cotejada=stamp,
+                   km=km_parse(distance))
+        recovered+=1
+    return {"recuperadas":recovered,"estado":"respaldo consultado"}
+
+
 def esc(s):return html.escape(str(s),quote=True)
 
 def legal_footer():
@@ -286,6 +373,8 @@ def detail_page(r):
         entries.append(('Distancia',r['distancia']+' · '+distancia_origen))
     if r.get("distancia_cotejada"):
         entries.append(("Distancia cotejada el",r["distancia_cotejada"]))
+    if not r.get("distancia") and r.get("distancia_orientativa"):
+        entries.append(("Distancias orientativas",r["distancia_orientativa"]))
     if is_confirmed:
         entries += [('Desnivel',r['desnivel']),
                     ('Precio',r['precio']),('Bolsa del corredor',r['bolsa'])]
@@ -303,6 +392,8 @@ def detail_page(r):
     if r.get('fuente') and r['fuente']!=r.get('enlace'):buttons+=f'<a class="secondary" href="{esc(r["fuente"])}" rel="noopener noreferrer" target="_blank">Fuente de verificación ↗</a>'
     if r.get("distancia") and url_clean(r.get("distancia_fuente","")) and r.get("distancia_fuente") != r.get("enlace"):
         buttons+=f'<a class="secondary" href="{esc(r["distancia_fuente"])}" rel="noopener noreferrer" target="_blank">Ver distancia en la fuente ↗</a>'
+    if not r.get("distancia") and url_clean(r.get("distancia_orientativa_fuente","")):
+        buttons+=f'<a class="secondary" href="{esc(r["distancia_orientativa_fuente"])}" rel="noopener noreferrer" target="_blank">Normativa de distancias orientativas ↗</a>'
     if (r.get("inscripcion_enlace") and url_clean(r["inscripcion_enlace"])
             and r["inscripcion_enlace"]!=r.get("enlace")):
         buttons+=f'<a class="secondary" href="{esc(r["inscripcion_enlace"])}" rel="noopener noreferrer" target="_blank">Inscripción en Global Tempo ↗</a>'
@@ -345,6 +436,8 @@ def main():
         races, [*candidatas_en_vivo,
                 *(r for r in oficiales if r.get("origen") not in ("globaltempo_cotejo",))])
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
+    auditoria["distancias_conservadas"]=preserve_previous_distances(races)
+    auditoria["cross_distancias_orientativas"]=add_granada_cross_notes(races)
     auditoria["fichas_oficiales_cotejadas"]=len(oficiales)
     provincias=["Almería","Cádiz","Córdoba","Granada","Huelva","Jaén","Málaga","Sevilla"]
     cobertura={

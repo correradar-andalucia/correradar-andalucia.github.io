@@ -238,8 +238,12 @@ def combine(approved,candidates,slugify,km_parse,with_audit=False):
                     and (not matches.get("distancia") or fuller_current_reading)):
                 matches["distancia"]=r["distancia"]
                 matches["distancia_origen"]=r["distancia_origen"]
-                if r.get("distancia_fuente"):
-                    matches["distancia_fuente"]=r["distancia_fuente"]
+                # La procedencia debe corresponder al dato elegido, no al anterior.
+                for field in ("distancia_fuente", "distancia_cotejada"):
+                    if r.get(field):
+                        matches[field]=r[field]
+                    else:
+                        matches.pop(field,None)
                 matches["km"]=km_parse(r["distancia"])
             continue
         # Una discrepancia de distancia respecto a una ficha APROBADA no debe

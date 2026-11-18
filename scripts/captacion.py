@@ -23,7 +23,8 @@ from distancias import (extract_distance, extract_races_section,
 USER_AGENT = "CorreRadarAndaluciaBot/0.1 (+mailto:correradarandalucia@gmail.com)"
 MAX_DETALLES_POR_FUENTE = 24
 # Lectores con reserva concreta o general documentada. No implica desactivación.
-FUENTES_CON_RESERVAS_DOCUMENTADAS = {"fadmes", "dipgra", "faa"}
+FUENTES_CON_RESERVAS_DOCUMENTADAS = {"fadmes", "dipgra", "faa", "runnink", "gesconchip"}
+MAX_ENRIQUECIMIENTO_RUNNINK = 12
 SOURCES = {
     "fadmes": "https://fadmes.es/calendario-fam/",
     "dorsalchip": "https://dorsalchip.es/view/Inicio.aspx",
@@ -272,12 +273,14 @@ def dorsal_links(page,today=None):
         url=urljoin(SOURCES["dorsalchip"],a["href"])
         u=urlparse(url)
         if u.hostname not in ("dorsalchip.es","www.dorsalchip.es"):continue
-        match=re.match(r"^/carrera/(20\d\d)/\d{1,2}/\d{1,2}/[^/]+\.aspx$",u.path,re.I)
-        if not match or int(match[1])<today.year:continue
-        if url in seen:continue
-        seen.add(url);found.append(url)
-    # El listado incluye pruebas ya celebradas; el tramo final presenta las más recientes.
-    return found[-60:]
+        match=re.fullmatch(r"/carrera/(20\d\d)/(\d{1,2})/(\d{1,2})/[^/]+\.aspx",u.path,re.I)
+        if not match:continue
+        try: day=date(*map(int,match.groups()))
+        except ValueError:continue
+        if day<today or day.year>today.year+2 or url in seen:continue
+        seen.add(url);found.append((day,url))
+    # No gastar el presupuesto de fichas en ediciones pasadas.
+    return [url for _,url in sorted(found)[:MAX_DETALLES_POR_FUENTE]]
 
 def dorsal_detail(page,link,today=None):
     today=today or date.today()
@@ -494,6 +497,15 @@ def enrich_distance_from_detail(row, page, provider):
               for piece in headings if 5<=len(piece)<=180)
     if not match:
         return False
+    if provider == "runnink" and row.get("fecha"):
+        # Validar la edición antes de leer kilómetros de una ficha reutilizada.
+        day=date.fromisoformat(row["fecha"])
+        month=next(k for k,v in MONTHS.items() if v==day.month)
+        expected_date=r"(?<!\d)0?"+str(day.day)+r"\s+de\s+"+month+r"\s+de\s+"+str(day.year)+r"(?!\d)"
+        primary=" ".join(p.words[:85])
+        primary=re.split(r"¿?Quieres participar|Te recomendamos|Otras carreras",primary,maxsplit=1,flags=re.I)[0]
+        if not re.search(expected_date,primary,re.I):
+            return False
     distance=(extract_races_section(p.words) if provider=="gesconchip"
               else extract_distance(row.get("nombre",""),p.words)
                    or extract_modalities_distance(p.words)
@@ -602,49 +614,39 @@ def collect(today=None):
             elif name=="runnink":
                 from captacion_extra import runnink
                 rows=runnink(page,today)
-                detail_success=0;detail_errors=0;fetched=0
-                for row in (rows[:24] if os.environ.get("CORRERADAR_DISTANCE_ENRICHMENT") == "yes" else []):
-                    if row.get("distancia"):
+                detail_success=0;detail_errors=0;attempted=0;fetched=0
+                # Solo fichas públicas ya enlazadas en el listado, sin /book/,
+                # formularios, inscritos ni resultados. Un máximo de 12 intentos.
+                missing=sorted((r for r in rows if not r.get("distancia")),
+                               key=lambda r:(r["fecha"],r["nombre"]))
+                enabled=os.environ.get("CORRERADAR_DISTANCE_ENRICHMENT")=="yes"
+                for row in (missing[:MAX_ENRIQUECIMIENTO_RUNNINK] if enabled else []):
+                    if not re.fullmatch(r"/evento/[^/]+/\d+/?",urlparse(row["enlace"]).path):
                         continue
+                    attempted+=1
                     try:
                         detail=fetch_if_permitted(row["enlace"]);fetched+=1
                         if enrich_distance_from_detail(row,detail,"runnink"):
+                            row["distancia_cotejada"]=today.isoformat()
                             detail_success+=1
-                        elif not row.get("distancia"):
-                            m=re.search(r"/(\d+)/?$",row["enlace"])
-                            if m:
-                                booking="https://www.runnink.com/book/"+m.group(1)
-                                if enrich_booking_distance(row,fetch_if_permitted(booking),booking):
-                                    detail_success+=1
-                        time.sleep(0.25)
                     except Exception:
                         detail_errors+=1
+                    finally:
+                        time.sleep(0.5)
                 report["fuentes"]["runnink_detalle"]={
-                    "consultadas":fetched,"distancias_recuperadas":detail_success,
-                    "incidencias":detail_errors}
+                    "estado":"consulta_factica_limitada" if enabled else "desactivado",
+                    "intentos":attempted,"consultadas":fetched,
+                    "distancias_recuperadas":detail_success,"incidencias":detail_errors,
+                    "pendientes":sum(not r.get("distancia") for r in rows)}
             elif name=="gesconchip":
                 from captacion_extra import gesconchip
                 rows=gesconchip(page,today)
-                detail_success=0;detail_errors=0;fetched=0
-                with_headline=0;with_section=0;with_text=0
-                for row in (rows[:24] if os.environ.get("CORRERADAR_DISTANCE_ENRICHMENT") == "yes" else []):
-                    if row.get("distancia"):
-                        continue
-                    try:
-                        detail=fetch_if_permitted(row["enlace"]);fetched+=1
-                        parsed=RaceText();parsed.feed(detail)
-                        if parsed.heading:with_headline+=1
-                        if len(parsed.words)>15:with_text+=1
-                        if any(str(t).strip().upper()=="CARRERAS" for t in parsed.words):with_section+=1
-                        if enrich_distance_from_detail(row,detail,"gesconchip"):
-                            detail_success+=1
-                        time.sleep(0.25)
-                    except Exception:
-                        detail_errors+=1
+                # El aviso legal revisado reserva el uso privado y exige
+                # autorización expresa de reproducción: no ampliar la captación.
                 report["fuentes"]["gesconchip_detalle"]={
-                    "consultadas":fetched,"distancias_recuperadas":detail_success,
-                    "incidencias":detail_errors,"paginas_con_h1":with_headline,
-                    "paginas_con_texto":with_text,"secciones_carreras":with_section}
+                    "estado":"pausado por revisión de derechos","consultadas":0,
+                    "distancias_recuperadas":0,"incidencias":0,
+                    "pendientes":sum(not r.get("distancia") for r in rows)}
             elif name=="fadmes":
                 rows=parse_fadmes(page,today)
             elif name=="faa":
@@ -676,8 +678,13 @@ def collect(today=None):
                     except Exception:
                         pass
                     time.sleep(0.3)
+            for row in rows:
+                if row.get("distancia"):
+                    row.setdefault("distancia_fuente",row.get("fuente") or row.get("enlace"))
+                    row.setdefault("distancia_cotejada",today.isoformat())
             events.extend(rows)
-            report["fuentes"][name]={"estado":"leida","candidatas":len(rows),"url":url}
+            report["fuentes"][name]={"estado":"leida","candidatas":len(rows),"url":url,
+                "con_distancia":sum(bool(r.get("distancia")) for r in rows)}
         except Exception as exc:
             report["fuentes"][name]={"estado":"no disponible","motivo":str(exc)[:170],"url":url}
     report["fuentes"]["sportmaniacs"]={"estado":"sin consulta automática",

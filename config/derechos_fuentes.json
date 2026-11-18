@@ -38,15 +38,19 @@
     },
     "runnink": {
       "estado": "consulta_minima",
-      "fecha_revision": "",
+      "fecha_revision": "2026-11-18",
       "referencia_evidencia": "",
-      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
+      "nota": "Reserva de derechos y prohibición de reproducción comercial. Sin licencia general. Lectura mínima de hechos deportivos y enlaces, hasta 12 fichas públicas por ejecución para kilómetros faltantes, sin abrir páginas de inscripción ni datos personales.",
+      "aviso_legal_url": "https://www.runnink.com/aviso/",
+      "riesgo_aviso_legal": "reserva_expresa"
     },
     "gesconchip": {
       "estado": "consulta_minima",
-      "fecha_revision": "",
+      "fecha_revision": "2026-11-18",
       "referencia_evidencia": "",
-      "nota": "Uso informativo de hechos mínimos y enlaces; sin licencia formal acreditada; sujeto a condiciones, robots y límites técnicos"
+      "nota": "Aviso legal: uso privado y autorización expresa para reproducción y explotación de contenidos. Mantener consulta factual mínima preexistente; no ampliar las peticiones a fichas mientras se aclara el alcance. Buscar datos de organizadores.",
+      "aviso_legal_url": "https://gesconchip.es/aviso-legal/",
+      "riesgo_aviso_legal": "reserva_expresa"
     },
     "dipgra": {
       "estado": "consulta_minima",

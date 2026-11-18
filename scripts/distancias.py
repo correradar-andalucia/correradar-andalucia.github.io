@@ -12,7 +12,7 @@ LABEL = re.compile(r"^\s*(?:distancias?|recorridos?|modalidades?|circuitos?|long
 STOP_SECTION = re.compile(
     r"^(?:normativa|reglamento|organiza(?:n|dores)?|patrocinadores|"
     r"colaboradores|informaci[oó]n|contacto|inscripci[oó]n(?:es)?|"
-    r"otras pruebas|m[aá]s pruebas|servicios|resultados)\b", re.I)
+    r"otras pruebas|otras carreras|pr[oó]ximas carreras|te recomendamos|m[aá]s pruebas|servicios|resultados)\b", re.I)
 MAX_DISTANCES = 12
 
 
@@ -114,8 +114,8 @@ def extract_narrative_distance(fragments):
     for part in parts[:end]:
         if len(part)>5000:continue
         for sentence in re.split(r"(?<=[.!?])\s+",part):
-            if re.search(r"\b(?:carrera|recorrido|prueba|distancia|modalidad|"
-                         r"circuito|trazado|itinerario)\b",sentence,re.I) and len(sentence)<=450:
+            if re.search(r"\b(?:carreras?|recorridos?|pruebas?|distancias?|modalidad(?:es)?|"
+                         r"circuitos?|trazados?|itinerarios?|trail)\b",sentence,re.I) and len(sentence)<=450:
                 useful += _values(sentence)
     found=list(dict.fromkeys(useful))
     return " · ".join(found) if len(found)<=MAX_DISTANCES else ""
