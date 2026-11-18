@@ -10,6 +10,7 @@ from html.parser import HTMLParser
 import re
 import unicodedata
 from distancias import extract_distance
+from estado_inscripciones import runnink_label
 
 RUNNINK="https://www.runnink.com/inscripciones/"
 GESCONCHIP="https://gesconchip.es/app/proximas-pruebas"
@@ -114,9 +115,17 @@ def runnink(page,today=None):
         if NO_FOOT.search(context):continue
         kind=mode(context+" "+title)
         if not kind:continue
-        out.append({"fecha":d.isoformat(),"nombre":title,"localidad":city,
-                    "provincia":province,"modalidad":kind,"distancia":extract_distance(title),
-                    "enlace":url,"fuente":url,"origen":"runnink"})
+        row={"fecha":d.isoformat(),"nombre":title,"localidad":city,
+             "provincia":province,"modalidad":kind,"distancia":extract_distance(title),
+             "enlace":url,"fuente":url,"origen":"runnink"}
+        # Asociar el CTA exclusivamente por URL de ESTA ficha. No mirar la
+        # tarjeta contigua ni emplear el estado de una inscripción diferente.
+        observations=[runnink_label(a["text"],url,d,today) for a in p.links
+                      if a is not anchor and urljoin(RUNNINK,a["href"]).rstrip("/")==url.rstrip("/")]
+        observations=[o for o in observations if o]
+        if observations and all(o==observations[0] for o in observations):
+            row.update(observations[0])
+        out.append(row)
     return out
 
 def gesconchip(page,today=None):
