@@ -246,6 +246,8 @@ def preserve_previous_distances(races, previous_path=None, today=None):
         row.update(distancia=distance,distancia_origen="catalogo",
                    distancia_fuente=source,distancia_cotejada=stamp,
                    km=km_parse(distance))
+        if item.get("distancia_aproximada") is True:
+            row["distancia_aproximada"]=True
         recovered+=1
     return {"recuperadas":recovered,"estado":"respaldo consultado"}
 
