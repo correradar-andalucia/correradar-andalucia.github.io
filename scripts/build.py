@@ -372,7 +372,7 @@ def detail_page(r):
              ('Hora de salida',r.get('hora','')+' h' if r.get('hora') else ''),
              ('Localidad',city),('Modalidad',mode)]
     if r.get('distancia') and distancia_origen:
-        entries.append(('Distancia',r['distancia']+' · '+distancia_origen))
+        entries.append(('Distancia',r['distancia']+(' (aprox.)' if r.get('distancia_aproximada') else '')+' · '+distancia_origen))
     if r.get("distancia_cotejada"):
         entries.append(("Distancia cotejada el",r["distancia_cotejada"]))
     if not r.get("distancia") and r.get("distancia_orientativa"):
