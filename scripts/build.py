@@ -161,6 +161,72 @@ def add_curated_distances(races, catalog=None):
     return {"aplicadas":applied,"conflictos_no_sobrescritos":conflicts}
 
 
+def preserve_previous_distances(races, previous_path=None, today=None):
+    """Recuperar un dato de una publicación propia, sin revalidarlo por silencio.
+
+    Solo misma edición y enlace de fuente, con cotejo fechado reciente.
+    No se conserva una contradicción ni se crea una carrera desde la caché.
+    """
+    from control_calidad import valid_source
+    from distancias import extract_distance
+    from captacion import SOURCES, fuentes_habilitadas
+    today=today or dt.date.today()
+    previous_path=previous_path or os.environ.get("CORRERADAR_PREVIOUS_CALENDAR")
+    if not previous_path:
+        return {"recuperadas":0,"estado":"sin respaldo"}
+    try:
+        path=Path(previous_path)
+        if path.stat().st_size>3_000_000:
+            raise ValueError("Respaldo demasiado grande")
+        old=json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(old,dict) or not isinstance(old.get("carreras"),list):
+            raise ValueError("Respaldo inválido")
+    except (OSError,ValueError,TypeError):
+        return {"recuperadas":0,"estado":"respaldo no disponible"}
+    allowed={urlparse(SOURCES[s]).hostname for s in fuentes_habilitadas()}
+    # No extrapolar por nombre parecido, no usar fichas de otra edición/municipio.
+    def key(r):
+        return tuple(str(r.get(k) or "") for k in ("fecha","nombre","localidad","provincia"))
+    by_key={}
+    for item in old["carreras"]:
+        if isinstance(item,dict):
+            by_key.setdefault(key(item),[]).append(item)
+    recovered=0
+    for row in races:
+        if row.get("distancia") or row.get("confirmada"):
+            continue
+        candidates=by_key.get(key(row),[])
+        if len(candidates)!=1:
+            continue
+        item=candidates[0]
+        source=item.get("distancia_fuente")
+        distance=item.get("distancia")
+        if not valid_source(source) or not isinstance(distance,str):
+            continue
+        if urlparse(source).hostname not in allowed:
+            continue
+        if source not in (row.get("enlace"),row.get("fuente")):
+            continue
+        # Sólo valores explícitos normalizados de la propia lectura anterior.
+        if extract_distance(distance)!=distance or not distance or len(distance)>140:
+            continue
+        if item.get("distancia_origen") not in ("fuente","catalogo"):
+            continue
+        stamp=item.get("distancia_cotejada")
+        try:
+            checked=dt.date.fromisoformat(stamp)
+            event_day=dt.date.fromisoformat(row["fecha"])
+        except (TypeError,ValueError):
+            continue
+        if not (0<=(today-checked).days<=30 and event_day>=today):
+            continue
+        row.update(distancia=distance,distancia_origen="catalogo",
+                   distancia_fuente=source,distancia_cotejada=stamp,
+                   km=km_parse(distance))
+        recovered+=1
+    return {"recuperadas":recovered,"estado":"respaldo consultado"}
+
+
 def esc(s):return html.escape(str(s),quote=True)
 
 def legal_footer():
@@ -345,6 +411,7 @@ def main():
         races, [*candidatas_en_vivo,
                 *(r for r in oficiales if r.get("origen") not in ("globaltempo_cotejo",))])
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
+    auditoria["distancias_conservadas"]=preserve_previous_distances(races)
     auditoria["fichas_oficiales_cotejadas"]=len(oficiales)
     provincias=["Almería","Cádiz","Córdoba","Granada","Huelva","Jaén","Málaga","Sevilla"]
     cobertura={
