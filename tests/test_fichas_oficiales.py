@@ -55,7 +55,7 @@ class FichasOficiales(unittest.TestCase):
         rows = official_races(date(2026, 12, 20))
         result = combine([], rows, slugify, km_parse)
         self.assertTrue(all(r["fecha_origen"] == "catalogo" for r in result))
-        self.assertEqual({r["consultado"] for r in result}, {"2026-11-16", "2026-11-17"})
+        self.assertEqual({r["consultado"] for r in result}, {"2026-11-16", "2026-11-17", "2026-11-18"})
 
     def test_carreras_nuevas_solo_con_fuentes_primarias(self):
         rows = official_races(date(2026, 11, 17))
@@ -70,6 +70,22 @@ class FichasOficiales(unittest.TestCase):
                          "2027-05-08")
         self.assertEqual(by_name["XVI Cross El Hecho de Guadalcázar"]["distancia"], "6 km")
         self.assertTrue(all(r["cotejada"] in ("2026-11-16","2026-11-17") for r in rows))
+
+    def test_ampliacion_jaen_huelva_fechada_y_sin_inventar_datos(self):
+        entries=official_races(date(2026,11,18))
+        new=[r for r in entries if r["cotejada"]=="2026-11-18"]
+        self.assertEqual(len(new),14)
+        self.assertEqual(sum(r["provincia"]=="Jaén" for r in new),6)
+        self.assertEqual(sum(r["provincia"]=="Huelva" for r in new),8)
+        by_name={r["nombre"]:r for r in new}
+        self.assertEqual(by_name["IX Carrera San Silvestre Huesa"]["distancia"],"")
+        self.assertEqual(by_name["V Sierra de Aracena Trail"]["hora"],"")
+        self.assertEqual(by_name["V Sierra de Aracena Trail"]["distancia"],"70 km · 25 km")
+        self.assertEqual(by_name["III San Antón Escañuela"]["fecha"],"2027-01-09")
+        self.assertTrue(all(r["fuente_directa"] for r in new))
+        result=combine([], entries, slugify, km_parse)
+        self.assertTrue(verify_unique(result))
+        self.assertTrue(all(not r["confirmada"] for r in result))
 
     def test_agregador_no_puede_hacerse_pasar_por_organizador(self):
         bad = {"revision":"2026-11-17", "carreras":[{

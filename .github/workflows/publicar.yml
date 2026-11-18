@@ -96,6 +96,11 @@ jobs:
             git fetch --quiet origin refs/heads/estado-correradar-avisos:refs/remotes/origin/estado-correradar-avisos
             git show refs/remotes/origin/estado-correradar-avisos:estado.json > "$RUNNER_TEMP/estado-anterior.json"
           else
+            code=$?
+            if [ "$code" -ne 2 ]; then
+              echo "No se pudo consultar el histórico. Se detienen los avisos para no reiniciarlo por error."
+              exit "$code"
+            fi
             echo "Primer seguimiento: el calendario existente será el punto de partida."
           fi
       - name: Detectar carreras nuevas sin crear correos directamente
@@ -119,14 +124,20 @@ jobs:
           fi
           marker=$(grep -oE 'correradar-avisos:[a-f0-9]{24}' "$RUNNER_TEMP/aviso-cuerpo.md" | head -1)
           test -n "$marker" || (echo "No se encontró identificador anti-duplicados" && exit 1)
-          if gh issue list --repo "$GH_REPO" --state all --limit 1000 --json body | \
-            jq -e --arg mark "$marker" 'any(.[]; (.body // "") | contains($mark))' >/dev/null; then
+          # Separar el acceso al historial de la decisión: un error de API
+          # nunca debe interpretarse como «incidencia inexistente».
+          gh issue list --repo "$GH_REPO" --state all --limit 1000 --json body > "$RUNNER_TEMP/incidencias.json"
+          duplicate=$(jq -r --arg mark "$marker" 'if type != "array" then error("Historial inválido") else any(.[]; (.body // "") | contains($mark)) end' "$RUNNER_TEMP/incidencias.json")
+          if [ "$duplicate" = "true" ]; then
             echo "La incidencia del lote ya existe; no repetir."
-          else
+          elif [ "$duplicate" = "false" ]; then
             gh issue create --repo "$GH_REPO" \
               --title "$(cat "$RUNNER_TEMP/aviso-titulo.txt")" \
               --body-file "$RUNNER_TEMP/aviso-cuerpo.md"
             echo "Incidencia creada. GitHub notificará a quienes sigan Issues por email."
+          else
+            echo "No se pudo determinar si existe aviso previo."
+            exit 1
           fi
       - name: Guardar histórico solo tras registrar las incidencias
         shell: bash

@@ -14,7 +14,7 @@ DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 FILE = DATA_DIR / "fichas_oficiales_2026-11-16.json"
 GLOBALTEMPO_FILE = DATA_DIR / "fichas_globaltempo_2026-11-17.json"
 FILES = (FILE, DATA_DIR / "fichas_oficiales_2026-11-17.json",
-         GLOBALTEMPO_FILE)
+         GLOBALTEMPO_FILE, DATA_DIR / "fichas_oficiales_2026-11-18_jaen_huelva.json")
 # Directorio de agregadores del Excel recibido. Son para descubrir carreras,
 # no sirven como fuente final de confirmación editorial.
 AGGREGATOR_HOSTS = frozenset({
