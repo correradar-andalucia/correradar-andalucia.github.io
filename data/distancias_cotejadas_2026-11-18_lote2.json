@@ -1,0 +1,108 @@
+{
+  "revision": "2026-11-18",
+  "criterio": "Cotejo individual de la edición concreta; distancias nominales de carrera, sin senderismo. No crea carreras nuevas. Tres alias de cotejos ya verificados.",
+  "carreras": [
+    {
+      "fecha": "2026-11-21",
+      "nombre": "CxM Tiñosa Trail",
+      "localidad": "Priego de Córdoba",
+      "provincia": "Córdoba",
+      "distancia": "24 km · 11 km",
+      "fuente": "https://priegodigital.es/noticia/16079-tinosa-trail-abre-inscripciones-para-una-edicion-que-sera-copa-de-andalucia",
+      "cotejada": "2026-11-18",
+      "nota": "Presentación municipal y declaración de la organización."
+    },
+    {
+      "fecha": "2026-11-21",
+      "nombre": "7 Ecomaratón La Donaira",
+      "localidad": "El Gastor",
+      "provincia": "Cádiz",
+      "distancia": "25 km · 15 km",
+      "fuente": "https://olarivers.com/eventos/7a-ecomaraton-la-donaira/",
+      "cotejada": "2026-11-18",
+      "nota": "Solo las dos pruebas de trail; 12 km corresponde a senderismo."
+    },
+    {
+      "fecha": "2026-11-22",
+      "nombre": "III Carrera El Cerebro no es Gris",
+      "localidad": "Córdoba",
+      "provincia": "Córdoba",
+      "distancia": "5 km",
+      "fuente": "https://astucespain.org/astuce-spain-presenta-en-cordoba-la-iii-carrera-y-marcha-solidaria-el-cerebro-no-es-gris/",
+      "cotejada": "2026-11-18",
+      "nota": "Distancia de la carrera según asociación organizadora."
+    },
+    {
+      "fecha": "2026-11-22",
+      "nombre": "We Run UMA",
+      "localidad": "Málaga",
+      "provincia": "Málaga",
+      "distancia": "6 km",
+      "fuente": "https://lavozdemalaga.com/la-uma-celebra-el-domingo-22-en-teatinos-su-tercera-carrera-solidaria-we-run-uma/",
+      "cotejada": "2026-11-18",
+      "nota": "Distancia principal para categorías desde sub-16, según presentación de la UMA recogida por prensa."
+    },
+    {
+      "fecha": "2026-11-28",
+      "nombre": "Ultra Maratón Costa de Almería 2026",
+      "localidad": "Agua Amarga",
+      "provincia": "Almería",
+      "distancia": "75,2 km · 43,7 km · 31,9 km",
+      "fuente": "https://ultramaratoncostadealmeria.com/doc/2026/reglamento.html",
+      "cotejada": "2026-11-18",
+      "nota": "Tres modalidades oficiales de la misma organización y fecha, con diferentes puntos de salida."
+    },
+    {
+      "fecha": "2026-12-04",
+      "nombre": "IX Carrera Nocturna Ciudad de Camas",
+      "localidad": "Camas",
+      "provincia": "Sevilla",
+      "distancia": "7,2 km",
+      "fuente": "https://www.camas.es/export/sites/camas/.galleries/documentos-noticias/Reglamento-IX-Carrera-Nocturna-Ciudad-de-Camas-4-diciembre-2026.pdf",
+      "cotejada": "2026-11-18",
+      "nota": "Art. 2: recorrido aproximado, prevalece sobre los 7,5 km de la agenda turística.",
+      "aproximada": true
+    },
+    {
+      "fecha": "2026-12-06",
+      "nombre": "XIII CxM Faraján",
+      "localidad": "Faraján",
+      "provincia": "Málaga",
+      "distancia": "23 km · 11 km",
+      "fuente": "https://olarivers.com/eventos/xiii-cxm-farajan/",
+      "cotejada": "2026-11-18",
+      "nota": "Distancias aproximadas anunciadas para ambas modalidades.",
+      "aproximada": true
+    },
+    {
+      "fecha": "2026-11-28",
+      "nombre": "XIV CARRERA DEL KILO DE BENAMEJÍ",
+      "localidad": "Benamejí",
+      "provincia": "Córdoba",
+      "distancia": "7 km",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "cotejada": "2026-11-18",
+      "nota": "Misma edición que Benamejí: alias exacto del lector oficial."
+    },
+    {
+      "fecha": "2026-12-07",
+      "nombre": "XVI C.P. RUTE EN NAVIDAD",
+      "localidad": "Rute",
+      "provincia": "Córdoba",
+      "distancia": "5,5 km",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "cotejada": "2026-11-18",
+      "nota": "Alias exacto del circuito oficial ya cotejado."
+    },
+    {
+      "fecha": "2026-12-31",
+      "nombre": "42ª SAN SILVESTRE CORDOBESA",
+      "localidad": "Córdoba",
+      "provincia": "Córdoba",
+      "distancia": "10 km",
+      "fuente": "https://www.carreraspopularescordoba.com/index.php/component/jdownloads/send/3-diptico-2019/1371-calendario-2026-actualizado",
+      "cotejada": "2026-11-18",
+      "nota": "Alias de la edición oficial ya cotejada."
+    }
+  ]
+}
