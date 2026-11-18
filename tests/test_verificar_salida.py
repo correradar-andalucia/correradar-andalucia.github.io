@@ -19,7 +19,7 @@ class VerificacionSalida(unittest.TestCase):
         self.root=Path(self.tmp.name)
         self.slug="carrera-sevilla-2026-12-20"
         for path in ("assets/app.js","assets/styles.css","robots.txt","sitemap.xml",
-                     "data/estado_fuentes.json"):
+                     "data/estado_fuentes.json","assets/panel.css","data/distancias_pendientes.json"):
             target=self.root/path
             target.parent.mkdir(parents=True,exist_ok=True)
             target.write_text("prueba",encoding="utf-8")
@@ -36,11 +36,18 @@ class VerificacionSalida(unittest.TestCase):
         detail.parent.mkdir(parents=True)
         detail.write_text(f"<html><head>{ROBOTS}</head></html>",encoding="utf-8")
         self.detail=detail
+        (self.root/"panel").mkdir()
+        (self.root/"panel/index.html").write_text(f"<html><head>{ROBOTS}</head></html>",encoding="utf-8")
 
     def test_artefacto_completo(self):
         result=verify_output(self.root,PRELAUNCH)
         self.assertEqual(result["fichas_verificadas"],1)
         self.assertTrue(result["prelanzamiento_noindex"])
+
+    def test_panel_no_indexable(self):
+        (self.root/"panel/index.html").write_text("<html><head></head></html>",encoding="utf-8")
+        with self.assertRaisesRegex(ValueError,"Panel de mantenimiento indexable"):
+            verify_output(self.root,PRELAUNCH)
 
     def test_proteger_portada(self):
         (self.root/"index.html").write_text("<html><head></head></html>",encoding="utf-8")
