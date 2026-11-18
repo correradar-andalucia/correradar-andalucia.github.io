@@ -1,0 +1,126 @@
+{
+  "revision": "2026-11-18",
+  "criterio": "Hora de inicio del programa o salida concreta de carrera, con notas de modalidades; no horas de recogida de dorsales ni plazos.",
+  "carreras": [
+    {
+      "fecha": "2026-11-22",
+      "nombre": "CXM TOLETA",
+      "localidad": "Puerto Serrano",
+      "provincia": "Cádiz",
+      "hora": "09:00",
+      "nota": "Inicio de la prueba; otras modalidades tienen salida propia.",
+      "fuente": "https://inscripciones.tecnocrono.com/inscripcion/vi-cxm-toleta/?lang=es",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-11-28",
+      "nombre": "XXXVIII Cross de Torremolinos",
+      "localidad": "Torremolinos",
+      "provincia": "Málaga",
+      "hora": "10:00",
+      "nota": "Primera salida, 7,7 km. Resto de categorías a partir de las 11:30.",
+      "fuente": "https://tiempodemeta.es/pruebas/xxxviii-cross-de-torremolinos/",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-05",
+      "nombre": "VI Solidaria de Guaro UCS",
+      "localidad": "Guaro",
+      "provincia": "Málaga",
+      "hora": "11:00",
+      "nota": "Primeras categorías a las 11:00; carrera principal de 6 km a las 12:15.",
+      "fuente": "https://olarivers.com/eventos/vi-solidaria-de-guaro-ucs/",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-12",
+      "nombre": "CV Benahadux",
+      "localidad": "Benahadux",
+      "provincia": "Almería",
+      "hora": "10:00",
+      "nota": "Distancia de adultos. La organización anuncia también distancias de menores.",
+      "fuente": "https://www.todofondo.net/prueba/ver/cv-benahadux---719/",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-12",
+      "nombre": "CxM CV Benahadux",
+      "localidad": "Benahadux",
+      "provincia": "Almería",
+      "hora": "10:00",
+      "nota": "Distancia de adultos; alias de la misma edición.",
+      "fuente": "https://www.todofondo.net/prueba/ver/cv-benahadux---719/",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-13",
+      "nombre": "CxM Huércal",
+      "localidad": "Huércal",
+      "provincia": "Almería",
+      "hora": "10:00",
+      "nota": "VII Extreme Iberus: 20 km a las 10:00 y 11 km a las 10:30.",
+      "fuente": "https://www.cruzandolameta.es/pruebas/vii-extreme-iberus-cxm/",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-13",
+      "nombre": "CxM Huércal",
+      "localidad": "Huércal de Almería",
+      "provincia": "Almería",
+      "hora": "10:00",
+      "nota": "VII Extreme Iberus: 20 km a las 10:00 y 11 km a las 10:30.",
+      "fuente": "https://www.cruzandolameta.es/pruebas/vii-extreme-iberus-cxm/",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-13",
+      "nombre": "CxM Sierra de Alhaurín el Grande, Homenaje a \"Mori\"",
+      "localidad": "Alhaurín el Grande",
+      "provincia": "Málaga",
+      "hora": "08:30",
+      "nota": "22K a las 08:30; Open 12K a las 09:30.",
+      "fuente": "https://olarivers.com/eventos/cxm-alhaurin-el-grande-homenaje-al-mori/",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-19",
+      "nombre": "CxM Corrillón Trail",
+      "localidad": "Júzcar",
+      "provincia": "Málaga",
+      "hora": "11:00",
+      "nota": "No se incluye la modalidad de 7 km no competitiva (senderista/iniciación).",
+      "fuente": "https://olarivers.com/eventos/cxm-corrillon-trail/",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-27",
+      "nombre": "XIII San Silvestre Iliturgitana",
+      "localidad": "Andújar",
+      "provincia": "Jaén",
+      "hora": "10:15",
+      "nota": "Salida corriendo; actividad no competitiva, sin cronometraje. Marcha a las 09:30.",
+      "fuente": "https://www.gccsportevents.es/index.php/component/jdownloads/send/3-reglamentos/49-reglamento-san-silvestre-iliturgitana-2026?Itemid=101",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-12-29",
+      "nombre": "XXXIII San Silvestre Chipionera",
+      "localidad": "Chipiona",
+      "provincia": "Cádiz",
+      "hora": "16:30",
+      "nota": "Hora de la carrera popular, no de la marcha nórdica.",
+      "fuente": "https://www.runnink.com/evento/xxxiii-san-silvestre-chipionera/113",
+      "cotejada": "2026-11-18"
+    },
+    {
+      "fecha": "2026-11-22",
+      "nombre": "Pinares de Cartaya",
+      "localidad": "Cartaya",
+      "provincia": "Huelva",
+      "hora": "10:00",
+      "nota": "Inicio del programa de cross, según Diputación de Huelva.",
+      "fuente": "https://diphuelva.es/deportes/agenda/ATLETISMO-XXXIX-CROSS-PINARES-DE-CARTAYA/",
+      "cotejada": "2026-11-18"
+    }
+  ]
+}

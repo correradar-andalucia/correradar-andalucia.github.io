@@ -1,0 +1,7 @@
+# Cotejos de kilómetros y horarios — 18/11/2026 (tercera tanda)
+
+Base: 163 carreras, 74 con distancia, 28 con horario, 10 fuentes leídas. Se incorporan 11 registros de kilómetros (9 pruebas distintas, dos alias) y 12 de horarios (10 pruebas distintas, dos alias). Algunos datos podrían estar ya presentes; no se predice una ganancia neta sin ejecución real. Cotejos puntuales con la edición, sede y fuentes enlazadas en los JSON. Se mantiene el mismo número de lectores y límites.
+
+Los horarios indican la primera salida de carrera o, cuando procede, la salida de una modalidad concreta; se conserva el detalle en la ficha. Guaro: primera salida 11:00, carrera principal 12:15. Cartaya: inicio 10:00, distancias no comprobadas. Júzcar: 14 km aprox., excluidos los 7 km no competitivos. Benahadux: distancia de adultos, no extrapolar a menores. Andújar: actividad no competitiva, salida corriendo 10:15. Huércal: alias explícitos de la misma sede. Chipiona: 6 km y 16:30.
+
+Pendientes: no se han comprobado distancias de la edición 2026 del Trail Jamón de Jabugo ni del programa escolar de La Toleta. No se reutilizan reglamentos de ediciones anteriores. No se añade la distancia de Archidona sin tabla oficial verificable. El JSON público de pendientes no fue accesible a través de la consulta web utilizada; se han contrastado las identidades del histórico de avisos, que puede contener alias ya fusionados. La revisión no abarca las 89 fichas exhaustivamente.

@@ -163,6 +163,48 @@ def add_curated_distances(races, catalog=None):
     return {"aplicadas":applied,"conflictos_no_sobrescritos":conflicts}
 
 
+def add_curated_times(races, catalog=None, today=None):
+    """Añadir solo horarios cotejados de la misma edición, sin sustituir datos actuales."""
+    from control_calidad import valid_source
+    today=today or dt.date.today()
+    if catalog is None:
+        entries=[]
+        for path in sorted((ROOT/"data").glob("horarios_cotejados_*.json")):
+            entries.extend(json.loads(path.read_text(encoding="utf-8"))["carreras"])
+        catalog={"carreras":entries}
+    def key(item):
+        return (item["fecha"],norm(item["nombre"]),norm(item["localidad"]),norm(item["provincia"]))
+    matches={}
+    for race in races:
+        matches.setdefault(key(race),[]).append(race)
+    seen=set()
+    applied=0
+    conflicts=0
+    for item in catalog["carreras"]:
+        identity=key(item)
+        hour=item["hora"]
+        stamp=dt.date.fromisoformat(item["cotejada"])
+        day=dt.date.fromisoformat(item["fecha"])
+        if (identity in seen or not isinstance(hour,str)
+            or not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d",hour)
+            or not valid_source(item["fuente"]) or stamp>today or stamp>day):
+            raise ValueError("Horario cotejado inválido o repetido: "+str(identity))
+        seen.add(identity)
+        rows=matches.get(identity,[])
+        if len(rows)!=1 or day<today:
+            continue
+        race=rows[0]
+        if race.get("hora") and race["hora"]!=hour:
+            conflicts+=1
+            continue
+        if race.get("confirmada") or race.get("hora"):
+            continue
+        race.update(hora=hour,hora_origen="fuente",hora_fuente=item["fuente"],
+                    hora_cotejada=stamp.isoformat(),hora_nota=str(item.get("nota",""))[:240])
+        applied+=1
+    return {"aplicadas":applied,"conflictos_no_sobrescritos":conflicts}
+
+
 def add_granada_cross_notes(races):
     """Distancias orientativas 2026/27: nunca tratarlas como kilómetros exactos."""
     rounds={
@@ -375,6 +417,10 @@ def detail_page(r):
              ('Localidad',city),('Modalidad',mode)]
     if r.get('distancia') and distancia_origen:
         entries.append(('Distancia',r['distancia']+(' (aprox.)' if r.get('distancia_aproximada') else '')+' · '+distancia_origen))
+    if r.get("hora_nota"):
+        entries.append(("Detalle de salidas",r["hora_nota"]))
+    if r.get("hora_cotejada"):
+        entries.append(("Horario cotejado el",r["hora_cotejada"]))
     if r.get("distancia_cotejada"):
         entries.append(("Distancia cotejada el",r["distancia_cotejada"]))
     if not r.get("distancia") and r.get("distancia_orientativa"):
@@ -398,6 +444,8 @@ def detail_page(r):
     if r.get('fuente') and r['fuente']!=r.get('enlace'):buttons+=f'<a class="secondary" href="{esc(r["fuente"])}" rel="noopener noreferrer" target="_blank">Fuente de verificación ↗</a>'
     if r.get("distancia") and url_clean(r.get("distancia_fuente","")) and r.get("distancia_fuente") != r.get("enlace"):
         buttons+=f'<a class="secondary" href="{esc(r["distancia_fuente"])}" rel="noopener noreferrer" target="_blank">Ver distancia en la fuente ↗</a>'
+    if r.get("hora") and url_clean(r.get("hora_fuente","")) and r.get("hora_fuente") not in (r.get("enlace"),r.get("distancia_fuente")):
+        buttons+=f'<a class="secondary" href="{esc(r["hora_fuente"])}" rel="noopener noreferrer" target="_blank">Ver horarios en la fuente ↗</a>'
     if not r.get("distancia") and url_clean(r.get("distancia_orientativa_fuente","")):
         buttons+=f'<a class="secondary" href="{esc(r["distancia_orientativa_fuente"])}" rel="noopener noreferrer" target="_blank">Normativa de distancias orientativas ↗</a>'
     if (r.get("inscripcion_enlace") and url_clean(r["inscripcion_enlace"])
@@ -446,6 +494,7 @@ def main():
         read_previous(os.environ.get("CORRERADAR_PREVIOUS_CALENDAR")),
         informe_captacion,slugify,km_parse)
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
+    auditoria["horarios_cotejados"]=add_curated_times(races)
     auditoria["distancias_conservadas"]=preserve_previous_distances(races)
     auditoria["cross_distancias_orientativas"]=add_granada_cross_notes(races)
     auditoria["fichas_oficiales_cotejadas"]=len(oficiales)
