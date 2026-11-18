@@ -13,7 +13,10 @@ from test_persistencia import item,report,TODAY
 
 def batch():
     return [item(nombre="Carrera "+name,slug=slugify(name),
-                 localidad=city,fecha="2026-12-01")
+                 localidad=city,fecha="2026-12-01",
+                 fuente=f"https://www.runnink.com/evento/{name}/123",
+                 enlace=f"https://www.runnink.com/evento/{name}/123",
+                 distancia_fuente=f"https://www.runnink.com/evento/{name}/123")
             for name,city in [("alfa","Jerez"),("beta","Rota"),("gamma","Cádiz"),
                               ("delta","Chipiona"),("epsilon","San Roque"),("zeta","Algeciras")]]
 
