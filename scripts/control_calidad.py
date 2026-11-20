@@ -152,6 +152,22 @@ def inspect_calendar(races, capture_report, today=None, continuidad=None):
             and (sources.get("globaltempo") or {}).get("estado") != "leida"):
         reasons.append("Feed autorizado de Global Tempo no disponible: conservar última web")
 
+    # Los lectores pueden descargar la página (HTTP 200) pero no extraer
+    # carreras al cambiar el HTML. Bloquear sólo anomalías respaldadas por
+    # la última publicación validada, no por simples calendarios vacíos.
+    salud = capture_report.get("salud_captacion") or {}
+    sospechosas = salud.get("sospechosas") or {}
+    if not offline and sospechosas:
+        for name, info in sorted(sospechosas.items()):
+            reasons.append(
+                f"{name}: lectura sospechosa ({info['obtenidas']} extraídas, "
+                f"{info['futuras_previas']} futuras en referencia anterior); "
+                "revisar el lector sin eliminar carreras ni eludir derechos"
+            )
+    for name, info in sorted((salud.get("avisos") or {}).items()):
+        notices.append(f"{name}: revisar captación ({info['motivo']}); "
+                       "la evidencia aún no justifica bloquear la publicación")
+
     continuidad=continuidad or {}
     for source, info in continuidad.get("fuentes_con_lectura_anomala",{}).items():
         notices.append(f"{source}: descenso anómalo de {info['ausentes']} carreras futuras respecto a la publicación anterior")
@@ -177,6 +193,7 @@ def inspect_calendar(races, capture_report, today=None, continuidad=None):
         "origen_fecha": {p: origin_counts[p] for p in ("editorial", "fuente", "catalogo")},
         "fuentes_automaticas_leidas": live,
         "fuentes_automaticas_leidas_total": len(live),
+        "fuentes_con_lectura_sospechosa": sorted(sospechosas) if not offline else [],
         "compilacion_sin_red": offline,
         "fuentes_pausadas_por_derechos": permitted == 0
     }
