@@ -14,7 +14,12 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    outputs:
+      estado: ${{ steps.continuidad.outputs.estado }}
+      intento: ${{ steps.continuidad.outputs.intento }}
+      artefacto: ${{ steps.pages.outputs.artifact_id }}
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
@@ -27,12 +32,11 @@ jobs:
           python -m compileall -q scripts tests
           python -m unittest discover -s tests -v
           node --check assets/app.js
-      - name: Recuperar distancias de la última publicación propia
-        run: |
-          if ! curl --fail --silent --show-error --proto '=https' --max-time 20 --max-filesize 3000000 https://correradar-andalucia.github.io/data/carreras.json -o "$RUNNER_TEMP/calendario-previo.json"; then
-            rm -f "$RUNNER_TEMP/calendario-previo.json"
-            echo "Respaldo de distancias no disponible; continuar sin él."
-          fi
+      - name: Resolver referencia del último calendario publicado
+        id: continuidad
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/publicacion.py resolver "$RUNNER_TEMP/calendario-previo.json"
       - name: Generar web y fichas de carreras
         env:
           CORRERADAR_DISTANCE_ENRICHMENT: ${{ vars.CORRERADAR_DISTANCE_ENRICHMENT || 'yes' }}
@@ -45,29 +49,55 @@ jobs:
         run: python scripts/build.py
       - name: Comprobar informe, fichas y bloqueo de indexación
         run: python scripts/verificar_salida.py
-      - name: Guardar calendario para avisar solo tras despliegue correcto
+      - name: Identificar y validar el calendario que se va a publicar
+        run: python scripts/publicacion.py marcar _site/data/carreras.json
+      - name: Subir calendario del intento
         uses: actions/upload-artifact@v4
         with:
-          name: calendario-para-avisos
+          name: calendario-publicacion-${{ github.run_attempt }}
           path: _site/data/carreras.json
           retention-days: 7
           if-no-files-found: error
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
       - name: Subir web generada
+        id: pages
         uses: actions/upload-pages-artifact@v4
         with:
+          name: github-pages-${{ github.run_attempt }}
           path: _site
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Publicar GitHub Pages
+      - name: Obtener código del despliegue
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recuperar calendario del intento
+        uses: actions/download-artifact@v4
+        with:
+          name: calendario-publicacion-${{ needs.build.outputs.intento }}
+          path: _publicacion
+      - name: Publicar en GitHub Pages y confirmar la copia de continuidad
         id: deployment
-        uses: actions/deploy-pages@v4
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTEFACTO: ${{ needs.build.outputs.artefacto }}
+          ESTADO: ${{ needs.build.outputs.estado }}
+          INTENTO: ${{ needs.build.outputs.intento }}
+        run: |
+          python scripts/publicacion.py desplegar _publicacion/carreras.json \
+            --artefacto "$ARTEFACTO" --estado "$ESTADO" --intento "$INTENTO"
 
   avisos:
     # NUNCA avisar de carreras que no se hayan publicado correctamente.
@@ -83,10 +113,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Verificar que este intento sigue publicado
+        env:
+          INTENTO: ${{ needs.build.outputs.intento }}
+        run: python scripts/publicacion.py avisos --intento "$INTENTO"
       - name: Recuperar calendario recién publicado
         uses: actions/download-artifact@v4
         with:
-          name: calendario-para-avisos
+          name: calendario-publicacion-${{ needs.build.outputs.intento }}
           path: _avisos
       - name: Recuperar histórico de carreras notificadas
         shell: bash

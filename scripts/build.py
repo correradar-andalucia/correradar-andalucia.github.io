@@ -226,7 +226,7 @@ def add_granada_cross_notes(races):
     return count
 
 
-def preserve_previous_distances(races, previous_path=None, today=None):
+def preserve_previous_distances(races, previous, today=None, *, capture_report=None):
     """Recuperar un dato de una publicación propia, sin revalidarlo por silencio.
 
     Solo misma edición y enlace de fuente, con cotejo fechado reciente.
@@ -236,26 +236,18 @@ def preserve_previous_distances(races, previous_path=None, today=None):
     from distancias import extract_distance
     from captacion import SOURCES, fuentes_habilitadas
     today=today or dt.date.today()
-    previous_path=previous_path or os.environ.get("CORRERADAR_PREVIOUS_CALENDAR")
-    if not previous_path:
+    if not previous:
         return {"recuperadas":0,"estado":"sin respaldo"}
-    try:
-        path=Path(previous_path)
-        if path.stat().st_size>3_000_000:
-            raise ValueError("Respaldo demasiado grande")
-        old=json.loads(path.read_text(encoding="utf-8"))
-        if not isinstance(old,dict) or not isinstance(old.get("carreras"),list):
-            raise ValueError("Respaldo inválido")
-    except (OSError,ValueError,TypeError):
-        return {"recuperadas":0,"estado":"respaldo no disponible"}
-    allowed={urlparse(SOURCES[s]).hostname for s in fuentes_habilitadas()}
+    statuses = (capture_report or {}).get("fuentes", {})
+    allowed = {urlparse(SOURCES[name]).hostname for name in fuentes_habilitadas()
+               if not any(statuses.get(name, {}).get(flag)
+                          for flag in ("acceso_restringido", "detalle_restringido"))}
     # No extrapolar por nombre parecido, no usar fichas de otra edición/municipio.
     def key(r):
         return tuple(str(r.get(k) or "") for k in ("fecha","nombre","localidad","provincia"))
     by_key={}
-    for item in old["carreras"]:
-        if isinstance(item,dict):
-            by_key.setdefault(key(item),[]).append(item)
+    for item in previous:
+        by_key.setdefault(key(item),[]).append(item)
     recovered=0
     for row in races:
         if row.get("distancia") or row.get("confirmada"):
@@ -492,11 +484,22 @@ def main():
     from enlaces_inscripcion import match_registrations
     from alertas_globaltempo import approved_items, publication_candidates
     from captacion import collect
-    from persistencia import read_previous, restore_missing, distance_backlog
+    from continuidad import ContinuityError, read_calendar
+    from persistencia import restore_missing, distance_backlog
     from estado_inscripciones import apply_current_registrations
     from panel import panel_page
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
+    previous_calendar = []
+    if os.environ.get("CORRERADAR_FETCH") != "0":
+        previous_path = os.environ.get("CORRERADAR_PREVIOUS_CALENDAR")
+        if not previous_path:
+            raise ContinuityError("Falta una referencia válida del calendario publicado")
+        try:
+            _, previous = read_calendar(previous_path)
+        except (OSError, ContinuityError) as exc:
+            raise ContinuityError(f"No se pudo validar la referencia de continuidad: {exc}") from None
+        previous_calendar = previous["carreras"]
     candidatas_en_vivo, informe_captacion = collect()
     oficiales=official_races()
     races, auditoria = combine(transform(load_csv()), oficiales+seed_races()+backup_runnink()+candidatas_en_vivo,
@@ -506,14 +509,14 @@ def main():
     auditoria["enlaces_globaltempo"]=match_registrations(
         races, [*candidatas_en_vivo,
                 *(r for r in oficiales if r.get("origen") not in ("globaltempo_cotejo",))])
-    previous_calendar=read_previous(os.environ.get("CORRERADAR_PREVIOUS_CALENDAR"))
     auditoria["respaldo_carreras"]=restore_missing(races,
         previous_calendar,
         informe_captacion,slugify,km_parse)
     auditoria["distancias_cotejadas"]=add_curated_distances(races)
     auditoria["horarios_cotejados"]=add_curated_times(races)
     auditoria["inscripciones"]=apply_current_registrations(races,candidatas_en_vivo)
-    auditoria["distancias_conservadas"]=preserve_previous_distances(races)
+    auditoria["distancias_conservadas"]=preserve_previous_distances(
+        races, previous_calendar, capture_report=informe_captacion)
     auditoria["cross_distancias_orientativas"]=add_granada_cross_notes(races)
     auditoria["fichas_oficiales_cotejadas"]=len(oficiales)
     provincias=["Almería","Cádiz","Córdoba","Granada","Huelva","Jaén","Málaga","Sevilla"]
@@ -531,8 +534,12 @@ def main():
     verify_unique(races)
     calidad = inspect_calendar(races, informe_captacion, continuidad=auditoria["respaldo_carreras"])
     if not calidad["apto_para_desplegar"]:
-        raise ValueError("PUBLICACIÓN BLOQUEADA POR CALIDAD: "
-                         + " | ".join(calidad["bloqueos"][:12]))
+        residual = auditoria["respaldo_carreras"]["perdidas_residuales"]
+        details = ", ".join(f"{name}: {info['ausentes']}" for name, info in sorted(residual.items()))
+        reasons = calidad["bloqueos"][:12]
+        if details:
+            reasons.append(f"Ausencias frente a la referencia publicada ({details})")
+        raise ValueError("PUBLICACIÓN BLOQUEADA POR CALIDAD: " + " | ".join(reasons))
     print("CONTROL DE CALIDAD:", json.dumps(calidad,ensure_ascii=False))
     print("AUDITORÍA DUPLICADOS:",json.dumps(auditoria,ensure_ascii=False))
     print("Captación multifuente:", json.dumps(informe_captacion, ensure_ascii=False))
