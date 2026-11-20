@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections import Counter
 from datetime import date
 from urllib.parse import urlparse
+import re
 
 PROVINCES = ("Almería", "Cádiz", "Córdoba", "Granada",
              "Huelva", "Jaén", "Málaga", "Sevilla")
@@ -78,8 +79,12 @@ def inspect_calendar(races, capture_report, today=None, continuidad=None):
             reasons.append(f"{label}: provincia desconocida")
         else:
             province_counts[province] += 1
-        if not str(race.get("localidad") or "").strip():
+        locality = str(race.get("localidad") or "").strip()
+        if not locality:
             reasons.append(f"{label}: falta localidad")
+        elif re.match(r"(?i)^palacio de deportes\b", locality):
+            reasons.append(f"{label}: aparece un recinto deportivo como localidad; "
+                           "verificar municipio antes de publicar")
         if race.get("modalidad") not in MODES:
             reasons.append(f"{label}: modalidad desconocida")
         origin = race.get("fecha_origen")

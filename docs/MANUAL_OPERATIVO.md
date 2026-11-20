@@ -39,6 +39,12 @@ La mejora extrae la localidad del campo aislado «Dónde» cuando incluye provin
 
 En la primera ejecución autorizada posterior a integrar, comprobar que los motivos de descarte cuadran con las fichas consultadas, que el contador de la fuente no supera los límites, que las carreras añadidas tienen fecha, municipio y provincia contrastables y que no aparecen carreras canceladas o duplicadas. Verificar además el control de calidad, la continuidad y los avisos como en cualquier publicación. Hasta entonces, el diagnóstico es **una propuesta técnica en PR**, no una corrección confirmada en producción.
 
+### Incidencia #68: recinto confundido con municipio
+
+Después de integrar el PR #67, el lector recuperó 3 fichas de 18 y GitHub Pages publicó 181 carreras, pero la ficha `II CXM LA CALZADA 2027` quedó con `Palacio de Deportes de Vícar` como `localidad`. Es un recinto y no una localidad válida. La solución preparada en una rama independiente añade `palacio` a los prefijos de recinto ambiguo del lector y bloquea explícitamente `Palacio de Deportes` en el control de calidad general. Si la fuente no documenta el municipio de forma independiente, **omitir la ficha** hasta que esté documentado; no inferir «Vícar» por aparecer en el nombre de la instalación.
+
+Tras autorizar e integrar la corrección, revisar que la localidad incorrecta no vuelve a aparecer en el calendario publicado (tampoco por respaldo de continuidad), que no hay pérdida territorial injustificada, que la generación real pasa calidad y que la rama de continuidad y avisos finalizan correctamente. La retirada de la ficha errónea no significa cancelación de la carrera, y su aviso anterior debe conservarse como histórico; no cerrar la incidencia sin verificación editorial.
+
 ## Gestión con ChatGPT y Codex
 Crear Proyecto ChatGPT «CorreRadar Andalucía» y mover el chat original desde su menú. Pegar en instrucciones del proyecto el texto de TRASPASO_CHATGPT.md. Abrir nuevos chats por tarea; no depender de una única conversación ni asumir memoria habilitada. GitHub conserva instrucciones y hechos.
 Abrir https://chatgpt.com/codex, conectar repositorio si la interfaz lo solicita y comenzar con una tarea de inspección sin cambios. Codex lee AGENTS.md. Pedir PR acotada y pruebas; decidir antes de publicar. En ChatGPT usar Work para investigación, revisión y coordinación si está disponible. La conexión de apps y creación/movimiento del proyecto requieren intervención del titular; no compartir credenciales.
