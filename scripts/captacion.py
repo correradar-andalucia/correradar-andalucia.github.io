@@ -248,6 +248,9 @@ def parse_cruzando_detail(page,source_url,today=None,diagnostico=None):
             break
     if place_field is None:
         for word in parser.words:
+            # No usar municipios de fichas sugeridas o menús del pie.
+            if re.search(r"También te puede interesar|Más pruebas en|Ver calendario",word,re.I):
+                break
             if re.search(r"\b\d{1,2}:\d{2}\b",word):
                 continue
             if location_pattern.fullmatch(word):
@@ -278,8 +281,7 @@ def parse_cruzando_detail(page,source_url,today=None,diagnostico=None):
             or re.search(r"[<>]",place)):
         return descartar("municipio_no_verificable")
     return {"fecha":d.isoformat(),"nombre":name,"localidad":place,"provincia":province,
-            "modalidad":category,"distancia":(extract_distance(name,parser.words)
-                or extract_modalities_distance(parser.words)),"enlace":source_url,
+            "modalidad":category,"distancia":extract_distance(name),"enlace":source_url,
             "fuente":source_url,"origen":"cruzandolameta"}
 
 @lru_cache(maxsize=8)
