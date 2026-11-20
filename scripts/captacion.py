@@ -625,7 +625,7 @@ def collect(today=None):
             continue
         try:
             page=fetch_if_permitted(url)
-            detail_errors=0;detail_restricted=False
+            detail_errors=0;detail_restricted=False;enlaces_detectados=None
             if name=="dipgra":
                 from captacion_extra import diputacion_granada
                 rows=diputacion_granada(page,today)
@@ -636,6 +636,7 @@ def collect(today=None):
                 from circuito_cordoba import circuito_links, circuito_detail
                 rows=[]
                 links=circuito_links(page)
+                enlaces_detectados=len(links)
                 detail_errors=0
                 for link,title in links[:MAX_DETALLES_POR_FUENTE]:
                     try:
@@ -691,7 +692,9 @@ def collect(today=None):
                 rows=parse_faa(page,today)
             elif name=="gcc":
                 rows=[]
-                for detail in gcc_links(page)[:MAX_DETALLES_POR_FUENTE]:
+                enlaces=gcc_links(page)
+                enlaces_detectados=len(enlaces)
+                for detail in enlaces[:MAX_DETALLES_POR_FUENTE]:
                     try:
                         candidate=parse_gcc_detail(fetch_if_permitted(detail),detail,today)
                         if candidate:rows.append(candidate)
@@ -701,6 +704,7 @@ def collect(today=None):
                     time.sleep(0.3)
             elif name=="dorsalchip":
                 rows=[];links=dorsal_links(page,today)
+                enlaces_detectados=len(links)
                 for detail in links[:MAX_DETALLES_POR_FUENTE]:
                     try:
                         candidate=dorsal_detail(fetch_if_permitted(detail),detail,today)
@@ -711,6 +715,7 @@ def collect(today=None):
                     time.sleep(0.2)
             else:
                 rows=[];links=cruzando_links(page)
+                enlaces_detectados=len(links)
                 for detail in links[:MAX_DETALLES_POR_FUENTE]:
                     try:
                         candidate=parse_cruzando_detail(fetch_if_permitted(detail),detail,today)
@@ -727,6 +732,8 @@ def collect(today=None):
             report["fuentes"][name]={"estado":"leida","candidatas":len(rows),"url":url,
                 "con_distancia":sum(bool(r.get("distancia")) for r in rows),
                 "incidencias_detalle":detail_errors,"detalle_restringido":detail_restricted}
+            if enlaces_detectados is not None:
+                report["fuentes"][name]["enlaces_detectados"]=enlaces_detectados
         except Exception as exc:
             report["fuentes"][name]={"estado":"no disponible","motivo":str(exc)[:170],"url":url,
                 "fallo_temporal":is_transient_failure(exc) and not is_access_restriction(exc),
