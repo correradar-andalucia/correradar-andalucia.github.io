@@ -1,8 +1,6 @@
 """Regresiones de enriquecimiento prudente y respaldo de kilómetros."""
-import json
 import os
 import sys
-import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
@@ -58,23 +56,20 @@ class DistanciasVerificadas(unittest.TestCase):
     def test_respaldo_con_fecha_fuente_y_misma_edicion(self):
         checked=race(distancia="18 km · 10 km",distancia_fuente=URL,
                      distancia_origen="fuente",distancia_cotejada="2026-11-17")
-        with tempfile.TemporaryDirectory() as tmp:
-            path=Path(tmp)/"previous.json"
-            path.write_text(json.dumps({"carreras":[checked]}))
-            same=race()
-            changed=race(fecha="2027-12-06")
-            new_value=race(distancia="20 km")
-            approved=race(confirmada=True)
-            result=preserve_previous_distances([same,changed,new_value,approved],path,TODAY)
-            self.assertEqual(result["recuperadas"],1)
-            self.assertEqual(same["distancia"],"18 km · 10 km")
-            self.assertEqual(same["distancia_origen"],"catalogo")
-            self.assertEqual(same["distancia_cotejada"],"2026-11-17")
-            self.assertEqual(changed["distancia"],"")
-            self.assertEqual(new_value["distancia"],"20 km")
-            self.assertEqual(approved["distancia"],"")
-            old=race()
-            self.assertEqual(preserve_previous_distances([old],path,date(2026,12,25))["recuperadas"],0)
+        same=race()
+        changed=race(fecha="2027-12-06")
+        new_value=race(distancia="20 km")
+        approved=race(confirmada=True)
+        result=preserve_previous_distances([same,changed,new_value,approved],[checked],TODAY)
+        self.assertEqual(result["recuperadas"],1)
+        self.assertEqual(same["distancia"],"18 km · 10 km")
+        self.assertEqual(same["distancia_origen"],"catalogo")
+        self.assertEqual(same["distancia_cotejada"],"2026-11-17")
+        self.assertEqual(changed["distancia"],"")
+        self.assertEqual(new_value["distancia"],"20 km")
+        self.assertEqual(approved["distancia"],"")
+        old=race()
+        self.assertEqual(preserve_previous_distances([old],[checked],date(2026,12,25))["recuperadas"],0)
 
     def test_granada_estimaciones_no_son_distancias_del_filtro(self):
         item={"fecha":"2026-12-13","nombre":"XXX Circuito Provincial de Campo a Través — Lecrín",

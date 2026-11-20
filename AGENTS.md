@@ -11,6 +11,7 @@ Calendario independiente de carreras a pie de Andalucía. Idioma de trabajo: esp
 - Solo hechos mínimos verificables de la misma edición futura: nombre, fecha, municipio/provincia, modalidad, distancia y hora documentadas, enlace HTTPS. Campos desconocidos vacíos; no inferir fecha del RSS, kilómetros por nombre, plazas por enlace ni cancelación por ausencia.
 - Respetar condiciones, robots, dominios y límites de lectura. Consultar config/derechos_fuentes.json. Global Tempo y cuatro candidatas (DeporTime, CroniusSport, Cronofinisher, Patronato de Jaén) por RSS y cotejos puntuales, no scraping directo. No seguir formularios, resultados ni inscritos. No mostrar secretos ni URLs privadas RSS.
 - Mantener identidad/deduplicación, prioridad editorial, procedencia y caducidad de los datos. Los respaldos conservan fecha de consulta original; no reetiquetar como vivos. No desactivar bloqueos de calidad para conseguir un despliegue.
+- Ambos flujos de publicación requieren la referencia validada de Pages o la copia del último despliegue confirmado. Aplicar la inicialización y recuperación del manual operativo.
 - Los avisos rss-pendiente requieren verificación editorial y autorización de incorporación. No usar gt-aprobar para otras fuentes; mantener etiquetas tras cerrar. Cerrar un aviso como publicado solo tras verificar despliegue y ficha. Si una URL se reutiliza, revisar edición manualmente.
 
 ## Validación y entrega

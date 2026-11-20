@@ -10,13 +10,18 @@ permissions:
   id-token: write
 
 concurrency:
-  group: github-pages
+  group: ${{ github.event.label.name == 'gt-aprobar' && !github.event.issue.pull_request && 'github-pages' || format('sin-publicacion-{0}', github.run_id) }}
   cancel-in-progress: false
 
 jobs:
   aprobar:
     if: github.event.label.name == 'gt-aprobar' && !github.event.issue.pull_request
     runs-on: ubuntu-latest
+    outputs:
+      estado: ${{ steps.continuidad.outputs.estado }}
+      intento: ${{ steps.continuidad.outputs.intento }}
+      artefacto: ${{ steps.pages.outputs.artifact_id }}
+      commit: ${{ steps.generacion.outputs.commit }}
     steps:
       - name: Obtener rama principal
         uses: actions/checkout@v4
@@ -27,13 +32,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Validar incidencia y registrar exclusivamente nombre y enlace
-        run: python scripts/alertas_globaltempo.py aprobar
       - name: Comprobar calidad antes de guardar
         run: |
           python -m compileall -q scripts tests
           python -m unittest discover -s tests -q
           node --check assets/app.js
+      - name: Resolver referencia del último calendario publicado
+        id: continuidad
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/publicacion.py resolver "$RUNNER_TEMP/calendario-previo.json"
+      - name: Validar incidencia y registrar exclusivamente nombre y enlace
+        run: python scripts/alertas_globaltempo.py aprobar
       - name: Guardar aprobación editorial en main
         run: |
           git config user.name "github-actions[bot]"
@@ -47,6 +57,7 @@ jobs:
           fi
       - name: Reconstruir calendario habitual sin copiar Global Tempo
         env:
+          CORRERADAR_PREVIOUS_CALENDAR: ${{ runner.temp }}/calendario-previo.json
           SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL }}
           GLOBALTEMPO_AUTHORIZED: ${{ vars.GLOBALTEMPO_AUTHORIZED }}
           GLOBALTEMPO_FEED_HOST: ${{ vars.GLOBALTEMPO_FEED_HOST }}
@@ -55,13 +66,24 @@ jobs:
         run: python scripts/build.py
       - name: Revisar fichero de aprobados, fichas y bloqueo de indexación
         run: python scripts/verificar_salida.py
-      - name: Preparar GitHub Pages
+      - name: Identificar y validar el calendario que se va a publicar
+        id: generacion
+        run: python scripts/publicacion.py marcar _site/data/carreras.json
+      - name: Subir calendario del intento
+        uses: actions/upload-artifact@v4
+        with:
+          name: calendario-publicacion-${{ github.run_attempt }}
+          path: _site/data/carreras.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Subir la web revisada
+      - name: Subir web generada
+        id: pages
         uses: actions/upload-pages-artifact@v4
         with:
+          name: github-pages-${{ github.run_attempt }}
           path: _site
-
   desplegar:
     needs: aprobar
     runs-on: ubuntu-latest
@@ -69,9 +91,46 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Publicar GitHub Pages
+      - name: Obtener código del despliegue
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.aprobar.outputs.commit }}
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recuperar calendario del intento
+        uses: actions/download-artifact@v4
+        with:
+          name: calendario-publicacion-${{ needs.aprobar.outputs.intento }}
+          path: _publicacion
+      - name: Publicar en GitHub Pages y confirmar la copia de continuidad
         id: deployment
-        uses: actions/deploy-pages@v4
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTEFACTO: ${{ needs.aprobar.outputs.artefacto }}
+          ESTADO: ${{ needs.aprobar.outputs.estado }}
+          INTENTO: ${{ needs.aprobar.outputs.intento }}
+        run: |
+          python scripts/publicacion.py desplegar _publicacion/carreras.json \
+            --artefacto "$ARTEFACTO" --estado "$ESTADO" --intento "$INTENTO"
+
+  avisar:
+    needs: [aprobar, desplegar]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código del despliegue
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.aprobar.outputs.commit }}
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verificar que este intento sigue publicado
+        env:
+          INTENTO: ${{ needs.aprobar.outputs.intento }}
+        run: python scripts/publicacion.py avisos --intento "$INTENTO"
       - name: Marcar incidencia como publicada solo tras despliegue correcto
         env:
           GH_TOKEN: ${{ github.token }}

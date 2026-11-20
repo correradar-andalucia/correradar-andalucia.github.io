@@ -4,11 +4,9 @@ import unittest
 from datetime import date
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from tempfile import TemporaryDirectory
-import json
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
 
-from persistencia import restore_missing, distance_backlog, read_previous
+from persistencia import restore_missing, distance_backlog
 from captacion import is_transient_failure
 from build import slugify, km_parse
 
@@ -85,13 +83,5 @@ class PersistenciaTests(unittest.TestCase):
         self.assertEqual(b["total"],2)
         self.assertEqual(b["orientativas"],1)
         self.assertEqual(b["pendientes"][0]["prioridad"],"alta")
-
-    def test_previous_invalid(self):
-        with TemporaryDirectory() as d:
-            p=Path(d)/"prev.json"
-            p.write_text("[]")
-            self.assertEqual(read_previous(p),[])
-            p.write_text(json.dumps({"carreras":[{},None]}))
-            self.assertEqual(read_previous(p),[{}])
 
 if __name__=="__main__":unittest.main()

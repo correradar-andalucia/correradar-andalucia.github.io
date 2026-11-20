@@ -1,26 +1,11 @@
 """Respaldo limitado de la propia última publicación y lista de distancias pendientes."""
 from datetime import date
-import json
-from pathlib import Path
 from urllib.parse import urlparse
 
 from control_calidad import valid_source, MODES, PROVINCES
 from deduplicacion import same_event, conflicting_date, valid_locality
 
 MAX_AGE=7
-
-def read_previous(path):
-    if not path:
-        return []
-    try:
-        p=Path(path)
-        if p.stat().st_size>3_000_000:
-            return []
-        doc=json.loads(p.read_text(encoding="utf-8"))
-        rows=doc.get("carreras")
-        return [r for r in rows if isinstance(r,dict)] if isinstance(rows,list) else []
-    except (OSError,ValueError,TypeError,AttributeError):
-        return []
 
 def coverage_anomalies(races, previous, report, today=None):
     """Descenso por fuente respecto a ediciones futuras de la última publicación.
@@ -71,7 +56,8 @@ def restore_missing(races, previous, report, slugify, km_parse, today=None):
     allowed=set(report.get("nombres_fuentes_habilitadas") or []) & set(SOURCES)
     failed={s for s in allowed if statuses.get(s,{}).get("estado")=="no disponible"
             and statuses[s].get("fallo_temporal") is True
-            and not statuses[s].get("acceso_restringido")}
+            and not statuses[s].get("acceso_restringido")
+            and not statuses[s].get("detalle_restringido")}
     anomalous=coverage_anomalies(races,previous,report,today)
     partial={s for s,a in anomalous.items() if a["lectura_correcta"]}
     eligible=failed|partial

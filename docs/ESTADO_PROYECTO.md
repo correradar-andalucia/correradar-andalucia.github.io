@@ -19,3 +19,7 @@ Instantánea del último despliegue comprobado al preparar el traspaso. **No es 
 - Workflows: publicar.yml (cada 12 h, push main y manual); verificar-multifuente.yml (CI); detectar-alertas-globaltempo.yml, detectar-alertas-nuevas-fuentes.yml (cada 12 h), aprobar-enlace-globaltempo.yml. Histórico rama estado-correradar-avisos: no es inventario vivo.
 
 Consultar documentación original para cambios detallados: [continuidad y fuentes](estabilidad-y-nuevas-fuentes-2026-11-18.md), [RSS](alertas-nuevas-fuentes.md), [panel](panel-mantenimiento.md), [inscripciones](estados-inscripciones-2026-11-18.md), [avisos](avisos-carreras-email.md).
+
+## Cambio P0 de continuidad
+
+El cambio de código cubre la referencia compartida entre ambos workflows, el diario de la última copia confirmada y el bloqueo ante falta de referencias válidas. La instantánea de producción de arriba corresponde al despliegue comprobado antes de este cambio. El [manual operativo](MANUAL_OPERATIVO.md#continuidad-de-github-pages) recoge la inicialización, la recuperación y la verificación posterior a la integración.
