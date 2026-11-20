@@ -488,6 +488,7 @@ def main():
     from persistencia import restore_missing, distance_backlog
     from estado_inscripciones import apply_current_registrations
     from panel import panel_page
+    from vetos_editoriales import extract_vetoes, exclude_vetoed, is_vetoed
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
     previous_calendar = []
@@ -500,10 +501,30 @@ def main():
         except (OSError, ContinuityError) as exc:
             raise ContinuityError(f"No se pudo validar la referencia de continuidad: {exc}") from None
         previous_calendar = previous["carreras"]
+    # El CSV contiene tanto las aprobaciones como las retiradas expresas.
+    # Un veto no depende de Publicar=si: evita reintroducciones por fuentes y respaldo.
+    filas_editoriales = load_csv()
+    vetos = extract_vetoes(filas_editoriales, date_parse, MODES, norm)
+    aprobadas = transform(filas_editoriales)
+    if any(is_vetoed(row, vetos) for row in aprobadas):
+        raise ValueError("PUBLICACIÓN BLOQUEADA: una ficha aprobada contradice un veto editorial; revisar CSV")
+
     candidatas_en_vivo, informe_captacion = collect()
-    oficiales=official_races()
-    races, auditoria = combine(transform(load_csv()), oficiales+seed_races()+backup_runnink()+candidatas_en_vivo,
+    candidatas_en_vivo, vetadas_vivas = exclude_vetoed(candidatas_en_vivo, vetos)
+    oficiales, vetadas_oficiales = exclude_vetoed(official_races(), vetos)
+    semilla, vetadas_semilla = exclude_vetoed(seed_races(), vetos)
+    respaldo, vetadas_respaldo = exclude_vetoed(backup_runnink(), vetos)
+    previous_calendar, vetadas_anteriores = exclude_vetoed(previous_calendar, vetos)
+    races, auditoria = combine(aprobadas, oficiales+semilla+respaldo+candidatas_en_vivo,
                                slugify, km_parse, with_audit=True)
+    auditoria["vetos_editoriales"] = {
+        "decisiones_verificadas": len(vetos),
+        "vivas_descartadas": vetadas_vivas,
+        "catalogos_descartados": vetadas_oficiales,
+        "semilla_descartadas": vetadas_semilla,
+        "respaldo_historico_descartadas": vetadas_respaldo,
+        "publicacion_anterior_excluidas": vetadas_anteriores,
+    }
     # Las fichas de Global Tempo solo aportan enlaces si una fuente diferente
     # prueba la MISMA edición; el directorio jamás crea carreras.
     auditoria["enlaces_globaltempo"]=match_registrations(

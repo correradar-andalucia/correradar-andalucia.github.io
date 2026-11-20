@@ -10,4 +10,6 @@ Prioridades revisables según datos reales. No ejecutar todas a la vez.
 6. Legal y privacidad: revisar condiciones, licencias, permisos y obligaciones de lanzamiento; no activar fuentes pausadas, indexación ni monetización sin decisión del responsable.
 7. Organización: usar ChatGPT Projects para dirección y consultas, Codex para desarrollo con AGENTS.md, GitHub como memoria verificable, tareas recurrentes para supervisión. Evitar duplicar automatizaciones de GitHub.
 
+Control de cancelaciones editoriales (P1): mantener los vetos expresos por edición frente a las entradas automáticas y los respaldos, sin deducir cancelaciones ni vetar otras fechas. Cada cambio en estas reglas necesita regresiones, CI y autorización antes de integrarlo.
+
 Criterio de completitud: objetivo acotado, pruebas, PR/commit, resultado del despliegue si corresponde, documentación actualizada, limitaciones y siguiente prioridad.
