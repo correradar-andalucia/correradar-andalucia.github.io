@@ -1,0 +1,18 @@
+{
+  "revision": "2026-11-20",
+  "criterio": "Revisión editorial del aviso RSS #59 autorizada por el responsable. Ayuntamiento de Alcalá del Río, noticia de 19/11/2026: fecha, municipio y recorrido anunciado de 21 km (sin afirmar homologación ni 21,0975 km). Hora contrastada en calendario público de CroniusSport en AvaibookSports y por el responsable. Enlace de inscripción aportado por la alerta: https://inscripciones.croniussport.es/inscripcion/i-medio-maraton-vega-del-guadalquivir/ . Calendario del cronometraje: https://www.avaibooksports.com/sport-entity/cronius-sport/events . No se conserva como actual el estado de inscripción de un cotejo puntual.",
+  "carreras": [
+    {
+      "fecha": "2027-01-10",
+      "nombre": "I Media Maratón Vega del Guadalquivir",
+      "localidad": "Alcalá del Río",
+      "provincia": "Sevilla",
+      "modalidad": "RUNNING",
+      "distancia": "21 km",
+      "hora": "10:00",
+      "fuente": "https://www.alcaladelrio.es/es/actualidad/noticias/Nace-la-Media-Maraton-Vega-del-Guadalquivir/?urlBack=%2Fes%2Findex.html",
+      "fuente_nombre": "Ayuntamiento de Alcalá del Río",
+      "tipo_fuente": "administracion"
+    }
+  ]
+}
