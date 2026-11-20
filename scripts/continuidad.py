@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import re
 from urllib.error import HTTPError, URLError
+from uuid import uuid4
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from control_calidad import MODES, ORIGINS, PROVINCES, valid_source
@@ -18,6 +19,7 @@ COMMIT = re.compile(r"[a-f0-9]{40}")
 DIGEST = re.compile(r"[a-f0-9]{64}")
 RUN_NUMBER = re.compile(r"[1-9][0-9]*")
 SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+UTC_TIMESTAMP = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
 
 
 class ContinuityError(ValueError):
@@ -83,15 +85,15 @@ def matches(pattern, value):
 
 
 def check_publication(record):
-    if (not isinstance(record, dict) or type(record.get("esquema")) is not int
-            or record["esquema"] != SCHEMA
+    if (not isinstance(record, dict) or record.keys() != {"esquema", "commit", "ejecucion", "intento", "fecha"}
+            or type(record["esquema"]) is not int or record["esquema"] != SCHEMA
             or not matches(COMMIT, record.get("commit"))
             or not matches(RUN_NUMBER, record.get("ejecucion"))
             or not matches(RUN_NUMBER, record.get("intento"))):
         raise ContinuityError("Metadatos de publicación o versión de esquema inválidos")
     stamp = record.get("fecha")
     try:
-        if not isinstance(stamp, str) or not stamp.endswith("Z"):
+        if not matches(UTC_TIMESTAMP, stamp):
             raise ValueError
         datetime.fromisoformat(stamp)
     except ValueError:
@@ -117,13 +119,18 @@ def parse_calendar(raw):
     for index, row in enumerate(doc["carreras"], 1):
         if not isinstance(row, dict):
             raise ContinuityError(f"Carrera {index}: se esperaba un objeto")
-        required = ("nombre", "localidad", "provincia", "modalidad", "origen", "fecha_origen")
+        required = ("nombre", "localidad", "provincia", "modalidad", "fecha_origen")
         if (any(not isinstance(row.get(field), str) or not row[field].strip() for field in required)
                 or len(row["nombre"]) > 170 or row["provincia"] not in PROVINCES
                 or row["modalidad"] not in MODES or row["fecha_origen"] not in ORIGINS
                 or not valid_iso_day(row.get("fecha")) or type(row.get("confirmada")) is not bool):
             raise ContinuityError(f"Carrera {index}: identidad, fecha o procedencia inválida")
-        consulted = row.get("consultado")
+        # Las fichas editoriales de la hoja pueden carecer de lector y fecha de consulta.
+        editorial = row["confirmada"] and row["fecha_origen"] == "editorial"
+        origin = row.get("origen", "" if editorial else None)
+        if not isinstance(origin, str) or (not editorial and not origin.strip()):
+            raise ContinuityError(f"Carrera {index}: falta la procedencia de captación")
+        consulted = row.get("consultado", "" if editorial else None)
         if consulted != "" and not valid_iso_day(consulted):
             raise ContinuityError(f"Carrera {index}: fecha de consulta inválida")
         slug = row.get("slug")
@@ -166,10 +173,10 @@ def verified_snapshot(record):
     return raw
 
 
-def page_calendar(run_id, attempt):
-    raw = read_http(f"{PAGES_URL}?continuidad={run_id}-{attempt}", limit=MAX_CALENDAR,
-                    headers={"Cache-Control": "no-cache", "Accept": "application/json"})
-    return raw
+def page_calendar(run_id, attempt, *, timeout=20):
+    url = f"{PAGES_URL}?continuidad={run_id}-{attempt}-{uuid4().hex}"
+    return read_http(url, limit=MAX_CALENDAR, timeout=timeout,
+                     headers={"Cache-Control": "no-cache, no-store", "Accept": "application/json"})
 
 
 def select_reference(pages, confirmed, log):

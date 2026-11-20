@@ -12,7 +12,7 @@ import time
 from urllib.parse import urlparse
 
 from continuidad import (
-    COMMIT, PUBLICATION, RUN_NUMBER, SCHEMA, ContinuityError, HTTPStatusError, check_publication,
+    COMMIT, DIGEST, PUBLICATION, RUN_NUMBER, SCHEMA, ContinuityError, HTTPStatusError, check_publication,
     decode_json, matches, page_calendar, parse_calendar, read_calendar, read_http, select_reference,
     snapshot, verified_snapshot,
 )
@@ -26,6 +26,18 @@ TERMINAL_FAILURES = {
 }
 REJECTED_REQUESTS = {400, 401, 403, 404, 422}
 STATE_MAX_BYTES = 16_000_000
+PROPAGATION_SECONDS = 180
+PROPAGATION_INTERVAL = 10
+
+
+def check_pending(record):
+    if (not isinstance(record, dict) or record.keys() != {"id", "artefacto", "publicacion", "sha256"}
+            or (record["id"] is not None and not matches(DEPLOYMENT_ID, record["id"]))
+            or not matches(RUN_NUMBER, record["artefacto"])
+            or not matches(DIGEST, record["sha256"])):
+        raise ContinuityError("Metadatos del intento pendiente inválidos")
+    check_publication(record["publicacion"])
+    return record
 
 
 def log(message):
@@ -57,7 +69,7 @@ def remote_head(ref):
 
 
 class Journal:
-    """Un único commit alcanzable con la última copia y, durante el despliegue, el candidato."""
+    """Un único commit alcanzable con la copia verificada y metadatos del intento pendiente."""
 
     def load(self):
         head = remote_head(REF)
@@ -72,9 +84,13 @@ class Journal:
         if (not isinstance(state, dict) or state.keys() != {"esquema", "confirmado", "pendiente"}
                 or type(state["esquema"]) is not int or state["esquema"] != SCHEMA):
             raise ContinuityError("Diario de continuidad con esquema inválido")
+        if state["pendiente"] is not None:
+            check_pending(state["pendiente"])
         return head, state
 
     def write(self, head, state):
+        if state["pendiente"] is not None:
+            check_pending(state["pendiente"])
         blob = git("hash-object", "-w", "--stdin", data=encoded(state)).strip()
         tree = git("mktree", data=b"100644 blob " + blob + b"\testado.json\n").decode().strip()
         commit = git("-c", "user.name=github-actions[bot]",
@@ -114,12 +130,13 @@ class Pages:
         return result["value"]
 
     def start(self, artifact_id, token):
+        # Pages utiliza un commit real como versión. El ID puede repetirse
+        # entre ejecuciones de ese commit y no acredita qué artefacto se sirve.
         response = self.api(data=encoded({"artifact_id": int(artifact_id), "oidc_token": token,
+                                          "environment": "github-pages",
                                           "pages_build_version": os.environ["GITHUB_SHA"]}))
         value = response.get("id")
-        if value is None and isinstance(response.get("status_url"), str):
-            value = urlparse(response["status_url"]).path.rsplit("/", 1)[-1]
-        if not matches(DEPLOYMENT_ID, str(value)) or value is None:
+        if type(value) not in (str, int) or not matches(DEPLOYMENT_ID, str(value)):
             raise ContinuityError("La API de Pages no devolvió un identificador de despliegue válido")
         return str(value)
 
@@ -149,22 +166,54 @@ class Pages:
                               "el siguiente intento consultará su estado")
 
 
+def probe_publication(pending, *, timeout):
+    origin = pending["publicacion"]
+    raw = page_calendar(origin["ejecucion"], origin["intento"], timeout=timeout)
+    doc = parse_calendar(raw)
+    if doc.get(PUBLICATION) != origin or sha256(raw).hexdigest() != pending["sha256"]:
+        raise ContinuityError("Pages aún sirve otro calendario (identidad o SHA-256 distintos)")
+    return dict(snapshot(raw, origin), despliegue=pending["id"])
+
+
+def wait_for_publication(pending):
+    deadline = time.monotonic() + PROPAGATION_SECONDS
+    previous = None
+    while (remaining := deadline - time.monotonic()) > 0:
+        try:
+            return probe_publication(pending, timeout=min(10, remaining))
+        except ContinuityError as exc:
+            if str(exc) != previous:
+                previous = str(exc)
+                log(f"Esperando a que Pages sirva el calendario de este intento: {previous}")
+        time.sleep(min(PROPAGATION_INTERVAL, max(0, deadline - time.monotonic())))
+    raise ContinuityError("Pages informó succeed, pero el JSON público no se pudo verificar. "
+                          "Se conserva la copia anterior y quedan pendientes el intento y los avisos")
+
+
+def reused_deployment(state):
+    confirmed = state["confirmado"]
+    return isinstance(confirmed, dict) and confirmed.get("despliegue") == state["pendiente"]["id"]
+
+
 def reconcile(state, pages):
     pending = state["pendiente"]
     if pending is None:
         return state
-    if (not isinstance(pending, dict) or pending.keys() != {"id", "copia"}
-            or not matches(DEPLOYMENT_ID, pending["id"])):
+    check_pending(pending)
+    deployment_id = pending["id"]
+    if deployment_id is None:
         raise ContinuityError("Hay un intento pendiente sin identificador verificable. "
                               "Consulta el procedimiento de recuperación en el manual")
-    deployment_id = pending["id"]
     status = pages.status(deployment_id)
     log(f"Reconciliación del despliegue Pages {deployment_id}: {status}")
     if status == "succeed":
-        if not isinstance(pending["copia"], dict):
-            raise ContinuityError("Falta la copia del despliegue que Pages confirmó")
-        return {**state, "confirmado": dict(pending["copia"], despliegue=deployment_id), "pendiente": None}
-    if status in TERMINAL_FAILURES:
+        try:
+            confirmed = probe_publication(pending, timeout=10)
+        except ContinuityError as exc:
+            raise ContinuityError(f"El intento sigue pendiente; se conserva la copia previa: {exc}") from None
+        log(f"Huella del JSON público verificada para {deployment_id}: {confirmed['sha256']}")
+        return {**state, "confirmado": confirmed, "pendiente": None}
+    if status in TERMINAL_FAILURES and not reused_deployment(state):
         return {**state, "pendiente": None}
     raise ContinuityError(f"El despliegue Pages {deployment_id} sigue sin confirmación definitiva "
                           f"({status}); se conserva la referencia previa")
@@ -234,12 +283,13 @@ def deploy(journal, pages, path, artifact_id, baseline_head, attempt):
                 repaired["despliegue"] = confirmed["despliegue"]
             state["confirmado"] = repaired
             log("Copia anterior reparada con los bytes de GitHub Pages")
-    candidate = snapshot(raw, publication)
+    candidate_hash = sha256(raw).hexdigest()
     ensure_main(publication["commit"])
     token = pages.oidc_token()
     # Antes de solicitar el despliegue queda registrada la intención. Un POST de
     # resultado ambiguo jamás permite usar una copia previa potencialmente obsoleta.
-    state["pendiente"] = {"id": None, "copia": candidate}
+    state["pendiente"] = {"id": None, "artefacto": artifact_id,
+                          "publicacion": publication, "sha256": candidate_hash}
     head = journal.write(head, state)
     try:
         deployment_id = pages.start(artifact_id, token)
@@ -250,19 +300,21 @@ def deploy(journal, pages, path, artifact_id, baseline_head, attempt):
             raise ContinuityError(f"Pages rechazó el despliegue ({exc}); "
                                   "la copia confirmada anterior sigue disponible") from exc
         raise
-    log(f"GitHub Pages aceptó el despliegue {deployment_id}, commit {publication['commit']}, "
-        f"ejecución {run_id}, intento {attempt}")
+    log(f"GitHub Pages aceptó el despliegue {deployment_id}, artefacto {artifact_id}, "
+        f"commit {publication['commit']}, ejecución {run_id}, intento {attempt}")
     state["pendiente"]["id"] = deployment_id
     head = journal.write(head, state)
     status = pages.wait(deployment_id)
-    state["pendiente"] = None
     if status != "succeed":
-        journal.write(head, state)
-        raise ContinuityError(f"Despliegue Pages {deployment_id} fallido ({status}). "
+        if not reused_deployment(state):
+            state["pendiente"] = None
+            journal.write(head, state)
+        raise ContinuityError(f"Despliegue Pages {deployment_id}: {status}. "
                               "La copia confirmada anterior sigue disponible")
-    state["confirmado"] = dict(candidate, despliegue=deployment_id)
+    state["confirmado"] = wait_for_publication(state["pendiente"])
+    state["pendiente"] = None
     journal.write(head, state)
-    log(f"Copia confirmada de GitHub Pages: despliegue {deployment_id}, SHA-256 {candidate['sha256']}")
+    log(f"Copia confirmada de GitHub Pages: despliegue {deployment_id}, SHA-256 verificado {candidate_hash}")
     if output_path := os.environ.get("GITHUB_OUTPUT"):
         with open(output_path, "a", encoding="utf-8") as output:
             output.write("page_url=https://correradar-andalucia.github.io/\n")
@@ -285,22 +337,11 @@ def associate(journal, pages, args):
     if head != args.estado or not head:
         raise ContinuityError("El SHA del diario cambió; vuelve a revisar la evidencia")
     pending = state["pendiente"]
-    if not isinstance(pending, dict) or pending.keys() != {"id", "copia"} or pending["id"] is not None:
+    if pending is None or check_pending(pending)["id"] is not None:
         raise ContinuityError("El diario no contiene un intento pendiente sin ID")
-    status = pages.status(args.despliegue)
-    if status not in TERMINAL_FAILURES | {"succeed"}:
-        raise ContinuityError("El despliegue indicado por el operador sigue sin resultado definitivo")
-    if status == "succeed":
-        candidate = verified_snapshot(pending["copia"])
-        origin = pending["copia"]["publicacion"]
-        if page_calendar(origin["ejecucion"], origin["intento"]) != candidate:
-            raise ContinuityError("Pages no sirve los mismos bytes que el intento pendiente")
     pending["id"] = args.despliegue
-    journal.write(head, {
-        **state, "pendiente": None,
-        "confirmado": (dict(pending["copia"], despliegue=args.despliegue)
-                       if status == "succeed" else state["confirmado"]),
-    })
+    state = reconcile(state, pages)
+    journal.write(head, state)
     log(f"Diario reconciliado con el despliegue Pages {args.despliegue}")
 
 
@@ -328,8 +369,12 @@ def recover(journal, pages, args):
     origin = {"esquema": SCHEMA, "commit": args.commit, "ejecucion": args.ejecucion,
               "intento": args.intento, "fecha": args.fecha}
     candidate = snapshot(raw, origin)
-    if pending is not None and page_calendar(args.ejecucion, args.intento) != raw:
-        raise ContinuityError("Para descartar el intento sin ID, Pages debe servir la copia revisada")
+    previous = state["confirmado"] if state else None
+    recorded = (isinstance(previous, dict) and previous.get("sha256") == args.sha256
+                and previous.get("publicacion") == origin and previous.get("despliegue") == args.despliegue)
+    if (pending is not None or not recorded) and page_calendar(args.ejecucion, args.intento) != raw:
+        raise ContinuityError("Pages debe servir la copia revisada si el diario no acredita esa publicación "
+                              "o si se descarta un intento sin ID")
     journal.write(head, {"esquema": SCHEMA, "confirmado": dict(candidate, despliegue=args.despliegue),
                          "pendiente": None})
     log(f"Copia extraordinaria guardada para el despliegue {args.despliegue} (SHA-256 {args.sha256})")

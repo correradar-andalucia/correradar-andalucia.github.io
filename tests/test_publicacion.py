@@ -57,6 +57,16 @@ class CalendarReferenceTests(unittest.TestCase):
         self.assertEqual(self.select(lambda: self.raw, dict(self.backup, calendario="rotura")), self.raw)
         self.log.assert_called_with("Referencia elegida: calendario público de GitHub Pages")
 
+    def test_legacy_editorial_race_can_omit_capture_fields(self):
+        editorial = {**ROWS[0], "confirmada": True, "fecha_origen": "editorial"}
+        del editorial["origen"], editorial["consultado"]
+        raw = calendar([editorial])
+        self.assertEqual(self.select(lambda: raw, None), raw)
+        for change in ({"confirmada": False}, {"fecha_origen": "fuente"},
+                       {"origen": 42}, {"consultado": "ayer"}):
+            with self.subTest(change=change), self.assertRaises(ContinuityError):
+                publication.parse_calendar(calendar([editorial | change]))
+
     def test_http_error_selects_confirmed_copy(self):
         with patch("continuidad.build_opener") as opener:
             opener.return_value.open.side_effect = HTTPError(
@@ -152,7 +162,10 @@ class DeploymentTests(unittest.TestCase):
         self.enterContext(redirect_stdout(StringIO()))
         self.path = Path(work) / "carreras.json"
         self.path.write_bytes(calendar(origin=ORIGIN))
-        self.previous = snapshot(calendar(ROWS[:1]), dict(ORIGIN, ejecucion="122"))
+        old_origin = dict(ORIGIN, ejecucion="122")
+        self.previous = snapshot(calendar(ROWS[:1], origin=old_origin), old_origin)
+        self.public_json = self.enterContext(patch("publicacion.page_calendar"))
+        self.public_json.side_effect = lambda *_args, **_kwargs: self.path.read_bytes()
         self.journal = Mock()
         self.journal.load.return_value = ("1" * 40, get_state(deepcopy(self.previous)))
         self.writes = []
@@ -168,16 +181,17 @@ class DeploymentTests(unittest.TestCase):
         self.journal.load.return_value = (new, deepcopy(state))
         return new
 
-    def deploy(self):
-        publication.deploy(self.journal, self.pages, self.path, "42", "1" * 40, "1")
+    def deploy(self, head="1" * 40):
+        publication.deploy(self.journal, self.pages, self.path, "42", head, "1")
 
     def test_failed_deployment_never_becomes_backup(self):
         self.pages.wait.return_value = "deployment_content_failed"
-        with self.assertRaisesRegex(ContinuityError, "fallido"):
+        with self.assertRaisesRegex(ContinuityError, "deployment_content_failed"):
             self.deploy()
         self.assertEqual(self.writes[-1][1], get_state(self.previous))
         self.assertEqual(self.writes[0][1]["pendiente"]["id"], None)
         self.assertEqual(self.writes[1][1]["pendiente"]["id"], "ID-NATIVO")
+        self.public_json.assert_not_called()
 
     def test_explicit_post_rejection_preserves_copy_and_ambiguous_failure_blocks(self):
         self.pages.start.side_effect = HTTPStatusError(403)
@@ -200,7 +214,7 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(verified_snapshot(saved), self.path.read_bytes())
         self.assertEqual(saved["sha256"], sha256(self.path.read_bytes()).hexdigest())
 
-    def test_interruption_after_submit_uses_only_confirmed_native_status(self):
+    def test_interruption_after_submit_requires_status_and_public_bytes(self):
         self.pages.wait.side_effect = ContinuityError("Tiempo agotado")
         with self.assertRaisesRegex(ContinuityError, "Tiempo agotado"):
             self.deploy()
@@ -213,9 +227,73 @@ class DeploymentTests(unittest.TestCase):
         self.pages.status.return_value = "deployment_failed"
         self.assertEqual(publication.reconcile(state, self.pages), get_state(self.previous))
         self.pages.status.return_value = "succeed"
+        with patch("publicacion.page_calendar", side_effect=HTTPStatusError(503)):
+            with self.assertRaisesRegex(ContinuityError, "se conserva la copia previa.*HTTP 503"):
+                publication.reconcile(state, self.pages)
         confirmed = publication.reconcile(state, self.pages)["confirmado"]
         raw = publication.select_reference(lambda: b"rotura", confirmed, Mock())
         self.assertEqual(raw, self.path.read_bytes())
+
+    def test_same_commit_and_pages_id_cannot_confirm_old_success(self):
+        # Pages devuelve el mismo ID y succeed para dos ejecuciones del mismo SHA.
+        self.previous["despliegue"] = ORIGIN["commit"]
+        self.journal.load.return_value = ("1" * 40, get_state(self.previous))
+        self.pages.start.return_value = ORIGIN["commit"]
+        self.pages.status.return_value = "succeed"
+        self.public_json.side_effect = None
+        self.public_json.return_value = verified_snapshot(self.previous)
+        with patch("publicacion.time.monotonic", side_effect=[0, 0, 180, 180]), \
+             patch("publicacion.time.sleep"):
+            with self.assertRaisesRegex(ContinuityError, "el JSON público no se pudo verificar"):
+                self.deploy()
+        _, last = self.journal.load()
+        self.assertEqual(last["confirmado"], self.previous)
+        self.assertEqual(last["pendiente"]["id"], ORIGIN["commit"])
+        with self.assertRaisesRegex(ContinuityError, "se conserva la copia previa"):
+            publication.reconcile(last, self.pages)
+        with self.assertRaisesRegex(ContinuityError, "despliegue pendiente"):
+            publication.guard_notices(self.journal, "1")
+
+    def test_reused_id_with_terminal_failure_keeps_the_attempt_pending(self):
+        self.previous["despliegue"] = "ID-NATIVO"
+        self.journal.load.return_value = ("1" * 40, get_state(self.previous))
+        self.pages.wait.return_value = "deployment_failed"
+        self.pages.status.return_value = "deployment_failed"
+        with self.assertRaisesRegex(ContinuityError, "deployment_failed"):
+            self.deploy()
+        _, last = self.journal.load()
+        self.assertEqual(last["confirmado"], self.previous)
+        self.assertEqual(last["pendiente"]["id"], "ID-NATIVO")
+        with self.assertRaisesRegex(ContinuityError, "sin confirmación definitiva"):
+            publication.reconcile(last, self.pages)
+        self.public_json.assert_not_called()
+
+    def test_publication_waits_for_propagation_and_transient_http_errors(self):
+        exact = self.path.read_bytes()
+        same_identity_different_bytes = exact + b"\n"
+        self.public_json.side_effect = [HTTPStatusError(404), HTTPStatusError(503),
+                                        verified_snapshot(self.previous), same_identity_different_bytes, exact]
+        with patch("publicacion.time.sleep") as pause:
+            self.deploy()
+        self.assertEqual(self.public_json.call_count, 5)
+        self.assertEqual(pause.call_count, 4)
+        confirmed = self.writes[-1][1]["confirmado"]
+        self.assertEqual(verified_snapshot(confirmed), exact)
+        self.assertEqual(confirmed["sha256"], sha256(exact).hexdigest())
+
+    def test_pending_records_contain_only_commit_attempt_artifact_and_digest(self):
+        self.deploy()
+        before_post, after_post = [state["pendiente"] for _, state in self.writes[:2]]
+        expected = {"id": None, "artefacto": "42", "publicacion": ORIGIN,
+                    "sha256": sha256(self.path.read_bytes()).hexdigest()}
+        self.assertEqual(before_post, expected)
+        self.assertEqual(after_post, dict(expected, id="ID-NATIVO"))
+        extra = [dict(expected, calendario="contenido sin publicar"),
+                 dict(expected, publicacion=dict(ORIGIN, url="https://example.org/privado")),
+                 dict(expected, publicacion=dict(ORIGIN, fecha="2026-11-18T09:00:00Z secreto"))]
+        for invalid in extra:
+            with self.subTest(invalid=invalid), self.assertRaises(ContinuityError):
+                publication.Journal().write("", get_state(None, invalid))
 
     def test_failed_job_retry_and_changed_baseline_are_rejected_before_deploy(self):
         with patch.dict(os.environ, {"GITHUB_RUN_ATTEMPT": "2"}):
@@ -250,8 +328,32 @@ class DeploymentTests(unittest.TestCase):
             with patch.object(args, "sha256", "0" * 64):
                 with self.assertRaisesRegex(ContinuityError, "SHA-256 no coincide"):
                     publication.recover(self.journal, self.pages, args)
+            with patch("publicacion.page_calendar", return_value=calendar(ROWS[:1])):
+                with self.assertRaisesRegex(ContinuityError, "Pages debe servir la copia revisada"):
+                    publication.recover(self.journal, self.pages, args)
             publication.recover(self.journal, self.pages, args)
         self.assertEqual(verified_snapshot(self.writes[-1][1]["confirmado"]), calendar())
+
+
+    def test_recovery_offline_requires_an_already_confirmed_exact_digest(self):
+        raw = self.path.read_bytes()
+        digest = sha256(raw).hexdigest()
+        head = "1" * 40
+        args = Mock(estado=head, despliegue="ID-NATIVO", calendario=self.path,
+                    descartar_intento_sin_id=False, sha256=digest,
+                    commit=ORIGIN["commit"], ejecucion="123", intento="1", fecha=ORIGIN["fecha"])
+        self.pages.status.return_value = "succeed"
+        self.public_json.side_effect = HTTPStatusError(503)
+        with patch("publicacion.remote_head", return_value=head):
+            with self.assertRaisesRegex(ContinuityError, "HTTP 503"):
+                publication.recover(self.journal, self.pages, args)
+            self.journal.load.return_value = (head, get_state({
+                "publicacion": ORIGIN, "despliegue": "ID-NATIVO", "sha256": digest,
+                "calendario": "copia dañada",
+            }))
+            publication.recover(self.journal, self.pages, args)
+        self.assertEqual(verified_snapshot(self.writes[-1][1]["confirmado"]), raw)
+        self.assertEqual(self.public_json.call_count, 1)
 
 
 class PagesApiTests(unittest.TestCase):
@@ -273,10 +375,28 @@ class PagesApiTests(unittest.TestCase):
         endpoint = "https://api.github.com/repos/org/calendario/pages/deployments"
         self.assertEqual(submit.args[0], endpoint)
         self.assertEqual(json.loads(submit.kwargs["data"]), {
-            "artifact_id": 42, "oidc_token": "oidc", "pages_build_version": "d" * 40,
+            "artifact_id": 42, "oidc_token": "oidc", "environment": "github-pages",
+            "pages_build_version": "d" * 40,
         })
         self.assertEqual(verify.args[0], f"{endpoint}/clave")
         self.assertIsNone(verify.kwargs["data"])
+
+
+    def test_status_url_without_deployment_id_is_ambiguous(self):
+        pages = publication.Pages()
+        payload = {"status_url": "https://api.github.com/repos/org/site/pages/deployments/123/status"}
+        with patch.dict(os.environ, {"GITHUB_SHA": "d" * 40}), patch.object(pages, "api", return_value=payload):
+            with self.assertRaisesRegex(ContinuityError, "identificador de despliegue válido"):
+                pages.start("42", "oidc")
+
+    def test_public_pages_requests_use_distinct_cache_keys(self):
+        with patch("continuidad.read_http", return_value=b"data") as read:
+            publication.page_calendar("123", "1")
+            publication.page_calendar("123", "1")
+        first, second = read.call_args_list
+        self.assertNotEqual(first.args[0], second.args[0])
+        self.assertIn("no-cache", first.kwargs["headers"]["Cache-Control"])
+        self.assertNotIn("Authorization", first.kwargs["headers"])
 
 
 class JournalTests(unittest.TestCase):
