@@ -13,6 +13,10 @@ Instantánea del último despliegue comprobado al preparar el traspaso. **No es 
 
 La ejecución [#44827418106](https://github.com/correradar-andalucia/correradar-andalucia.github.io/actions/runs/44827418106) del commit `4ec20ba` terminó correctamente con 290 pruebas y 179 carreras, 94 distancias y 50 horarios; las diez fuentes directas respondieron y la rama de continuidad guardó la copia confirmada. El nuevo diagnóstico de fuentes señaló **Cruzando la Meta: 18 enlaces, 0 fichas**, sin errores de detalle: aviso de revisión, no fallo de publicación. La corrección está propuesta en PR independiente y no se cuenta como instalada hasta su integración y publicación. Estas cifras son del despliegue fechado, no métricas en vivo.
 
+### Publicación del PR #67 y observación de calidad (20/11/2026)
+
+El despliegue [44828972327](https://github.com/correradar-andalucia/correradar-andalucia.github.io/actions/runs/44828972327), commit `7f447de`, publicó 181 carreras; Cruzando la Meta consultó 18 fichas, aceptó 3 y descartó 15 (7 recintos sin municipio, 7 ubicaciones insuficientes, 1 sin fecha verificable). Hubo 2 altas netas en Almería; la [incidencia #68](https://github.com/correradar-andalucia/correradar-andalucia.github.io/issues/68) recoge el aviso. **Defecto detectado tras desplegar:** `II CXM LA CALZADA 2027` aparece con localidad `Palacio de Deportes de Vícar`, que es un recinto, no un municipio. La mejora pendiente en PR específico debe evitar que se repita y comprobar la siguiente publicación. Diputación de Huelva no pudo verificar robots.txt por un error de red; no consultar ni eludir el bloqueo. La copia confirmada contiene 181 carreras y sigue en vigor hasta un nuevo despliegue válido. No considerar la incidencia resuelta sin verificar la publicación corregida.
+
 ## Componentes
 - scripts/build.py: catálogo final y artefacto _site; data/carreras.json del repo no es la publicación real.
 - scripts/captacion.py y captacion_extra.py: lectores; oficiales.py y data/fichas_oficiales_*.json: cotejos editoriales con lista explícita FILES.
