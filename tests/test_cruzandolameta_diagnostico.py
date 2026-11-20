@@ -56,6 +56,27 @@ class DiagnosticoCruzandoTests(unittest.TestCase):
         self.assertIsNone(parse_cruzando_detail(html,URL,TODAY,diagnostic))
         self.assertEqual(diagnostic["motivo"],"recinto_sin_municipio_verificable")
 
+    def test_palacio_de_deportes_de_vicar_no_es_localidad(self):
+        # Regresión del caso publicado en la incidencia #68.
+        html = ficha(
+            nombre="II CXM LA CALZADA 2027",
+            encabezado=("Domingo, 7 de febrero de 2027 "
+                        "Salida a las 09:00 Palacio de Deportes de Vícar (Almería)"),
+            donde="Palacio de Deportes de Vícar (Almería)")
+        diagnostic = {}
+        self.assertIsNone(parse_cruzando_detail(html, URL, TODAY, diagnostic))
+        self.assertEqual(diagnostic["motivo"], "recinto_sin_municipio_verificable")
+
+    def test_palacio_con_municipio_explicito_y_provincia_se_acepta(self):
+        html = ficha(
+            nombre="II CXM LA CALZADA 2027",
+            encabezado="Domingo, 7 de febrero de 2027",
+            donde="Palacio de Deportes de Vícar (Vícar) (Almería)")
+        race = parse_cruzando_detail(html, URL, TODAY)
+        self.assertEqual(race["localidad"], "Vícar")
+        self.assertEqual(race["provincia"], "Almería")
+        self.assertEqual(race["fecha"], "2027-02-07")
+
     def test_solo_plaza_sin_provincia_se_descarta(self):
         diagnostic={}
         html=ficha(nombre="VIII SAN SILVESTRE TORRENUEVA COSTA",
