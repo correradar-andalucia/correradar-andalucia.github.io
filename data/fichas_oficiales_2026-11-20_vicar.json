@@ -1,0 +1,18 @@
+{
+  "revision": "2026-11-20",
+  "criterio": "Revisión puntual de la incidencia #68 (no es una aprobación editorial para publicar sin nueva autorización): la ficha de inscripción 2027 del organizador Ayuntamiento de Vícar, https://inscrik.com/evento/ii-cxm-la-calzada-2027/, anuncia el 07/02/2027 a las 09:30, trail 24,5 km y minitrail 15 km; senderismo 18 km no se incluye como carrera competitiva. El Ayuntamiento documenta por separado que el Palacio de Deportes se ubica en el municipio de Vícar, https://www.vicar.es/los-paisajes-mas-idilicos-y-sorprendentes-regresaran-con-la-ii-cxm-la-calzada-de-vicar/ (comunicado anterior de 2026, sin usar su fecha para 2027). La edición prevista para el 15/11/2026 está CANCELADA, como consta en https://www.vicar.es/eventos/ii-cxm-la-calzada/; no extender esa cancelación a 2027. Inscripciones: no conservar un estado en vivo derivado de esta revisión.",
+  "carreras": [
+    {
+      "fecha": "2027-02-07",
+      "nombre": "II CxM La Calzada 2027",
+      "localidad": "Vícar",
+      "provincia": "Almería",
+      "modalidad": "TRAIL",
+      "distancia": "24,5 km · 15 km",
+      "hora": "09:30",
+      "fuente": "https://inscrik.com/evento/ii-cxm-la-calzada-2027/",
+      "fuente_nombre": "Inscrik / Cruzando la Meta (edición 2027; organiza Ayuntamiento de Vícar)",
+      "tipo_fuente": "cronometraje"
+    }
+  ]
+}
