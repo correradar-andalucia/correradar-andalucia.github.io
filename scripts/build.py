@@ -489,6 +489,7 @@ def main():
     from estado_inscripciones import apply_current_registrations
     from panel import panel_page
     from vetos_editoriales import extract_vetoes, exclude_vetoed, is_vetoed
+    from salud_captacion import verificar_lecturas
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
     previous_calendar = []
@@ -510,11 +511,16 @@ def main():
         raise ValueError("PUBLICACIÓN BLOQUEADA: una ficha aprobada contradice un veto editorial; revisar CSV")
 
     candidatas_en_vivo, informe_captacion = collect()
-    candidatas_en_vivo, vetadas_vivas = exclude_vetoed(candidatas_en_vivo, vetos)
     oficiales, vetadas_oficiales = exclude_vetoed(official_races(), vetos)
     semilla, vetadas_semilla = exclude_vetoed(seed_races(), vetos)
     respaldo, vetadas_respaldo = exclude_vetoed(backup_runnink(), vetos)
     previous_calendar, vetadas_anteriores = exclude_vetoed(previous_calendar, vetos)
+    # Diagnosticar las fichas extraídas en bruto antes de aplicar los vetos:
+    # el contador de collect() refleja el origen, no las retiradas editoriales.
+    salud = verificar_lecturas(candidatas_en_vivo, previous_calendar, informe_captacion)
+    candidatas_en_vivo, vetadas_vivas = exclude_vetoed(candidatas_en_vivo, vetos)
+    if salud["sospechosas"] or salud["avisos"]:
+        print("SALUD DE CAPTACIÓN:", json.dumps(salud, ensure_ascii=False))
     races, auditoria = combine(aprobadas, oficiales+semilla+respaldo+candidatas_en_vivo,
                                slugify, km_parse, with_audit=True)
     auditoria["vetos_editoriales"] = {
