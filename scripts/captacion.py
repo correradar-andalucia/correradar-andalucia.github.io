@@ -192,24 +192,39 @@ def cruzando_links(page):
             seen.add(target);urls.append(target)
     return urls[:18]
 
-def parse_cruzando_detail(page,source_url,today=None):
+def parse_cruzando_detail(page,source_url,today=None,diagnostico=None):
+    """Usar fecha y localidad explícitas de la ficha, sin confundir recintos.
+
+    Las razones de descarte son códigos agregables, no contenido de la fuente.
+    """
     today=today or date.today()
+    def descartar(motivo):
+        if diagnostico is not None:
+            diagnostico["motivo"]=motivo
+        return None
+
     parser=RaceText();parser.feed(page)
     name=compact(" ".join(parser.heading))
-    if not name or len(name)>170 or SKIP.search(name):return None
+    if not name or len(name)>170:
+        return descartar("titulo_invalido")
+    if SKIP.search(name):
+        return descartar("deporte_excluido")
     full=compact(" ".join(parser.words))
     pos=full.find(name)
     primary=full[pos+len(name):] if pos>=0 else full
     primary=re.split(r"También te puede interesar|Más pruebas en",primary,maxsplit=1,flags=re.I)[0]
-    if re.search(r"\bcancelad[ao]s?\b|\banulad[ao]s?\b",primary[:600],re.I):return None
+    if re.search(r"\bcancelad[ao]s?\b|\banulad[ao]s?\b",primary[:600],re.I):
+        return descartar("cancelada")
     m=re.search(r"\b(\d{1,2})\s+de\s+("+ "|".join(MONTHS.keys())+
                 r")\s+de\s+(20\d\d)\b",primary[:650],re.I)
     if m:
         try:d=date(int(m[3]),MONTHS[m[2].lower()],int(m[1]))
-        except ValueError:return None
+        except ValueError:return descartar("fecha_no_verificable")
     else:
         d=get_date(primary[:650])
-    if not d or d<today or d.year>today.year+2:return None
+    if not d or d<today or d.year>today.year+2:
+        return descartar("fecha_no_verificable")
+
     key=canon(name)
     category=("HIBRIDA" if re.search(r"HYROX|DEKA",key) else
               "OCR" if re.search(r"\bOCR\b|OBSTACUL",key) else
@@ -218,34 +233,56 @@ def parse_cruzando_detail(page,source_url,today=None):
               "CROSS" if "CROSS" in key else "RUNNING")
     if category=="RUNNING" and not re.search(
             r"CARRERA|MARATON|FONDO|SUBIDA|RUNNING|SAN SILVESTRE|RELEVOS",key):
-        return None
-    located=primary[:1100]
-    province=None
-    for p in PROVINCES.values():
-        if re.search(r"\("+re.escape(p)+r"\)",located,re.I):
-            province=p;break
-    if province is None:return None
-    loc=re.search(r"(.{2,110}?)\s*\("+re.escape(province)+r"\)",located,re.I)
-    if not loc:return None
-    place=compact(loc.group(1))
-    # Preservar el lugar explícito; no convertir un pabellón en municipio inventado.
-    for marker in ("Dónde", "Localización", "Lugar", "Salida"):
-        if marker in place:place=place.split(marker)[-1].strip(" :·")
-    place=place[-100:].strip(" ,;·")
-    # Caso verificable: «Pabellón de Atarfe» y «Atarfe» en el nombre de la carrera.
-    # Solo se extrae el municipio si ambas referencias coinciden explícitamente.
-    venue_city = re.fullmatch(r"(?i)Pabell[oó]n (?:Cubierto )?de ([^\d,]{2,65})", place)
-    if venue_city and canon(venue_city.group(1)) in key:
-        place = venue_city.group(1).strip()
-    # Un horario o un recinto de salida no es un municipio. Ante la duda, no publicar.
-    if (not place or len(place)<2 or re.search(r"\b\d{1,2}:\d{2}\b", place)
-            or re.match(r"(?i)^\s*(?:a las|a la|desde las|salida\b|pabell[oó]n\b|plaza\b)", place)):
-        return None
-    return {"fecha":d.isoformat(),"nombre":name,"localidad":place,"provincia":province,
-            "modalidad":category,"distancia":(extract_distance(name,parser.words)
-                or extract_modalities_distance(parser.words)),"enlace":source_url,
-            "fuente":source_url,"origen":"cruzandolameta"}
+        return descartar("modalidad_no_verificable")
 
+    # En las fichas actuales, la primera línea contiene fecha, hora y recinto
+    # juntos. Ese texto NO es una localidad: leer el campo "Dónde" aislado.
+    # En fichas históricas sintéticas sin tal sección, aceptar únicamente un
+    # nodo de texto independiente que termine en "(Provincia)".
+    province_expr="|".join(re.escape(p) for p in PROVINCES.values())
+    location_pattern=re.compile(r"^(.{2,140}?)\s*\(("+province_expr+r")\)\s*$",re.I)
+    place_field=None
+    for idx,word in enumerate(parser.words):
+        if canon(word).strip(" :¡!¿?")=="DONDE":
+            place_field=parser.words[idx+1] if idx+1<len(parser.words) else ""
+            break
+    if place_field is None:
+        for word in parser.words:
+            # No usar municipios de fichas sugeridas o menús del pie.
+            if re.search(r"También te puede interesar|Más pruebas en|Ver calendario",word,re.I):
+                break
+            if re.search(r"\b\d{1,2}:\d{2}\b",word):
+                continue
+            if location_pattern.fullmatch(word):
+                place_field=word
+                break
+    match=location_pattern.fullmatch(compact(place_field))
+    if not match:
+        return descartar("ubicacion_sin_provincia_verificable")
+    venue,province=compact(match.group(1)),next(
+        p for p in PROVINCES.values() if canon(p)==canon(match.group(2)))
+    # "La Alquería (Adra) (Almería)" menciona explícitamente el municipio.
+    explicit=re.search(r"\(([^()]{2,70})\)\s*$",venue)
+    place=compact(explicit.group(1)) if explicit else venue
+    if not explicit:
+        # Pabellón de Atarfe + la misma localidad en el nombre: única
+        # excepción acotada; no inferir municipios desde plazas o estadios.
+        match_pavilion=re.fullmatch(
+            r"Pabell[oó]n (?:Cubierto )?de ([^,\d]{2,65})",place,re.I)
+        if match_pavilion and canon(match_pavilion.group(1)) in key:
+            place=compact(match_pavilion.group(1))
+        elif re.match(
+            r"(?i)^(?:pabell[oó]n|plaza|parque|calle|avenida|avda|paseo|"
+            r"aparcamiento|parking|estadio|polideportivo|instituto|"
+            r"centro|complejo|carretera|explanada)\b",place):
+            return descartar("recinto_sin_municipio_verificable")
+    if (not 2<=len(place)<=90 or re.search(r"\b\d{1,2}:\d{2}\b",place)
+            or re.search(r"\b(?:inscripciones|salida a las|sábado|domingo)\b",place,re.I)
+            or re.search(r"[<>]",place)):
+        return descartar("municipio_no_verificable")
+    return {"fecha":d.isoformat(),"nombre":name,"localidad":place,"provincia":province,
+            "modalidad":category,"distancia":extract_distance(name),"enlace":source_url,
+            "fuente":source_url,"origen":"cruzandolameta"}
 
 @lru_cache(maxsize=8)
 def get_robots(host):
@@ -713,17 +750,34 @@ def collect(today=None):
                         detail_errors+=1
                         detail_restricted |= is_access_restriction(exc)
                     time.sleep(0.2)
-            else:
+            elif name=="cruzandolameta":
                 rows=[];links=cruzando_links(page)
                 enlaces_detectados=len(links)
+                rechazos={};consultadas=0
                 for detail in links[:MAX_DETALLES_POR_FUENTE]:
+                    consultadas+=1
                     try:
-                        candidate=parse_cruzando_detail(fetch_if_permitted(detail),detail,today)
-                        if candidate:rows.append(candidate)
+                        diagnostico={}
+                        candidate=parse_cruzando_detail(
+                            fetch_if_permitted(detail),detail,today,diagnostico)
+                        if candidate:
+                            rows.append(candidate)
+                        else:
+                            motivo=diagnostico.get("motivo","descarte_sin_motivo")
+                            rechazos[motivo]=rechazos.get(motivo,0)+1
                     except Exception as exc:
                         detail_errors+=1
                         detail_restricted |= is_access_restriction(exc)
                     time.sleep(0.3)
+                # Solo cifras agregadas: no guardar HTML, nombres, URLs de fichas
+                # ni datos personales en la telemetría de diagnósticos.
+                report["fuentes"]["cruzandolameta_detalle"]={
+                    "estado":"diagnostico", "consultadas":consultadas,
+                    "aceptadas":len(rows), "descartadas":sum(rechazos.values()),
+                    "errores":detail_errors, "motivos":dict(sorted(rechazos.items()))}
+            else:
+                # Un lector nuevo exige revisión y activación explícitas.
+                raise ValueError("No existe un lector para esta fuente")
             for row in rows:
                 if row.get("distancia"):
                     row.setdefault("distancia_fuente",row.get("fuente") or row.get("enlace"))

@@ -9,6 +9,10 @@ Instantánea del último despliegue comprobado al preparar el traspaso. **No es 
 - Provincias: Almería 10, Cádiz 39, Córdoba 13, Granada 35, Huelva 16, Jaén 11, Málaga 41, Sevilla 14. 71 fusiones de duplicados, sin conflictos informados, 10 carreras con distancia orientativa, 0 recuperadas por respaldo.
 - PR #58: cuatro RSS adicionales, primera ejecución 44804249817 correcta; CroniusSport generó #59. PR #61 incorporó la I Media Maratón Vega del Guadalquivir, Alcalá del Río, 10/01/2027 10:00, 21 km anunciados, fuente municipal. El histórico de avisos incluye la edición y #59 está cerrada; no demuestra recepción del email.
 
+## Verificación operativa posterior (20/11/2026)
+
+La ejecución [#44827418106](https://github.com/correradar-andalucia/correradar-andalucia.github.io/actions/runs/44827418106) del commit `4ec20ba` terminó correctamente con 290 pruebas y 179 carreras, 94 distancias y 50 horarios; las diez fuentes directas respondieron y la rama de continuidad guardó la copia confirmada. El nuevo diagnóstico de fuentes señaló **Cruzando la Meta: 18 enlaces, 0 fichas**, sin errores de detalle: aviso de revisión, no fallo de publicación. La corrección está propuesta en PR independiente y no se cuenta como instalada hasta su integración y publicación. Estas cifras son del despliegue fechado, no métricas en vivo.
+
 ## Componentes
 - scripts/build.py: catálogo final y artefacto _site; data/carreras.json del repo no es la publicación real.
 - scripts/captacion.py y captacion_extra.py: lectores; oficiales.py y data/fichas_oficiales_*.json: cotejos editoriales con lista explícita FILES.

@@ -10,6 +10,8 @@ Prioridades revisables según datos reales. No ejecutar todas a la vez.
 6. Legal y privacidad: revisar condiciones, licencias, permisos y obligaciones de lanzamiento; no activar fuentes pausadas, indexación ni monetización sin decisión del responsable.
 7. Organización: usar ChatGPT Projects para dirección y consultas, Codex para desarrollo con AGENTS.md, GitHub como memoria verificable, tareas recurrentes para supervisión. Evitar duplicar automatizaciones de GitHub.
 
+Diagnóstico de Cruzando la Meta (P1, propuesta): investigar los 18 enlaces/0 fichas de la publicación 44827418106. Corregir extracción de localidades solo con evidencia estructurada, contabilizar motivos de rechazo sin datos de la fuente y validar con CI. No integrar hasta autorización; después comprobar producción y ausencias de duplicados.
+
 Protección de lecturas silenciosas (P1): comparar la salida directa de cada lector con referencias recientes del despliegue confirmado y diagnosticar anomalías. Revisar en un PR los umbrales para evitar falsas alarmas; tras validar la primera ejecución, estudiar avisos de fallo de Actions sin ampliar permisos automáticamente.
 
 Control de cancelaciones editoriales (P1): mantener los vetos expresos por edición frente a las entradas automáticas y los respaldos, sin deducir cancelaciones ni vetar otras fechas. Cada cambio en estas reglas necesita regresiones, CI y autorización antes de integrarlo.
