@@ -16,4 +16,6 @@ Protección de lecturas silenciosas (P1): comparar la salida directa de cada lec
 
 Control de cancelaciones editoriales (P1): mantener los vetos expresos por edición frente a las entradas automáticas y los respaldos, sin deducir cancelaciones ni vetar otras fechas. Cada cambio en estas reglas necesita regresiones, CI y autorización antes de integrarlo.
 
+Revisión editorial de la incidencia #68: distinguir cancelación del 15/11/2026 y edición anunciada del 07/02/2027. Preparar un cotejo fechado con localidad Vícar y enlaces al organizador/inscripción; incorporar solo tras autorización expresa, pruebas y control del despliegue. Mantener histórica la incidencia de anuncio inicial y registrar aclaración sin borrar el aviso anterior.
+
 Criterio de completitud: objetivo acotado, pruebas, PR/commit, resultado del despliegue si corresponde, documentación actualizada, limitaciones y siguiente prioridad.
