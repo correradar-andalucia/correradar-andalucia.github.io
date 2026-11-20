@@ -33,7 +33,7 @@ class FichasOficiales(unittest.TestCase):
                          "")  # Referencias externas contradictorias; no adivinar
 
     def test_caducidad_marca_fuente_anterior(self):
-        rows = official_races(date(2026, 12, 20))
+        rows = official_races(date(2026, 12, 21))
         self.assertTrue(rows)
         self.assertTrue(all(not r["fuente_directa"] for r in rows))
         self.assertTrue(all("reconfirmar" in r["estado"].lower() for r in rows))
@@ -52,10 +52,10 @@ class FichasOficiales(unittest.TestCase):
         self.assertTrue(verify_unique(result))
 
     def test_fichas_caducadas_no_simulan_actualidad(self):
-        rows = official_races(date(2026, 12, 20))
+        rows = official_races(date(2026, 12, 21))
         result = combine([], rows, slugify, km_parse)
         self.assertTrue(all(r["fecha_origen"] == "catalogo" for r in result))
-        self.assertEqual({r["consultado"] for r in result}, {"2026-11-16", "2026-11-17", "2026-11-18"})
+        self.assertEqual({r["consultado"] for r in result}, {"2026-11-16", "2026-11-17", "2026-11-18", "2026-11-20"})
 
     def test_carreras_nuevas_solo_con_fuentes_primarias(self):
         rows = official_races(date(2026, 11, 17))
@@ -86,6 +86,20 @@ class FichasOficiales(unittest.TestCase):
         result=combine([], entries, slugify, km_parse)
         self.assertTrue(verify_unique(result))
         self.assertTrue(all(not r["confirmada"] for r in result))
+
+    def test_primer_aviso_rss_vega_del_guadalquivir(self):
+        rows=official_races(date(2026,11,20))
+        c=[r for r in rows if "Vega del Guadalquivir" in r["nombre"]]
+        self.assertEqual(len(c),1)
+        self.assertEqual((c[0]["fecha"],c[0]["localidad"],c[0]["provincia"],
+                          c[0]["distancia"],c[0]["hora"]),
+                         ("2027-01-10","Alcalá del Río","Sevilla","21 km","10:00"))
+        self.assertIn("alcaladelrio.es",c[0]["fuente"])
+        self.assertFalse(any("Vega del Guadalquivir" in r["nombre"]
+                             for r in official_races(date(2026,11,19))))
+        result=combine([],rows,slugify,km_parse)
+        self.assertTrue(verify_unique(result))
+        self.assertEqual(sum("Vega del Guadalquivir" in r["nombre"] for r in result),1)
 
     def test_agregador_no_puede_hacerse_pasar_por_organizador(self):
         bad = {"revision":"2026-11-17", "carreras":[{
