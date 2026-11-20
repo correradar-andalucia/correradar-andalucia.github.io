@@ -748,17 +748,34 @@ def collect(today=None):
                         detail_errors+=1
                         detail_restricted |= is_access_restriction(exc)
                     time.sleep(0.2)
-            else:
+            elif name=="cruzandolameta":
                 rows=[];links=cruzando_links(page)
                 enlaces_detectados=len(links)
+                rechazos={};consultadas=0
                 for detail in links[:MAX_DETALLES_POR_FUENTE]:
+                    consultadas+=1
                     try:
-                        candidate=parse_cruzando_detail(fetch_if_permitted(detail),detail,today)
-                        if candidate:rows.append(candidate)
+                        diagnostico={}
+                        candidate=parse_cruzando_detail(
+                            fetch_if_permitted(detail),detail,today,diagnostico)
+                        if candidate:
+                            rows.append(candidate)
+                        else:
+                            motivo=diagnostico.get("motivo","descarte_sin_motivo")
+                            rechazos[motivo]=rechazos.get(motivo,0)+1
                     except Exception as exc:
                         detail_errors+=1
                         detail_restricted |= is_access_restriction(exc)
                     time.sleep(0.3)
+                # Solo cifras agregadas: no guardar HTML, nombres, URLs de fichas
+                # ni datos personales en la telemetría de diagnósticos.
+                report["fuentes"]["cruzandolameta_detalle"]={
+                    "estado":"diagnostico", "consultadas":consultadas,
+                    "aceptadas":len(rows), "descartadas":sum(rechazos.values()),
+                    "errores":detail_errors, "motivos":dict(sorted(rechazos.items()))}
+            else:
+                # Un lector nuevo exige revisión y activación explícitas.
+                raise ValueError("No existe un lector para esta fuente")
             for row in rows:
                 if row.get("distancia"):
                     row.setdefault("distancia_fuente",row.get("fuente") or row.get("enlace"))
