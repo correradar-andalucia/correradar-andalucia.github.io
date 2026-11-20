@@ -272,7 +272,7 @@ def parse_cruzando_detail(page,source_url,today=None,diagnostico=None):
         if match_pavilion and canon(match_pavilion.group(1)) in key:
             place=compact(match_pavilion.group(1))
         elif re.match(
-            r"(?i)^(?:pabell[oó]n|palacio(?:\\s+de\\s+deportes)?|plaza|parque|calle|avenida|avda|paseo|"
+            r"(?i)^(?:pabell[oó]n|palacio|plaza|parque|calle|avenida|avda|paseo|"
             r"aparcamiento|parking|estadio|polideportivo|instituto|"
             r"centro|complejo|carretera|explanada)\b",place):
             return descartar("recinto_sin_municipio_verificable")
