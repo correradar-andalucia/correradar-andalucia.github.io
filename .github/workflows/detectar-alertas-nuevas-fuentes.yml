@@ -1,0 +1,43 @@
+name: Detectar novedades RSS de cuatro fuentes
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/alertas_nuevas_fuentes.py'
+      - '.github/workflows/detectar-alertas-nuevas-fuentes.yml'
+  schedule:
+    - cron: '17 7,19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: nuevas-fuentes-rss
+  cancel-in-progress: false
+
+jobs:
+  detectar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Obtener código de main
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar detector sin red
+        run: python -m unittest discover -s tests -p test_alertas_nuevas_fuentes.py -v
+      - name: Leer alertas y registrar candidatos
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          DEPORTIME_ALERT_RSS_URL: ${{ secrets.DEPORTIME_ALERT_RSS_URL }}
+          CRONIUSSPORT_ALERT_RSS_URL: ${{ secrets.CRONIUSSPORT_ALERT_RSS_URL }}
+          CRONOFINISHER_ALERT_RSS_URL: ${{ secrets.CRONOFINISHER_ALERT_RSS_URL }}
+          PATRONATO_JAEN_ALERT_RSS_URL: ${{ secrets.PATRONATO_JAEN_ALERT_RSS_URL }}
+        run: python scripts/alertas_nuevas_fuentes.py
