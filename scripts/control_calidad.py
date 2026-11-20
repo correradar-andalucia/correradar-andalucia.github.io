@@ -82,7 +82,7 @@ def inspect_calendar(races, capture_report, today=None, continuidad=None):
         locality = str(race.get("localidad") or "").strip()
         if not locality:
             reasons.append(f"{label}: falta localidad")
-        elif re.match(r"(?i)^palacio de deportes\\b", locality):
+        elif re.match(r"(?i)^palacio de deportes\b", locality):
             reasons.append(f"{label}: aparece un recinto deportivo como localidad; "
                            "verificar municipio antes de publicar")
         if race.get("modalidad") not in MODES:
