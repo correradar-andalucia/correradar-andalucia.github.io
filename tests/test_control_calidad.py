@@ -88,6 +88,17 @@ class ControlCalidad(unittest.TestCase):
             report=inspect_calendar([record],fuentes(),date(2026,11,17))
             self.assertFalse(report["apto_para_desplegar"])
 
+    def test_bloquear_palacio_de_deportes_como_localidad(self):
+        # Incidencia de producción #68: no confundir recinto con municipio.
+        invalid=carrera(localidad="Palacio de Deportes de Vícar")
+        report=inspect_calendar([invalid],fuentes(),date(2026,11,17))
+        self.assertFalse(report["apto_para_desplegar"])
+        self.assertTrue(any("recinto deportivo como localidad" in x
+                            for x in report["bloqueos"]))
+        correct=carrera(localidad="Vícar")
+        self.assertTrue(inspect_calendar([correct],fuentes(),date(2026,11,17))
+                        ["apto_para_desplegar"])
+
     def test_lanzamiento_legal_requiere_aprobacion_expresa(self):
         check_launch_ready({"public_launch":False})
         with self.assertRaisesRegex(ValueError,"LANZAMIENTO BLOQUEADO"):
