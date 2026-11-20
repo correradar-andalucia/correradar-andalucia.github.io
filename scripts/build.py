@@ -489,6 +489,7 @@ def main():
     from estado_inscripciones import apply_current_registrations
     from panel import panel_page
     from vetos_editoriales import extract_vetoes, exclude_vetoed, is_vetoed
+    from salud_captacion import verificar_lecturas
     # Ninguna configuración accidental puede publicar una web sin revisión legal.
     check_launch_ready(CONFIG)
     previous_calendar = []
@@ -515,6 +516,11 @@ def main():
     semilla, vetadas_semilla = exclude_vetoed(seed_races(), vetos)
     respaldo, vetadas_respaldo = exclude_vetoed(backup_runnink(), vetos)
     previous_calendar, vetadas_anteriores = exclude_vetoed(previous_calendar, vetos)
+    # No aceptar un HTTP 200 como prueba de que el lector sigue extrayendo carreras.
+    # Usar el origen de las fichas antes de fusionarlas con otras fuentes.
+    salud = verificar_lecturas(candidatas_en_vivo, previous_calendar, informe_captacion)
+    if salud["sospechosas"] or salud["avisos"]:
+        print("SALUD DE CAPTACIÓN:", json.dumps(salud, ensure_ascii=False))
     races, auditoria = combine(aprobadas, oficiales+semilla+respaldo+candidatas_en_vivo,
                                slugify, km_parse, with_audit=True)
     auditoria["vetos_editoriales"] = {
