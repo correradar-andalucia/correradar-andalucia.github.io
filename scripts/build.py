@@ -511,14 +511,14 @@ def main():
         raise ValueError("PUBLICACIÓN BLOQUEADA: una ficha aprobada contradice un veto editorial; revisar CSV")
 
     candidatas_en_vivo, informe_captacion = collect()
-    candidatas_en_vivo, vetadas_vivas = exclude_vetoed(candidatas_en_vivo, vetos)
     oficiales, vetadas_oficiales = exclude_vetoed(official_races(), vetos)
     semilla, vetadas_semilla = exclude_vetoed(seed_races(), vetos)
     respaldo, vetadas_respaldo = exclude_vetoed(backup_runnink(), vetos)
     previous_calendar, vetadas_anteriores = exclude_vetoed(previous_calendar, vetos)
-    # No aceptar un HTTP 200 como prueba de que el lector sigue extrayendo carreras.
-    # Usar el origen de las fichas antes de fusionarlas con otras fuentes.
+    # Diagnosticar las fichas extraídas en bruto antes de aplicar los vetos:
+    # el contador de collect() refleja el origen, no las retiradas editoriales.
     salud = verificar_lecturas(candidatas_en_vivo, previous_calendar, informe_captacion)
+    candidatas_en_vivo, vetadas_vivas = exclude_vetoed(candidatas_en_vivo, vetos)
     if salud["sospechosas"] or salud["avisos"]:
         print("SALUD DE CAPTACIÓN:", json.dumps(salud, ensure_ascii=False))
     races, auditoria = combine(aprobadas, oficiales+semilla+respaldo+candidatas_en_vivo,
