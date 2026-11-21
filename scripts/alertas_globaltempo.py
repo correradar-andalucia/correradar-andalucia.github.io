@@ -119,8 +119,12 @@ def parse_timestamp(raw):
         return None
 
 
-def parse_feed(xml, today=None):
-    """Extraer de RSS/Atom solo nombre, URL profunda y fecha del aviso (NO de la carrera)."""
+def parse_feed(xml, today=None, metrics=None):
+    """Extraer candidatos de RSS/Atom y, opcionalmente, contar descartes sin datos privados.
+
+    metrics contiene exclusivamente contadores agregados: nunca títulos, URLs,
+    tokens del feed ni identificadores de carreras. No realiza más peticiones.
+    """
     today = today or date.today()
     if len(xml) > MAX_BYTES or b"<!DOCTYPE" in xml.upper() or b"<!ENTITY" in xml.upper():
         raise ValueError("Feed demasiado grande o con entidades no permitidas")
@@ -150,20 +154,48 @@ def parse_feed(xml, today=None):
                     entry.findtext("pubDate","")) for entry in entries]
     else:
         raise ValueError("Formato RSS/Atom no reconocido")
+    # Las categorías son mutuamente excluyentes para que las sumas cuadren.
+    # El orden de validación solo sirve para clasificar el primer descarte.
+    counts = {
+        "entradas_rss": len(records),
+        "titulo_invalido": 0,
+        "enlace_no_admitido": 0,
+        "fecha_no_valida": 0,
+        "fecha_futura": 0,
+        "fecha_antigua": 0,
+        "duplicado_en_rss": 0,
+        "candidatos_validos": 0,
+    }
     found, seen = [], set()
     for title, link, updated in records:
         name = clean_title(title)
+        if not name:
+            counts["titulo_invalido"] += 1
+            continue
         canonical = source_link(link)
+        if not canonical:
+            counts["enlace_no_admitido"] += 1
+            continue
         stamp = parse_timestamp(updated)
-        if (not name or not canonical or not stamp
-                or stamp > today or today-stamp > timedelta(days=MAX_AGE)):
+        if not stamp:
+            counts["fecha_no_valida"] += 1
+            continue
+        if stamp > today:
+            counts["fecha_futura"] += 1
+            continue
+        if today-stamp > timedelta(days=MAX_AGE):
+            counts["fecha_antigua"] += 1
             continue
         key = event_id(canonical)
         if key in seen:
+            counts["duplicado_en_rss"] += 1
             continue
         seen.add(key)
         found.append({"id":key,"nombre":name,"url":canonical,
                       "fecha_aviso":stamp.isoformat()})
+    counts["candidatos_validos"] = len(found)
+    if metrics is not None:
+        metrics.update(counts)
     return found
 
 
@@ -324,7 +356,9 @@ def detect():
         # NUNCA escribirla en los logs, ni siquiera al fallar HTTP.
         raise ValueError("No se pudo obtener el RSS de Google Alerts; "
                          "comprobar la URL secreta en GitHub") from None
-    candidates=parse_feed(alert)
+    # Solo métricas numéricas: los registros de Actions son públicos en este repo.
+    metrics={}
+    candidates=parse_feed(alert,metrics=metrics)
     known=existing_candidates()
     known.update(event_id(row.get("url","")) for row in approved_items())
     # Enlaces ya cotejados anteriormente: no crear incidencias repetidas.
@@ -333,17 +367,30 @@ def detect():
         data=json.loads(historic.read_text(encoding="utf-8"))
         known.update(event_id(row.get("fuente","")) for row in data.get("carreras",[]))
     created=0
+    already_known=0
+    limit_skipped=0
     for c in candidates:
         if c["id"] in known:
+            already_known+=1
             continue
         if created >= 20:
-            break
+            limit_skipped+=1
+            continue
         gh_request("POST","/issues",{
             "title":"Revisar inscripción GT: "+c["nombre"][:110],
             "body":issue_body(c),
             "labels":[PENDING]})
         known.add(c["id"])
         created+=1
+    metrics.update({
+        "ya_conocidos": already_known,
+        "aplazados_por_limite": limit_skipped,
+        "incidencias_nuevas": created,
+        "publicaciones_automaticas": 0,
+    })
+    # Nunca incluir RSS, títulos, URLs, IDs o respuestas del buscador en logs.
+    print("Global Tempo: diagnóstico RSS "+json.dumps(
+        metrics,ensure_ascii=False,sort_keys=True))
     print(f"Global Tempo: {len(candidates)} resultados RSS relevantes, "
           f"{created} incidencias nuevas, 0 publicaciones automáticas")
 
