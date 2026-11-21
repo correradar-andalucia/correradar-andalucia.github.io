@@ -1,5 +1,8 @@
 # Manual operativo
 
+## Sprint beta de noviembre 2026
+Consultar la [auditoría cuantificada y el checklist de validación real](sprint_beta_2026-11-21.md). Para reproducir solo recuentos de procedencia sin acceder a fuentes externas, ejecutar `python scripts/auditar_prebeta.py /ruta/carreras.json` sobre un artefacto confirmado. No tratar estos recuentos como autorización legal o causa automática de retirada. El objetivo de beta no habilita indexación ni desactiva salvaguardas.
+
 ## Trabajo habitual
 Abrir [panel](https://correradar-andalucia.github.io/panel/) y [Actions](https://github.com/correradar-andalucia/correradar-andalucia.github.io/actions). El panel representa la última publicación correcta; no demuestra que el último intento haya funcionado. Si falla, consultar pasos y logs sin exponer secretos. No descargar fuentes vetadas para diagnosticar.
 

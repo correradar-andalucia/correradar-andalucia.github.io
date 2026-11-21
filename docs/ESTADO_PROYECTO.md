@@ -41,3 +41,9 @@ Consultar documentación original para cambios detallados: [continuidad y fuente
 ## Cambio P0 de continuidad
 
 El cambio de código cubre la referencia compartida entre ambos workflows, el diario de la última copia confirmada y el bloqueo ante falta de referencias válidas. La instantánea de producción de arriba corresponde al despliegue comprobado antes de este cambio. El [manual operativo](MANUAL_OPERATIVO.md#continuidad-de-github-pages) recoge la inicialización, la recuperación y la verificación posterior a la integración.
+
+## Seguimiento del sprint beta — 21/11/2026
+
+Se realizó una nueva auditoría de las fuentes de verdad, el despliegue y el paquete HTML de Pages, documentada en [sprint beta 21–22/11](sprint_beta_2026-11-21.md). La ejecución [#44882176383](https://github.com/correradar-andalucia/correradar-andalucia.github.io/actions/runs/44882176383) concluyó correctamente para el commit `eafd842`: **312 pruebas, 181 carreras, 10/10 fuentes, 95 distancias y 51 horarios**, ocho provincias, cero bloqueos y continuidad confirmada. La inspección estática del artefacto publicado encontró 181 fichas HTML y ningún destino local ausente en 1.947 referencias internas; no acredita que el sitio sea plenamente accesible desde Android. La dependencia de procedencia afecta a 55 fichas con FADMES/Gesconchip/Runnink, de las que 51 no tienen otra categoría en `fuentes_origen`; el conjunto de cinco fuentes con reservas afecta a 93, de las que 88 no tienen otra categoría. **No se ha retirado ninguna**.
+
+Se mantiene **NO-GO para lanzamiento general/indexación** por derechos de fuentes, identificación legal, privacidad y cookies pendientes; `public_launch:false` y demás revisiones en `false`. El sprint autorizado solo crea auditoría/documentación y verificaciones offline mediante PR. La evaluación jurídica, la prueba real Android y cualquier suspensión o cambio de política siguen pendientes de revisión y autorización.
