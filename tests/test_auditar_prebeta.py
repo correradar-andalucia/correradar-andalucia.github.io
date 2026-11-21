@@ -89,7 +89,7 @@ class AuditoriaBeta(unittest.TestCase):
         with self.assertRaises(ValueError):
             auditar({"carreras": [None]}, DERECHOS)
         with self.assertRaises(ValueError):
-            auditar({"carreras": [carrera(1, "fadmes")]}, DERECHOS)
+            auditar({"carreras": [carrera(1, [], fuentes_origen="fadmes")]}, DERECHOS)
         with self.assertRaises(ValueError):
             auditar({"carreras": []}, {"no_firma": 3})
 
