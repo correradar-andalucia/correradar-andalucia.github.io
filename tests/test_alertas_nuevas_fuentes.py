@@ -31,6 +31,37 @@ class AlertasNuevas(unittest.TestCase):
                 self.assertEqual(len(rows),1)
                 self.assertEqual(rows[0]["url"],url)
                 self.assertEqual(rows[0]["fecha_aviso"],"2026-11-20")
+    def test_patronato_events_can_generate_review_candidates(self):
+        # El Patronato utiliza /events/<slug>/; no se abrían incidencias
+        # con títulos del tipo «XLIII CARRERA...» sin verbo de noticia.
+        url=("https://patronatodeportesjaen.es/events/"
+             "xliii-carrera-urbana-internacional-noche-de-san-anton/")
+        title="XLIII CARRERA URBANA INTERNACIONAL NOCHE DE SAN ANTÓN"
+        self.assertEqual(rss.checked_url(url,"patronato_jaen"),url)
+        rows=rss.parse_feed(atom(url,title),"patronato_jaen",TODAY)
+        self.assertEqual(len(rows),1)
+        self.assertEqual(rows[0]["url"],url)
+        # No reetiquetar un aviso antiguo como una edición nueva.
+        self.assertEqual(rss.parse_feed(atom(url,title,"2026-09-01T10:00:00Z"),
+                                        "patronato_jaen",TODAY),[])
+        # Mantener dominios, rutas y parámetros restringidos.
+        for forbidden in (
+            "https://patronatodeportesjaen.es/events/",
+            url+"inscritos/",
+            "https://patronatodeportesjaen.es/events/resultados-carrera/",
+            url+"?dni=123",
+            url.replace("https://","http://"),
+            url.replace(".es/",".es.evil.test/"),
+        ):
+            self.assertEqual(rss.checked_url(forbidden,"patronato_jaen"),"")
+        # En páginas de noticias se conserva el filtro editorial anterior.
+        news="https://patronatodeportesjaen.es/carrera-popular-sin-anuncio/"
+        self.assertEqual(rss.parse_feed(atom(news,"Carrera popular habitual"),
+                                        "patronato_jaen",TODAY),[])
+        # Resultados no son convocatorias ni carreras nuevas.
+        self.assertEqual(rss.parse_feed(atom(url,"Resultados Carrera San Antón"),
+                                        "patronato_jaen",TODAY),[])
+
     def test_reject_private_subpages_and_parameters(self):
         base=URLS["cronofinisher"]
         for url in (base+"section%3Dinscritos/",base+"?dni=4",base+"?letter_range=A-F",
