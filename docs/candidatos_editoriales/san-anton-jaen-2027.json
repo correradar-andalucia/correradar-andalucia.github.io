@@ -1,0 +1,75 @@
+{
+  "esquema": 1,
+  "revision": "2026-11-22",
+  "clasificacion": "candidato_editorial_no_publicable",
+  "aprobado": false,
+  "incorporacion_automatica": false,
+  "carrera": {
+    "fecha": "2027-01-16",
+    "fecha_certidumbre": "prevista_en_titulo_de_expediente_de_contratacion_municipal_pendiente_de_reglamento",
+    "nombre": "XLIV Carrera Urbana Internacional Noche de San Antón",
+    "localidad": "Jaén",
+    "provincia": "Jaén",
+    "modalidad": "RUNNING",
+    "distancia": "",
+    "hora": "",
+    "inscripcion_estado": "desconocida",
+    "verificado": ""
+  },
+  "evidencias": [
+    {
+      "tipo": "organismo_municipal_organizador",
+      "fuente": "Patronato Municipal de Deportes de Jaén",
+      "url": "https://patronatodeportesjaen.es/el-ayuntamiento-presenta-la-mejor-media-maraton-de-jaen-de-la-historia-con-motivo-de-su-trigesimo-aniversario/",
+      "publicado": "2026-11-10",
+      "acredita": "La edición San Antón 2027 está prevista y habrá prerreserva para quienes terminen la media maratón",
+      "no_acredita": "No fija fecha, hora, distancia ni apertura de inscripciones de San Antón 2027"
+    },
+    {
+      "tipo": "referencia_de_contratacion_municipal",
+      "fuente": "Patronato Municipal de Deportes de Jaén, expediente Expd.14/2026/CONM-PMD",
+      "url_oficial": "https://contrataciondelestado.es/wps/poc?idEvl=LO46T48UN296nTs9LZ9RhQ%3D%3D&uri=deeplink%3Adetalle_licitacion",
+      "url_reproduccion": "https://contratos.gobierto.es/licitaciones/5220778",
+      "publicado": "2026-09-14",
+      "acredita": "El título del expediente identifica la XLIV edición y la fecha prevista 16 de enero de 2027 en Jaén",
+      "advertencia": "El servidor oficial rechazó el acceso a la ficha desde el entorno de consulta; la fecha se verificó en reproducción del título del expediente, no en reglamento deportivo"
+    }
+  ],
+  "comprobacion_en_github": {
+    "publicacion_confirmada": {
+      "commit": "4c0b4ffcc4b3d5cb72307dc941476b64b1ec142b",
+      "ejecucion": "45005367074",
+      "fecha_utc": "2026-11-22T09:01:27Z",
+      "total_carreras": 174,
+      "ficha_en_jaen_capital": "no_localizada"
+    },
+    "detector_rss": {
+      "ejecucion": "45005367097",
+      "fecha_utc": "2026-11-22T08:59:49Z",
+      "conclusion": "success",
+      "patronato": "RSS leído, 0 resultados candidatos, 0 avisos nuevos, 0 publicaciones automáticas"
+    }
+  },
+  "por_comprobar": [
+    "Reglamento o ficha del organizador específica de 2027: confirmar fecha definitiva, modalidad, horario y distancias",
+    "Comprobar que los enlaces y derechos de la fuente permiten uso factual mínimo y que la edición no se ha reprogramado",
+    "Verificar plazo y estado de inscripción sin deducirlos de la prerreserva",
+    "Comprobar duplicados por nombre, edición, municipio y provincia antes de incorporar",
+    "Obtener aprobación editorial expresa y verificar CI y posterior despliegue antes de declarar publicación"
+  ],
+  "no_confundir_con": [
+    {
+      "nombre": "III San Antón Escañuela",
+      "municipio": "Escañuela",
+      "provincia": "Jaén",
+      "fecha": "2027-01-09"
+    },
+    {
+      "nombre": "Canicross Pinar de San Antón",
+      "municipio": "El Puerto de Santa María",
+      "provincia": "Cádiz",
+      "fecha": "2027-01-17"
+    }
+  ],
+  "advertencia": "El archivo bajo docs/candidatos_editoriales NO está en scripts/oficiales.py FILES y jamás debe tratarse como carrera publicada. No crea altas, alertas ni inscripciones."
+}
