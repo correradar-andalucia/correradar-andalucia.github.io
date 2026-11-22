@@ -1,0 +1,59 @@
+name: Auditar cobertura de grandes carreras
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/auditar_prioritarios.py'
+      - 'data/prioritarios_carreras.json'
+      - 'tests/test_auditar_prioritarios.py'
+      - '.github/workflows/auditar-cobertura-prioritaria.yml'
+  schedule:
+    - cron: '11 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cobertura:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Leer código de main sin credenciales persistentes
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Obtener exclusivamente la copia confirmada existente
+        uses: actions/checkout@v4
+        with:
+          ref: estado-correradar-continuidad
+          path: _estado-confirmado
+          persist-credentials: false
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Probar el auditor sin conexión a fuentes
+        run: |
+          python -m compileall -q scripts tests
+          python -m unittest discover -s tests -p test_auditar_prioritarios.py -v
+
+      - name: Contrastar inventario con SHA-256 de la publicación confirmada
+        run: |
+          python scripts/auditar_prioritarios.py \
+            --estado _estado-confirmado/estado.json \
+            --salida-json _informes/cobertura_prioritarios.json \
+            --salida-md _informes/cobertura_prioritarios.md
+          cat _informes/cobertura_prioritarios.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Guardar informe, nunca modificar carreras ni incidencias
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-cobertura-prioritaria
+          path: _informes/
+          retention-days: 30
+          if-no-files-found: error
