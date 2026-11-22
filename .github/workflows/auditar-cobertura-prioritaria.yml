@@ -1,6 +1,13 @@
 name: Auditar cobertura de grandes carreras
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/auditar_prioritarios.py'
+      - 'data/prioritarios_carreras.json'
+      - 'tests/test_auditar_prioritarios.py'
+      - '.github/workflows/auditar-cobertura-prioritaria.yml'
   schedule:
     - cron: '11 8 * * 1'
   workflow_dispatch:
@@ -10,7 +17,6 @@ permissions:
 
 jobs:
   cobertura:
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
