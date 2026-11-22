@@ -23,7 +23,7 @@ SOURCES={
     "deportime":("DeporTime","DEPORTIME_ALERT_RSS_URL","deportime.es",r"/events/[a-z0-9-]+/?"),
     "croniussport":("CroniusSport","CRONIUSSPORT_ALERT_RSS_URL","inscripciones.croniussport.es",r"/inscripcion/[a-z0-9-]+/?"),
     "cronofinisher":("Cronofinisher","CRONOFINISHER_ALERT_RSS_URL","cronofinisher.com",r"/evento/[a-z0-9-]+/?"),
-    "patronato_jaen":("Patronato de Jaén","PATRONATO_JAEN_ALERT_RSS_URL","patronatodeportesjaen.es",r"/[a-z0-9-]+/?"),
+    "patronato_jaen":("Patronato de Jaén","PATRONATO_JAEN_ALERT_RSS_URL","patronatodeportesjaen.es",r"/(?:events/)?[a-z0-9-]+/?"),
 }
 LABEL="rss-pendiente"
 MARKER="CORRERADAR-RSS-CANDIDATO"
@@ -107,8 +107,6 @@ def parse_feed(xml,source,today=None):
         plain=norm(title)
         if not 6<=len(title)<=240 or "://" in title or EXCLUDE.search(plain) or not RACE.search(plain):
             continue
-        if source=="patronato_jaen" and not JAEN_NEWS.search(plain):
-            continue
         stamp=parse_timestamp(updated)
         if not stamp or stamp>today or (today-stamp).days>MAX_AGE:
             continue
@@ -117,6 +115,11 @@ def parse_feed(xml,source,today=None):
         if len(urls)!=1:
             continue
         url=next(iter(urls))
+        # El Patronato publica convocatorias bajo /events/<slug>/ sin verbos
+        # de noticia. Solo estas fichas de carreras eluden el filtro JAEN_NEWS.
+        # No se sigue la ficha ni se incorpora al calendario sin revisión.
+        if source=="patronato_jaen" and not JAEN_NEWS.search(plain) and not urlparse(url).path.startswith("/events/"):
+            continue
         key=candidate_id(source,url)
         found[key]={"id":key,"titulo":title[:160],"url":url,"fecha_aviso":stamp.isoformat(),"fuente":source}
     return sorted(found.values(),key=lambda x:(x["fecha_aviso"],x["id"]),reverse=True)
