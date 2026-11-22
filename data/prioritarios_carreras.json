@@ -1,0 +1,429 @@
+{
+  "esquema": 1,
+  "revision": "2026-11-22",
+  "descripcion": "Inventario de vigilancia editorial de familias de carreras populares históricamente multitudinarias. Los datos de inscripción son históricos y pueden abarcar modalidades o edades; no atribuirlos a otra edición ni usarlos como disponibilidad de plazas. No es un catálogo publicable.",
+  "fuentes_federativas": [
+    {
+      "organismo": "Federación Andaluza de Atletismo",
+      "sigla": "FAA",
+      "url": "https://atletismofaa.es/circulares/",
+      "especialidades": [
+        "ruta",
+        "cross",
+        "carreras de montaña",
+        "trail",
+        "ultra"
+      ],
+      "nota": "Los proyectos de calendario no equivalen a calendario aprobado; validar por edición y categoría."
+    },
+    {
+      "organismo": "Federación Andaluza de Deportes de Montaña, Escalada y Senderismo",
+      "sigla": "FADMES",
+      "url": "https://fadmes.es/calendario-fam/",
+      "especialidades": [
+        "carreras por montaña",
+        "ultra",
+        "vertical",
+        "snow running"
+      ],
+      "nota": "Distinguir Campeonato, Copa y circuito provincial; no copiar calendarios completos."
+    }
+  ],
+  "carreras": [
+    {
+      "id": "almeria-medio-maraton",
+      "nombre": "Medio Maratón Ciudad de Almería",
+      "provincia": "Almería",
+      "municipio": "Almería",
+      "alias": [
+        "medio maraton ciudad de almeria",
+        "medio maraton de almeria"
+      ],
+      "excluir": [
+        "ultra"
+      ],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 5000,
+        "tipo_cifra": "participantes conjunto media/10K/infantil",
+        "fuente": "https://www.almeriaciudad.es/actualidad/zakaria-lahsaini-y-yesica-castany-ganan-el-27o-medio-maraton-ciudad-de-almeria"
+      }
+    },
+    {
+      "id": "almeria-espartanos",
+      "nombre": "Espartanos del Alquián",
+      "provincia": "Almería",
+      "municipio": "Almería",
+      "alias": [
+        "espartanos del alquian"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 750,
+        "tipo_cifra": "inscritos",
+        "fuente": "https://almeriaciudad.es/actualidad/la-xv-carrera-espartanos-del-alquian-se-celebrara-el-domingo-con-record-de-participacion"
+      }
+    },
+    {
+      "id": "cadiz-jerez-popular",
+      "nombre": "Carrera Popular Ciudad de Jerez",
+      "provincia": "Cádiz",
+      "municipio": "Jerez de la Frontera",
+      "alias": [
+        "carrera popular de jerez",
+        "carrera popular ciudad de jerez"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 1500,
+        "tipo_cifra": "mas de 1500 inscritos, incluye menores",
+        "fuente": "https://www.jerez.es/noticias/nota-de-prensa/la-xlvi-carrera-popular-de-jerez-supera-los-1500-corredores-inscritos-de-ellos-400-son-menores"
+      }
+    },
+    {
+      "id": "cadiz-san-silvestre",
+      "nombre": "San Silvestre Gaditana",
+      "provincia": "Cádiz",
+      "municipio": "Cádiz",
+      "alias": [
+        "san silvestre gaditana"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2025,
+        "cifra_referencia": 1500,
+        "tipo_cifra": "dorsales agotados",
+        "fuente": "https://laciudad.cadiz.es/tdc_detalles_evento.asp?ID_EVENTO=71864"
+      }
+    },
+    {
+      "id": "cadiz-barro",
+      "nombre": "Carrera del Barro",
+      "provincia": "Cádiz",
+      "municipio": "La Barca de la Florida",
+      "alias": [
+        "carrera del barro"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2025,
+        "cifra_referencia": 1490,
+        "tipo_cifra": "casi 1500 participantes, aproximado",
+        "fuente": "https://www.jerez.es/webs-municipales/sala-de-prensa/nota-de-prensa/la-alcaldesa-da-la-salida-a-la-viii-carrera-del-barro-que-combina-solidaridad-deporte-y-convivencia"
+      }
+    },
+    {
+      "id": "cordoba-media",
+      "nombre": "Media Maratón de Córdoba",
+      "provincia": "Córdoba",
+      "municipio": "Córdoba",
+      "alias": [
+        "media maraton de cordoba",
+        "media maraton cordoba"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 4000,
+        "tipo_cifra": "mas de 4000 dorsales vendidos en primeras horas",
+        "fuente": "https://www.eldiadecordoba.es/deportes/media-maraton-cordoba-2026-dorsales-vendidos_0_2006634451.html"
+      },
+      "edicion_anunciada": {
+        "anio": 2026,
+        "fuente": "https://mediamaratoncordoba.es/"
+      }
+    },
+    {
+      "id": "cordoba-san-silvestre",
+      "nombre": "San Silvestre Cordobesa",
+      "provincia": "Córdoba",
+      "municipio": "Córdoba",
+      "alias": [
+        "san silvestre cordobesa"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2025,
+        "cifra_referencia": 1300,
+        "tipo_cifra": "mas de 1300 inscripciones",
+        "fuente": "https://www.eldiadecordoba.es/deportes/san-silvestre-cordobesa-2025-fecha-recorrido-detalles_0_2005494508.html"
+      }
+    },
+    {
+      "id": "granada-media",
+      "nombre": "Media Maratón Ciudad de Granada",
+      "provincia": "Granada",
+      "municipio": "Granada",
+      "alias": [
+        "media maraton ciudad de granada",
+        "media maraton de granada"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 6000,
+        "tipo_cifra": "inscripciones conjunto media + 10K",
+        "fuente": "https://cadenaser.com/andalucia/2026/02/18/la-media-maraton-de-granada-agota-sus-seis-mil-inscripciones-en-solo-nueve-horas-radio-granada/"
+      }
+    },
+    {
+      "id": "granada-snow",
+      "nombre": "Snow Running Sierra Nevada",
+      "provincia": "Granada",
+      "municipio": "Monachil",
+      "alias": [
+        "snow running sierra nevada",
+        "snowrunning sierra nevada",
+        "snow running"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 800,
+        "tipo_cifra": "mas de 800 corredores",
+        "fuente": "https://www.ahoragranada.com/noticias/mas-de-800-corredores-desafian-el-frio-en-la-snow-running-de-sierra-nevada/"
+      },
+      "edicion_anunciada": {
+        "anio": 2027,
+        "fuente": "https://snowrunning.es/reglamento-snow-running-sierra-nevada/"
+      }
+    },
+    {
+      "id": "huelva-21k",
+      "nombre": "21K Ciudad de Huelva",
+      "provincia": "Huelva",
+      "municipio": "Huelva",
+      "alias": [
+        "21k ciudad de huelva",
+        "21k de huelva",
+        "media maraton ciudad de huelva"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2025,
+        "cifra_referencia": 1900,
+        "tipo_cifra": "mas de 1900 corredores, media + 5K",
+        "fuente": "https://www.huelva.es/portal/en/noticias/la-21k-de-huelva-genera-m%C3%A1s-de-528000-euros-la-ciudad-y-atrae-m%C3%A1s-de-1750-visitantes"
+      }
+    },
+    {
+      "id": "huelva-10k",
+      "nombre": "10K Puerta del Descubrimiento",
+      "provincia": "Huelva",
+      "municipio": "Huelva",
+      "alias": [
+        "puerta del descubrimiento"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 1550,
+        "tipo_cifra": "inscritos; Campeonato Andalucía 10K 2026",
+        "fuente": "https://www.huelva.es/portal/es/noticias/la-10k-huelva-avatel-puerta-del-descubrimiento-ser%C3%A1-campeonato-de-andaluc%C3%ADa-en-su-viii"
+      }
+    },
+    {
+      "id": "huelva-onupolis",
+      "nombre": "San Silvestre de Onupolis",
+      "provincia": "Huelva",
+      "municipio": "Huelva",
+      "alias": [
+        "san silvestre onupolis",
+        "san silvestre de onupolis"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2025,
+        "cifra_referencia": 2200,
+        "tipo_cifra": "inscritos (balance municipal)",
+        "fuente": "https://www.huelva.es/portal/en/noticias/el-ayuntamiento-de-huelva-refuerza-su-alianza-con-onupolis-para-mejorar-el-circuito-de"
+      }
+    },
+    {
+      "id": "jaen-san-anton",
+      "nombre": "Noche de San Antón de Jaén",
+      "provincia": "Jaén",
+      "municipio": "Jaén",
+      "alias": [
+        "noche de san anton",
+        "carrera urbana internacional noche de san anton"
+      ],
+      "excluir": [
+        "escanuela",
+        "canicross",
+        "pinar de san anton"
+      ],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 12000,
+        "tipo_cifra": "mas de 12000 inscritos",
+        "fuente": "https://www.canalsur.es/noticias/andalucia/jaen/carrera-san-anton-superara-primera_1_1363104.html"
+      },
+      "edicion_anunciada": {
+        "anio": 2027,
+        "fuente": "https://jaenciudaddelatletismo.es/el-ayuntamiento-presenta-la-mejor-media-maraton-de-jaen-de-la-historia-con-motivo-de-su-trigesimo-aniversario/"
+      }
+    },
+    {
+      "id": "jaen-media-y-10k",
+      "nombre": "Media Maratón de Jaén y 10K Paco Manzaneda",
+      "provincia": "Jaén",
+      "municipio": "Jaén",
+      "alias": [
+        "media maraton de jaen",
+        "10k paco manzaneda",
+        "10 k paco manzaneda"
+      ],
+      "excluir": [
+        "noche de san anton"
+      ],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 3800,
+        "tipo_cifra": "plazas agotadas entre ambas pruebas",
+        "fuente": "https://patronatodeportesjaen.es/el-ayuntamiento-agota-las-3-800-plazas-para-la-media-de-jaen-y-los-10k-en-memoria-de-paco-manzaneda-en-un-mes-y-medio-antes-de-la-celebracion-de-la-prueba/"
+      }
+    },
+    {
+      "id": "jaen-santa-catalina",
+      "nombre": "Carrera Santa Catalina",
+      "provincia": "Jaén",
+      "municipio": "Jaén",
+      "alias": [
+        "carrera santa catalina"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 900,
+        "tipo_cifra": "corredores; excluye caminantes",
+        "fuente": "https://www.diariojaen.es/deportes/la-carrera-santa-catalina-agota-sus-dorsales-y-alcanza-los-1500-participantes-HP11693477"
+      }
+    },
+    {
+      "id": "malaga-maraton",
+      "nombre": "Generali Maratón de Málaga",
+      "provincia": "Málaga",
+      "municipio": "Málaga",
+      "alias": [
+        "maraton de malaga",
+        "generali maraton"
+      ],
+      "excluir": [
+        "medio maraton",
+        "media maraton"
+      ],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 17000,
+        "tipo_cifra": "inscritos conjunto maratón y medio maratón",
+        "fuente": "https://www.malaga.eu/el-ayuntamiento/notas-de-prensa/detalle-de-la-nota-de-prensa/index.html?id=178918"
+      }
+    },
+    {
+      "id": "malaga-media",
+      "nombre": "Medio Maratón Ciudad de Málaga",
+      "provincia": "Málaga",
+      "municipio": "Málaga",
+      "alias": [
+        "medio maraton ciudad de malaga",
+        "medio maraton de malaga",
+        "totalenergies medio maraton"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 12000,
+        "tipo_cifra": "mas de 12000 inscripciones",
+        "fuente": "https://deporte.malaga.eu/agenda-deportiva/detalle-de-la-agenda/35-Total-Energies-Media-Maraton-Ciudad-de-Malaga-00001/"
+      },
+      "edicion_anunciada": {
+        "anio": 2027,
+        "fuente": "https://deporte.malaga.eu/agenda-deportiva/detalle-de-la-agenda/35-Total-Energies-Media-Maraton-Ciudad-de-Malaga-00001/"
+      }
+    },
+    {
+      "id": "sevilla-nocturna",
+      "nombre": "Nocturna del Guadalquivir KH-7",
+      "provincia": "Sevilla",
+      "municipio": "Sevilla",
+      "alias": [
+        "nocturna del guadalquivir"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 26000,
+        "tipo_cifra": "corredores",
+        "fuente": "https://www.sevilla.org/actualidad/noticias/2026/sevilla-celebra-una-edicion-historica-de-record-con-26-000-corredores-en-la-38-a-carrera-nocturna-del-guadalquivir-kh-7"
+      }
+    },
+    {
+      "id": "sevilla-casco",
+      "nombre": "Carrera Casco Antiguo CaixaBank",
+      "provincia": "Sevilla",
+      "municipio": "Sevilla",
+      "alias": [
+        "carrera casco antiguo",
+        "casco antiguo caixabank"
+      ],
+      "excluir": [],
+      "participacion_historica": {
+        "anio": 2026,
+        "cifra_referencia": 10000,
+        "tipo_cifra": "mas de 10000 inscritos sumando todas las categorías",
+        "fuente": "https://www.sevilla.org/actualidad/noticias/2026/la-carrera-casco-antiguo-2018caixabank2019-cierra-el-circuito-divina-seguros-del-ayuntamiento-con-mas-de-10-000-inscritos-y-victorias-de-redouan-nouini-y-laia-gonzalez"
+      }
+    },
+    {
+      "id": "sevilla-maraton",
+      "nombre": "Zurich Maratón de Sevilla",
+      "provincia": "Sevilla",
+      "municipio": "Sevilla",
+      "alias": [
+        "zurich maraton de sevilla",
+        "maraton de sevilla"
+      ],
+      "excluir": [
+        "medio maraton",
+        "media maraton",
+        "breakfast run"
+      ],
+      "participacion_historica": {
+        "anio": 2027,
+        "cifra_referencia": 20000,
+        "tipo_cifra": "20.000 dorsales vendidos de la edición 2027",
+        "fuente": "https://imd.sevilla.org/fs-sevilladeportes/sevilladeportes/programas-deportivos/maraton-de-sevilla/noticias/el-zurich-maraton-de-sevilla-2027-y-el-medio-maraton-cierran-inscripciones-con-record-de-dorsales-40-000-entre-las-dos-pruebas"
+      },
+      "edicion_anunciada": {
+        "anio": 2027,
+        "fuente": "https://www.sevilla.org/actualidad/noticias/2026/el-zurich-maraton-de-sevilla-abre-esta-noche-inscripciones-al-publico-en-general-hasta-el-limite-de-20-000-dorsales-para-la-edicion-de-2027"
+      }
+    },
+    {
+      "id": "sevilla-media",
+      "nombre": "Medio Maratón de Sevilla",
+      "provincia": "Sevilla",
+      "municipio": "Sevilla",
+      "alias": [
+        "medio maraton de sevilla",
+        "media maraton de sevilla"
+      ],
+      "excluir": [
+        "sevilla los palacios"
+      ],
+      "participacion_historica": {
+        "anio": 2027,
+        "cifra_referencia": 20000,
+        "tipo_cifra": "dorsales de la edición 2027",
+        "fuente": "https://imd.sevilla.org/fs-sevilladeportes/sevilladeportes/programas-deportivos/maraton-de-sevilla/noticias/el-zurich-maraton-de-sevilla-2027-y-el-medio-maraton-cierran-inscripciones-con-record-de-dorsales-40-000-entre-las-dos-pruebas"
+      },
+      "edicion_anunciada": {
+        "anio": 2027,
+        "fuente": "https://imd.sevilla.org/fs-sevilladeportes/sevilladeportes/programas-deportivos/maraton-de-sevilla/noticias/el-zurich-maraton-de-sevilla-2027-y-el-medio-maraton-cierran-inscripciones-con-record-de-dorsales-40-000-entre-las-dos-pruebas"
+      }
+    }
+  ]
+}
