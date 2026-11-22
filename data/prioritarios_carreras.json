@@ -109,9 +109,10 @@
       "excluir": [],
       "participacion_historica": {
         "anio": 2025,
-        "cifra_referencia": 1490,
-        "tipo_cifra": "casi 1500 participantes, aproximado",
-        "fuente": "https://www.jerez.es/webs-municipales/sala-de-prensa/nota-de-prensa/la-alcaldesa-da-la-salida-a-la-viii-carrera-del-barro-que-combina-solidaridad-deporte-y-convivencia"
+        "cifra_referencia": 1500,
+        "tipo_cifra": "casi 1.500 participantes (cifra aproximada, no recuento exacto)",
+        "fuente": "https://www.jerez.es/webs-municipales/sala-de-prensa/nota-de-prensa/la-alcaldesa-da-la-salida-a-la-viii-carrera-del-barro-que-combina-solidaridad-deporte-y-convivencia",
+        "cifra_aproximada": true
       }
     },
     {
