@@ -377,6 +377,9 @@ FAA_MONTHS = {canon(m):n for n,m in enumerate(
   ["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO",
    "AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"],1)}
 FAA_DATE=re.compile(r"^(\d{1,2})(?:\s*[-/]\s*\d{1,2})?\s+([A-ZÁÉÍÓÚÑ]+)\s+(20\d\d)$",re.I)
+# Los avisos de plazas de FAA no forman parte del nombre deportivo.
+# Conservar el título original para interpretar el estado con fecha de consulta.
+FAA_STATUS_NOTE=re.compile(r"\s*\((?:inscripciones\s+cerradas|(?:dorsales|inscripciones|plazas)\s+agotad[oa]s)\)\s*$",re.I)
 
 def parse_faa(page,today=None):
     today=today or date.today()
@@ -397,22 +400,26 @@ def parse_faa(page,today=None):
         if not title or len(title)>125 or FAA_DATE.fullmatch(title):continue
         if canon(title) in {"RESULTADOS","INSCRIPCIONES","CARRERAS POPULARES"}:continue
         if SKIP.search(title):continue
-        upper=canon(title)
+        clean_title=FAA_STATUS_NOTE.sub("",title).strip()
+        if not clean_title:continue
+        upper=canon(clean_title)
         matches=[]
         for term,place in FAA_PLACES.items():
             if re.search(r"(?<![A-Z])"+re.escape(term)+r"(?![A-Z])",upper):
                 matches.append((len(term),place))
         if not matches:continue
         _,(city,prov)=max(matches,key=lambda x:x[0])
-        identity=(day.isoformat(),upper)
+        # La deduplicación final fusionará títulos equivalentes con distinta
+        # información de inscripción, sin perder las distancias de otra ficha.
+        identity=(day.isoformat(),canon(title))
         if identity in seen:continue
         seen.add(identity)
         typ=("ULTRA" if "ULTRA" in upper else
              "TRAIL" if re.search("TRAIL|CXM|MONTANA",upper) else
              "CROSS" if "CROSS" in upper else "RUNNING")
         from estado_inscripciones import faa_label
-        results.append({"fecha":day.isoformat(),"nombre":title,"localidad":city,
-                        "provincia":prov,"modalidad":typ,"distancia":extract_distance(title),
+        results.append({"fecha":day.isoformat(),"nombre":clean_title,"localidad":city,
+                        "provincia":prov,"modalidad":typ,"distancia":extract_distance(clean_title),
                         "enlace":SOURCES["faa"],"fuente":SOURCES["faa"],"origen":"faa",
                         **faa_label(title,SOURCES["faa"],today)})
     return results
