@@ -12,6 +12,10 @@ Abrir [panel](https://correradar-andalucia.github.io/panel/) y [Actions](https:/
 - Cerrar como publicada tras éxito de despliegue y comprobación de incorporación (o descartar tras verificación y autorización). Mantener etiqueta de origen para deduplicar. Si el JSON no es accesible, usar ejecución y evidencia del histórico y declarar el límite.
 - Notificaciones de nuevas carreras: Issues tras despliegue, seguimiento Watch > Custom > Issues y email en GitHub. Un aviso de descubrimiento y uno de publicación no son lo mismo.
 
+### Sufijos de inscripción en los títulos de FAA
+
+En el calendario de la FAA, una misma carrera puede aparecer una vez con su nombre y otra con una nota final entre paréntesis: «(inscripciones cerradas)», «(dorsales agotados)», «(inscripciones agotadas)» o «(plazas agotadas)». Esa nota es un **dato de disponibilidad temporal**, no una prueba distinta. El lector conserva el título original para el cotejo de inscripciones y normaliza solo el **nombre deportivo** antes de deduplicar. El sistema fusiona únicamente cuando coinciden fecha, provincia, municipio, modalidad y distancias compatibles; **no** une pruebas de distinta distancia/modalidad ni inventa inscripciones actuales a partir de un título anterior. Si hubo una incidencia automática de carrera nueva por este motivo, conservarla como registro histórico y aclarar después del despliegue corregido.
+
 ## Cancelaciones y retiradas editoriales
 
 Las decisiones explícitas del responsable en el CSV editorial tienen prioridad sobre las fuentes directas, los cotejos, la semilla y los respaldos temporales. Para retirar una **edición concreta**, añadir una fila con `Estado` = `Cancelada`, `Anulada` o `Retirada` (se admiten variantes masculinas), `Fecha`, `Nombre`, `Localidad`, `Provincia` y `Modalidad` completos, `Fuente` HTTPS verificable y `Verificado` con la fecha de comprobación. `Publicar` puede estar en «no»: el veto sigue siendo explícito. No convertir la ausencia de una carrera en una cancelación.

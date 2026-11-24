@@ -17,6 +17,9 @@ STOPWORDS = {"de","del","la","las","el","los","y","en","a","al","por","para",
              "trail","cxm","cross"}
 EDITION = re.compile(r"^(?:[ivxlcdm]{1,8}|[0-9]{1,3}[ªº]?)\s+(?=[a-záéíóúñ])",re.I)
 DIST = re.compile(r"(?<!\d)(\d{1,3}(?:[.,]\d{1,3})?)\s*(?:km|kms|k\b)",re.I)
+# Las notas de disponibilidad no definen una carrera distinta. Sólo se
+# ignoran si son un sufijo entre paréntesis, nunca como parte del nombre real.
+STATUS_NOTE = re.compile(r"\s*\((?:inscripciones\s+cerradas|(?:dorsales|inscripciones|plazas)\s+agotad[oa]s)\)\s*$", re.I)
 
 def norm(s):
     s=unicodedata.normalize("NFKD",str(s or "").casefold())
@@ -24,7 +27,7 @@ def norm(s):
     return re.sub(r"\s+"," ",re.sub(r"[^a-z0-9]+"," ",s)).strip()
 
 def canonical_name(name):
-    value=norm(name)
+    value=norm(STATUS_NOTE.sub("",str(name or "")))
     value=EDITION.sub("",value)
     return value
 
