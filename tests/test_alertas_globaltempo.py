@@ -182,7 +182,7 @@ class AlertasGT(unittest.TestCase):
         secret = "https://www.google.com/alerts/feeds/TOKEN_PRIVADO"
         def request(method,path,data=None):
             if method == "GET":
-                self.assertIn("labels="+gt.HEALTH_EMPTY,path)
+                self.assertIn("/issues?state=open&per_page=100",path)
                 return []
             if method == "POST":
                 posts.append(data)
@@ -199,6 +199,7 @@ class AlertasGT(unittest.TestCase):
                                     gt.detect()
         self.assertEqual(len(posts),1)
         self.assertEqual(posts[0]["labels"],[gt.HEALTH_EMPTY])
+        self.assertIn(gt.HEALTH_MARKER,posts[0]["body"])
         self.assertNotIn(secret,json.dumps(posts)+output.getvalue())
         self.assertIn('"aviso_salud_nuevo": 1',output.getvalue())
         self.assertIn('"entradas_rss": 0',output.getvalue())
@@ -207,7 +208,8 @@ class AlertasGT(unittest.TestCase):
         requests=[]
         def request(method,path,data=None):
             requests.append((method,path))
-            return [{"number":87,"state":"open"}]
+            return [{"number":87,"state":"open",
+                     "body":"<!-- "+gt.HEALTH_MARKER+" -->"}]
         with patch.object(gt,"gh_request",side_effect=request):
             self.assertFalse(gt.notify_empty_feed({"entradas_rss":0}))
         self.assertEqual(len(requests),1)
