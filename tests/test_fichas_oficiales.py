@@ -35,8 +35,15 @@ class FichasOficiales(unittest.TestCase):
     def test_caducidad_marca_fuente_anterior(self):
         rows = official_races(date(2026, 12, 21))
         self.assertTrue(rows)
-        self.assertTrue(all(not r["fuente_directa"] for r in rows))
-        self.assertTrue(all("reconfirmar" in r["estado"].lower() for r in rows))
+        # Los cotejos de noviembre anterior al 21 ya caducaron; el nuevo
+        # cotejo de 25/11 sigue dentro de su propia ventana de 30 días.
+        old = [r for r in rows if r["cotejada"] < "2026-11-25"]
+        recent = [r for r in rows if r["cotejada"] == "2026-11-25"]
+        self.assertTrue(old)
+        self.assertTrue(all(not r["fuente_directa"] for r in old))
+        self.assertTrue(all("reconfirmar" in r["estado"].lower() for r in old))
+        self.assertEqual(len(recent),1)
+        self.assertTrue(recent[0]["fuente_directa"])
         self.assertTrue(all(r["fecha"] >= "2026-12-20" for r in rows))
 
     def test_no_reetiquetar_revisiones_antiguas_como_lectura_hoy(self):
@@ -54,8 +61,19 @@ class FichasOficiales(unittest.TestCase):
     def test_fichas_caducadas_no_simulan_actualidad(self):
         rows = official_races(date(2026, 12, 21))
         result = combine([], rows, slugify, km_parse)
-        self.assertTrue(all(r["fecha_origen"] == "catalogo" for r in result))
-        self.assertEqual({r["consultado"] for r in result}, {"2026-11-16", "2026-11-17", "2026-11-18", "2026-11-20"})
+        old = [r for r in result if r["consultado"] < "2026-11-25"]
+        self.assertTrue(all(r["fecha_origen"] == "catalogo" for r in old))
+        self.assertEqual({r["consultado"] for r in old},
+                         {"2026-11-16", "2026-11-17", "2026-11-18", "2026-11-20"})
+        recent = [r for r in result if r["consultado"] == "2026-11-25"]
+        self.assertEqual(len(recent),1)
+        self.assertEqual(recent[0]["fecha_origen"],"fuente")
+        later = combine([],official_races(date(2026,12,26)),
+                        slugify,km_parse)
+        guiares = next(r for r in later
+                       if r["nombre"]=="XVI CxM Valle de los Guájares")
+        self.assertEqual(guiares["fecha_origen"],"catalogo")
+        self.assertEqual(guiares["consultado"],"2026-11-25")
 
     def test_carreras_nuevas_solo_con_fuentes_primarias(self):
         rows = official_races(date(2026, 11, 17))
