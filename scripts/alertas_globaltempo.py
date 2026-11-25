@@ -29,6 +29,7 @@ PENDING = "gt-pendiente"
 APPROVE = "gt-aprobar"
 PUBLISHED = "gt-publicada"
 HEALTH_EMPTY = "gt-rss-vacio"
+HEALTH_MARKER = "CORRERADAR-GT-RSS-VACIO"
 MARKER = "CORRERADAR-GT-CANDIDATO"
 MAX_BYTES = 1_000_000
 MAX_ENTRIES = 100
@@ -349,15 +350,24 @@ def notify_empty_feed(metrics):
     """
     if metrics.get("entradas_rss") != 0:
         return False
-    existing=gh_request(
-        "GET", f"/issues?state=open&labels={HEALTH_EMPTY}&per_page=100")
-    if not isinstance(existing,list):
-        raise ValueError("Respuesta inválida de incidencias de salud GT")
-    if existing:
-        return False
+    # Inspeccionar el marcador de incidencias abiertas: permite reutilizar
+    # el seguimiento #87 ya existente, aunque aún no tenga etiqueta.
+    for page in range(1,11):
+        existing=gh_request(
+            "GET",f"/issues?state=open&per_page=100&page={page}")
+        if not isinstance(existing,list):
+            raise ValueError("Respuesta inválida de incidencias de salud GT")
+        if any(HEALTH_MARKER in str(item.get("body") or "")
+               for item in existing if isinstance(item,dict)):
+            return False
+        if len(existing)<100:
+            break
+    else:
+        raise ValueError("Demasiadas incidencias abiertas para cotejar salud GT")
     gh_request("POST","/issues",{
         "title": "Global Tempo: Google Alerts no entrega entradas al detector",
         "body": (
+            "<!-- CORRERADAR-GT-RSS-VACIO -->\n\n"
             "### Vigilancia de Global Tempo: RSS sin entradas\n\n"
             "La lectura programada de Google Alerts se ha completado, pero "
             "**no ha entregado entradas RSS**. Esto no demuestra que no existan "
