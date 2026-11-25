@@ -28,6 +28,7 @@ FILE = ROOT / "data" / "globaltempo_enlaces_aprobados.json"
 PENDING = "gt-pendiente"
 APPROVE = "gt-aprobar"
 PUBLISHED = "gt-publicada"
+HEALTH_EMPTY = "gt-rss-vacio"
 MARKER = "CORRERADAR-GT-CANDIDATO"
 MAX_BYTES = 1_000_000
 MAX_ENTRIES = 100
@@ -339,12 +340,47 @@ def existing_candidates():
     raise ValueError("Demasiadas incidencias sin paginar completamente")
 
 
+def notify_empty_feed(metrics):
+    """Aviso único de salud si Google Alerts no entregó ninguna entrada.
+
+    No afirmar que Global Tempo esté vacío: un feed de buscador puede omitir
+    carreras. La incidencia abierta permanece como recordatorio, sin spam.
+    No revelar URL RSS, títulos, IDs ni contenido del feed.
+    """
+    if metrics.get("entradas_rss") != 0:
+        return False
+    existing=gh_request(
+        "GET", f"/issues?state=open&labels={HEALTH_EMPTY}&per_page=100")
+    if not isinstance(existing,list):
+        raise ValueError("Respuesta inválida de incidencias de salud GT")
+    if existing:
+        return False
+    gh_request("POST","/issues",{
+        "title": "Global Tempo: Google Alerts no entrega entradas al detector",
+        "body": (
+            "### Vigilancia de Global Tempo: RSS sin entradas\n\n"
+            "La lectura programada de Google Alerts se ha completado, pero "
+            "**no ha entregado entradas RSS**. Esto no demuestra que no existan "
+            "carreras nuevas ni autoriza importar el catálogo de Global Tempo.\n\n"
+            "Revisar el contenido de la alerta desde la cuenta propietaria, "
+            "su consulta y las opciones RSS; **no copiar ni publicar el enlace "
+            "secreto del feed**. Consultar los contadores de Actions.\n\n"
+            "La incidencia se crea una sola vez mientras permanezca abierta. "
+            "Las nuevas carreras continúan sujetas a revisión y fuentes "
+            "de la edición concreta; no hay publicación automática.\n"
+        ),
+        "labels":[HEALTH_EMPTY]
+    })
+    return True
+
+
 def detect():
     # Crear las etiquetas de revisión aunque todavía no haya RSS ni candidatos.
     # Así el enlace de GitHub Issues no devuelve "Invalid value for label".
     ensure_label(PENDING,"b8a55c","Candidato encontrado en buscador; requiere revisión")
     ensure_label(APPROVE,"20864c","Revisión manual realizada; publicar solo nombre y enlace")
     ensure_label(PUBLISHED,"196eae","Enlace revisado y publicado")
+    ensure_label(HEALTH_EMPTY,"d4a72c","Google Alerts para GT no entrega entradas; revisar su salud")
     rss=os.environ.get("GT_ALERT_RSS_URL","").strip()
     if not rss:
         print("Global Tempo: detector preparado, pendiente configurar Google Alerts RSS")
@@ -359,6 +395,8 @@ def detect():
     # Solo métricas numéricas: los registros de Actions son públicos en este repo.
     metrics={}
     candidates=parse_feed(alert,metrics=metrics)
+    # El vacío no es un estado sano por sí mismo: notificar una sola vez.
+    health_alert_created=notify_empty_feed(metrics)
     known=existing_candidates()
     known.update(event_id(row.get("url","")) for row in approved_items())
     # Enlaces ya cotejados anteriormente: no crear incidencias repetidas.
@@ -387,6 +425,7 @@ def detect():
         "aplazados_por_limite": limit_skipped,
         "incidencias_nuevas": created,
         "publicaciones_automaticas": 0,
+        "aviso_salud_nuevo": int(health_alert_created),
     })
     # Nunca incluir RSS, títulos, URLs, IDs o respuestas del buscador en logs.
     print("Global Tempo: diagnóstico RSS "+json.dumps(
