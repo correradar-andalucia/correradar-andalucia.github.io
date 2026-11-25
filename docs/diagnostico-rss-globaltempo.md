@@ -1,6 +1,14 @@
 # Diagnóstico seguro del RSS de Google Alerts — Global Tempo
 
-**Estado:** mejora propuesta para revisión mediante PR; los datos reales se conocerán **solo tras integrar y ejecutar el detector**. No activar fuentes directas ni publicar candidatas automáticamente.
+**Estado:** diagnóstico de contadores integrado y contrastado en ejecuciones reales; alerta única de salud RSS vacío en mejora posterior. No activar fuentes directas ni publicar candidatas automáticamente.
+
+## Mejora posterior — noviembre de 2026: avisar de RSS vacío sin spam
+
+La primera lectura real del 25/11/2026 confirmó **0 entradas RSS en cinco ejecuciones consecutivas** del 23 al 25/11, aunque hay carreras de Global Tempo no presentes en el calendario. Esto no significa un error HTTP ni una inexistencia de novedades; demuestra un punto ciego de Google Alerts.
+
+Si el RSS se lee correctamente y entrega **0 entradas** (antes de todos los filtros), el detector abre **una incidencia de salud** `gt-rss-vacio` si no existe ya otra abierta con el marcador `CORRERADAR-GT-RSS-VACIO`. La incidencia [#87](https://github.com/correradar-andalucia/correradar-andalucia.github.io/issues/87) es el seguimiento histórico inicial; **no** se crea otra en cada ejecución vacía ni se guardan secretos, títulos o URL del RSS. Si llegan entradas pero se descartan por antigüedad/URL, la alerta de *vacío* no se dispara: los contadores indican la causa. El aviso de salud **no crea ninguna carrera** y no equivale a un correo enviado (depende de las notificaciones GitHub del propietario).
+
+No se cambia la búsqueda de Google Alerts, la URL secreta, el número de solicitudes, el horario ni el permiso de reutilización de Global Tempo. Su feed directo permanece **bloqueado** por falta de evidencia de autorización documentada. El actual GitHub Pages es público por URL, aun con `noindex`.
 
 ## Finalidad
 
