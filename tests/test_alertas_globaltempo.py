@@ -100,7 +100,7 @@ class AlertasGT(unittest.TestCase):
                 with patch.object(gt,"gh_request",side_effect=AssertionError("no crear incidencias")):
                     with patch.object(gt,"ensure_label",side_effect=lambda name,*args:created.append(name)):
                         gt.detect()
-        self.assertEqual(created,[gt.PENDING,gt.APPROVE,gt.PUBLISHED])
+        self.assertEqual(created,[gt.PENDING,gt.APPROVE,gt.PUBLISHED,gt.HEALTH_EMPTY])
 
     def test_issue_pide_tres_comprobaciones(self):
         body=gt.issue_body({"id":"3375","nombre":"XV Carrera Navideña de Prueba",
@@ -176,6 +176,53 @@ class AlertasGT(unittest.TestCase):
         self.assertEqual(len(posted),15)
         self.assertTrue(all(item[0]=="POST" for item in posted))
         self.assertIn("Carrera de prueba 34",posted[-1][2]["title"])
+
+    def test_sin_entradas_avisa_una_vez_sin_filtrar_secretos(self):
+        posts = []
+        secret = "https://www.google.com/alerts/feeds/TOKEN_PRIVADO"
+        def request(method,path,data=None):
+            if method == "GET":
+                self.assertIn("labels="+gt.HEALTH_EMPTY,path)
+                return []
+            if method == "POST":
+                posts.append(data)
+                return {"number": 90}
+            raise AssertionError(method)
+        with patch.dict("os.environ", {"GT_ALERT_RSS_URL":secret}):
+            with patch.object(gt,"read_feed",return_value=b'<rss><channel/></rss>'):
+                with patch.object(gt,"existing_candidates",return_value=set()):
+                    with patch.object(gt,"approved_items",return_value=[]):
+                        with patch.object(gt,"ensure_label"):
+                            with patch.object(gt,"gh_request",side_effect=request):
+                                output=io.StringIO()
+                                with redirect_stdout(output):
+                                    gt.detect()
+        self.assertEqual(len(posts),1)
+        self.assertEqual(posts[0]["labels"],[gt.HEALTH_EMPTY])
+        self.assertNotIn(secret,json.dumps(posts)+output.getvalue())
+        self.assertIn('"aviso_salud_nuevo": 1',output.getvalue())
+        self.assertIn('"entradas_rss": 0',output.getvalue())
+
+    def test_aviso_salud_existente_no_crea_duplicado(self):
+        requests=[]
+        def request(method,path,data=None):
+            requests.append((method,path))
+            return [{"number":87,"state":"open"}]
+        with patch.object(gt,"gh_request",side_effect=request):
+            self.assertFalse(gt.notify_empty_feed({"entradas_rss":0}))
+        self.assertEqual(len(requests),1)
+        self.assertEqual(requests[0][0],"GET")
+
+    def test_una_entrada_filtrada_no_equivale_a_feed_vacio(self):
+        with patch.object(gt,"gh_request",side_effect=AssertionError(
+                "no consultar GitHub si hay entradas RSS")):
+            self.assertFalse(gt.notify_empty_feed({"entradas_rss":1}))
+            self.assertFalse(gt.notify_empty_feed({}))
+
+    def test_respuesta_invalida_de_salud_se_bloquea(self):
+        with patch.object(gt,"gh_request",return_value={"error":"invalid"}):
+            with self.assertRaisesRegex(ValueError,"incidencias de salud"):
+                gt.notify_empty_feed({"entradas_rss":0})
 
     def test_diagnostico_atom_clasifica_todos_los_descartes(self):
         def entry(title, link, updated):
