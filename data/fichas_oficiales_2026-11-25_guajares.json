@@ -1,0 +1,18 @@
+{
+  "revision": "2026-11-25",
+  "criterio": "Cotejo editorial puntual de una sola carrera que falta en calendario confirmado; reglamento de la organización de XVI CxM Valle de los Guájares 2027 (art. 2 y tabla de modalidades) consultado el 25/11/2026 mediante enlace público de su ficha de inscripción. No es captación periódica ni copia del catálogo de Global Tempo. El horario publicado corresponde al trail de 24 km; la Mini CxM de 12 km sale a las 10:00. Estado de inscripciones deliberadamente no añadido por ser caducable. No fusionar con la XV edición de 2026.",
+  "carreras": [
+    {
+      "fecha": "2027-02-07",
+      "nombre": "XVI CxM Valle de los Guájares",
+      "localidad": "Los Guájares",
+      "provincia": "Granada",
+      "modalidad": "TRAIL",
+      "distancia": "24 km · 12 km",
+      "hora": "09:00",
+      "fuente": "https://www.global-tempo.com/carreras.php?id=3329",
+      "fuente_nombre": "Global Tempo — ficha XVI 2027 y reglamento del organizador",
+      "tipo_fuente": "cronometraje"
+    }
+  ]
+}
