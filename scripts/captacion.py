@@ -257,10 +257,21 @@ def parse_cruzando_detail(page,source_url,today=None,diagnostico=None):
                 place_field=word
                 break
     match=location_pattern.fullmatch(compact(place_field))
-    if not match:
-        return descartar("ubicacion_sin_provincia_verificable")
-    venue,province=compact(match.group(1)),next(
-        p for p in PROVINCES.values() if canon(p)==canon(match.group(2)))
+    if match:
+        venue,province=compact(match.group(1)),next(
+            p for p in PROVINCES.values() if canon(p)==canon(match.group(2)))
+    else:
+        # Algunas fichas ya incluyen el municipio y la provincia separados
+        # por «·», por ejemplo «Salida: avenida ..., Córdoba · Córdoba».
+        # Solo admitir una *capital provincial* repetida explícitamente
+        # después de la última coma: nunca deducir municipios del recinto.
+        capital=re.fullmatch(
+            r"Salida:\\s*[^·]{3,170},\\s*([^,·\\d]{2,70})\\s*·\\s*("+province_expr+r")",
+            compact(place_field),re.I)
+        if not capital or canon(capital.group(1))!=canon(capital.group(2)):
+            return descartar("ubicacion_sin_provincia_verificable")
+        venue,province=compact(capital.group(1)),next(
+            p for p in PROVINCES.values() if canon(p)==canon(capital.group(2)))
     # "La Alquería (Adra) (Almería)" menciona explícitamente el municipio.
     explicit=re.search(r"\(([^()]{2,70})\)\s*$",venue)
     place=compact(explicit.group(1)) if explicit else venue
