@@ -77,6 +77,42 @@ class DiagnosticoCruzandoTests(unittest.TestCase):
         self.assertEqual(race["provincia"], "Almería")
         self.assertEqual(race["fecha"], "2027-02-07")
 
+    def test_capital_con_direccion_municipio_y_provincia_explicitos(self):
+        # Regresión: Media Maratón de Córdoba 2026 omitida pese a estar
+        # en el listado: su sección "Dónde" no usa (Provincia).
+        link=BASE+"/pruebas/40-media-maraton-de-cordoba/"
+        html=ficha(
+            nombre="40 MEDIA MARATÓN DE CÓRDOBA",
+            encabezado="Domingo, 13 de diciembre de 2026 Salida a las 10:00 Córdoba",
+            donde="Salida: Avenida del Conde de Vallellano, Córdoba · Córdoba")
+        row=parse_cruzando_detail(html,link, date(2026,11,26))
+        self.assertIsNotNone(row)
+        self.assertEqual((row["fecha"],row["localidad"],row["provincia"]),
+                         ("2026-12-13","Córdoba","Córdoba"))
+        self.assertEqual(row["modalidad"],"RUNNING")
+        self.assertEqual(row["enlace"],link)
+
+    def test_capital_mismo_formato_de_otra_provincia(self):
+        html=ficha(nombre="III CARRERA DE MÁLAGA",
+                   encabezado="Domingo, 13 de diciembre de 2026",
+                   donde="Salida: Avenida Mayor, Málaga · Málaga")
+        row=parse_cruzando_detail(html,URL,TODAY)
+        self.assertEqual((row["localidad"],row["provincia"]),("Málaga","Málaga"))
+
+    def test_no_inventar_barrio_como_municipio(self):
+        for where in (
+                "Salida: Calle Principal, Centro · Córdoba",
+                "Salida: Avenida Mayor, Vícar · Almería",
+                "Salida: Plaza de España · Córdoba",
+                "Avenida del Conde de Vallellano, Córdoba · Córdoba",
+                "Salida: Avenida Norte, Córdoba · Málaga"):
+            with self.subTest(where=where):
+                detail={}
+                html=ficha(nombre="IV CARRERA POPULAR 2026",donde=where)
+                self.assertIsNone(parse_cruzando_detail(html,URL,TODAY,detail))
+                self.assertEqual(detail["motivo"],
+                                 "ubicacion_sin_provincia_verificable")
+
     def test_solo_plaza_sin_provincia_se_descarta(self):
         diagnostic={}
         html=ficha(nombre="VIII SAN SILVESTRE TORRENUEVA COSTA",
