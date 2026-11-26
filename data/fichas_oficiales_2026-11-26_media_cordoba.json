@@ -1,0 +1,18 @@
+{
+  "revision": "2026-11-26",
+  "criterio": "Cotejo puntual de la 40.ª Media Maratón de Córdoba capital, ausente de la copia confirmada de 158 carreras (publicación 26/11/2026). La organización IMDECO en mediamaratoncordoba.es anuncia de forma expresa el CAMBIO de fecha del 29/11/2026 al 13/12/2026, salida 10:00 y 21,097 km homologados. La ficha de Cruzando la Meta /pruebas/40-media-maraton-de-cordoba/ confirma fecha, municipio y distancia. No publicar una entrada independiente del 29/11, no confundir con Córdoba-Almodóvar ni con Media Maratón Vega del Guadalquivir. Estado de inscripciones caducable, no se fija en ficha editorial. Consulta manual de 26/11/2026; no amplía lector ni captación de fuentes.",
+  "carreras": [
+    {
+      "fecha": "2026-12-13",
+      "nombre": "40 Media Maratón de Córdoba",
+      "localidad": "Córdoba",
+      "provincia": "Córdoba",
+      "modalidad": "RUNNING",
+      "distancia": "21,097 km",
+      "hora": "10:00",
+      "fuente": "https://mediamaratoncordoba.es/",
+      "fuente_nombre": "IMDECO — web oficial de la 40 Media Maratón de Córdoba 2026",
+      "tipo_fuente": "organizador"
+    }
+  ]
+}
