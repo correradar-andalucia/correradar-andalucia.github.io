@@ -266,7 +266,7 @@ def parse_cruzando_detail(page,source_url,today=None,diagnostico=None):
         # Solo admitir una *capital provincial* repetida explícitamente
         # después de la última coma: nunca deducir municipios del recinto.
         capital=re.fullmatch(
-            r"Salida:\\s*[^·]{3,170},\\s*([^,·\\d]{2,70})\\s*·\\s*("+province_expr+r")",
+            r"Salida:\s*[^·]{3,170},\s*([^,·\d]{2,70})\s*·\s*("+province_expr+r")",
             compact(place_field),re.I)
         if not capital or canon(capital.group(1))!=canon(capital.group(2)):
             return descartar("ubicacion_sin_provincia_verificable")
