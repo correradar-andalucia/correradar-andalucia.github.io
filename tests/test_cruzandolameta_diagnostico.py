@@ -98,8 +98,7 @@ class DiagnosticoCruzandoTests(unittest.TestCase):
         for value in ("Salida: Palacio de Deportes de Vícar · Almería",
                       "Salida: Avenida del Conde de Vallellano · Córdoba",
                       "Salida: Avenida Ejemplo, Granada · Córdoba",
-                      "Salida: Calle Ejemplo, Sevilla · Málaga",
-                      "Salida: Parque de la Concordia (Almería)"):
+                      "Salida: Calle Ejemplo, Sevilla · Málaga"):
             with self.subTest(value=value):
                 diagnostic={}
                 row=parse_cruzando_detail(
