@@ -257,25 +257,37 @@ def parse_cruzando_detail(page,source_url,today=None,diagnostico=None):
                 place_field=word
                 break
     match=location_pattern.fullmatch(compact(place_field))
-    if not match:
-        return descartar("ubicacion_sin_provincia_verificable")
-    venue,province=compact(match.group(1)),next(
-        p for p in PROVINCES.values() if canon(p)==canon(match.group(2)))
-    # "La Alquería (Adra) (Almería)" menciona explícitamente el municipio.
-    explicit=re.search(r"\(([^()]{2,70})\)\s*$",venue)
-    place=compact(explicit.group(1)) if explicit else venue
-    if not explicit:
-        # Pabellón de Atarfe + la misma localidad en el nombre: única
-        # excepción acotada; no inferir municipios desde plazas o estadios.
-        match_pavilion=re.fullmatch(
-            r"Pabell[oó]n (?:Cubierto )?de ([^,\d]{2,65})",place,re.I)
-        if match_pavilion and canon(match_pavilion.group(1)) in key:
-            place=compact(match_pavilion.group(1))
-        elif re.match(
-            r"(?i)^(?:pabell[oó]n|palacio|plaza|parque|calle|avenida|avda|paseo|"
-            r"aparcamiento|parking|estadio|polideportivo|instituto|"
-            r"centro|complejo|carretera|explanada)\b",place):
-            return descartar("recinto_sin_municipio_verificable")
+    if match:
+        venue,province=compact(match.group(1)),next(
+            p for p in PROVINCES.values() if canon(p)==canon(match.group(2)))
+        # "La Alquería (Adra) (Almería)" menciona explícitamente el municipio.
+        explicit=re.search(r"\(([^()]{2,70})\)\s*$",venue)
+        place=compact(explicit.group(1)) if explicit else venue
+        if not explicit:
+            # Pabellón de Atarfe + localidad en nombre: única excepción.
+            match_pavilion=re.fullmatch(
+                r"Pabell[oó]n (?:Cubierto )?de ([^,\d]{2,65})",place,re.I)
+            if match_pavilion and canon(match_pavilion.group(1)) in key:
+                place=compact(match_pavilion.group(1))
+            elif re.match(
+                r"(?i)^(?:pabell[oó]n|palacio|plaza|parque|calle|avenida|avda|paseo|"
+                r"aparcamiento|parking|estadio|polideportivo|instituto|"
+                r"centro|complejo|carretera|explanada)\b",place):
+                return descartar("recinto_sin_municipio_verificable")
+    else:
+        # Algunos eventos de capitales expresan el municipio y la provincia
+        # tras la dirección, p. ej. "Salida: Av. del Conde de Vallellano,
+        # Córdoba · Córdoba". Admitir solo cuando ambas menciones de
+        # municipio/provincia coinciden con la capital; de lo contrario,
+        # la palabra después de la coma podría ser un barrio o recinto.
+        capital=re.fullmatch(
+            r"Salida:\s*[^·<>]{3,140},\s*([^,·()]{2,90})\s*·\s*("+
+            province_expr+r")",compact(place_field),re.I)
+        if not capital or canon(capital.group(1))!=canon(capital.group(2)):
+            return descartar("ubicacion_sin_provincia_verificable")
+        place=compact(capital.group(1))
+        province=next(p for p in PROVINCES.values()
+                      if canon(p)==canon(capital.group(2)))
     if (not 2<=len(place)<=90 or re.search(r"\b\d{1,2}:\d{2}\b",place)
             or re.search(r"\b(?:inscripciones|salida a las|sábado|domingo)\b",place,re.I)
             or re.search(r"[<>]",place)):

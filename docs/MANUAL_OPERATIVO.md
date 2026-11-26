@@ -3,6 +3,12 @@
 ## Trabajo habitual
 Abrir [panel](https://correradar-andalucia.github.io/panel/) y [Actions](https://github.com/correradar-andalucia/correradar-andalucia.github.io/actions). El panel representa la última publicación correcta; no demuestra que el último intento haya funcionado. Si falla, consultar pasos y logs sin exponer secretos. No descargar fuentes vetadas para diagnosticar.
 
+### Direcciones de capitales en Cruzando la Meta (26/11/2026)
+
+La 40 Media Maratón de Córdoba 2026 aparecía en las primeras entradas del calendario de Cruzando la Meta, pero su ficha publica el lugar como `Salida: Avenida del Conde de Vallellano, Córdoba · Córdoba`, no como `Córdoba (Córdoba)`. El lector rechazaba el lugar por no coincidir con el patrón anterior; no era prueba de que faltase el evento en la fuente. La ficha de Córdoba se cotejó por separado con el organizador IMDECO en PR #92.
+
+El parser incorpora un segundo patrón **solo** para una dirección que contenga municipio y provincia explícitos y ambos sean una **capital andaluza de igual nombre que la provincia**. Un barrio, recinto, provincia diferente o dirección sin el prefijo `Salida:` se descarta; se conservan el patrón anterior, los vetos y el máximo de 18 enlaces sin solicitudes adicionales. Es una mejora de cobertura de la fuente ya habilitada, no permiso para nuevas fuentes o scraping, y no acredita que el cronometraje publique todas las carreras. Contrastar las futuras ediciones con sus organizadores antes de cambiar fechas.
+
 ## Revisar avisos
 - [RSS cuatro fuentes](https://github.com/correradar-andalucia/correradar-andalucia.github.io/issues?q=is%3Aissue+is%3Aopen+label%3Arss-pendiente) y [Global Tempo](https://github.com/correradar-andalucia/correradar-andalucia.github.io/issues?q=is%3Aissue+is%3Aopen+label%3Agt-pendiente).
 - **Diagnóstico de cero alertas Global Tempo:** abrir [Actions del detector](https://github.com/correradar-andalucia/correradar-andalucia.github.io/actions/workflows/detectar-alertas-globaltempo.yml), localizar `Global Tempo: diagnóstico RSS` y seguir la [guía de contadores y límites](diagnostico-rss-globaltempo.md). Los registros contienen solo agregados, no URL secreta ni fichas. Cero entradas de Google Alerts, descartes de formato y duplicados históricos tienen causas diferentes; el detector no descubre modificaciones de fichas conocidas.
