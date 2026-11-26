@@ -17,7 +17,8 @@ FILES = (FILE, DATA_DIR / "fichas_oficiales_2026-11-17.json",
          GLOBALTEMPO_FILE, DATA_DIR / "fichas_oficiales_2026-11-18_jaen_huelva.json",
          DATA_DIR / "fichas_oficiales_2026-11-20.json",
          DATA_DIR / "fichas_oficiales_2026-11-20_vicar.json",
-         DATA_DIR / "fichas_oficiales_2026-11-25_guajares.json")
+         DATA_DIR / "fichas_oficiales_2026-11-25_guajares.json",
+         DATA_DIR / "fichas_oficiales_2026-11-26_media_cordoba.json")
 # Directorio de agregadores del Excel recibido. Son para descubrir carreras,
 # no sirven como fuente final de confirmación editorial.
 AGGREGATOR_HOSTS = frozenset({
