@@ -1,0 +1,18 @@
+{
+  "revision": "2026-11-27",
+  "criterio": "Cotejo editorial puntual vinculado al aviso RSS DeporTime #97. El responsable abrió personalmente la ficha de inscripción https://deportime.es/events/x-subbetica-trail/ y aportó el 27/11/2026 una captura legible del cartel de la X edición: 'Luque, 13 de marzo de 2027', 'X SUBBÉTICA TRAIL', con referencia a subbeticaoutdoor.com. Luque pertenece a la provincia de Córdoba según SIMA del Instituto de Estadística y Cartografía de Andalucía (municipio 14039). La copia confirmada de CorreRadar del 27/11/2026 (159 carreras, publicación 45924375662) no contenía la prueba. No confundir con IX Subbética Trail de marzo de 2026 en Zuheros; NO extrapolar a 2027 distancias ni horarios de la edición anterior. La captura NO muestra distancia, hora de salida, modalidad desglosada ni disponibilidad de inscripciones, por lo que se dejan distancia y hora vacías y no se fija estado de inscripción. La ficha de DeporTime no pudo verificarse por lectura directa desde el asistente; procedencia manual del cartel de la edición enlazado desde Issue #97. No activar lectura directa de DeporTime ni publicación automática de Google Alerts.",
+  "carreras": [
+    {
+      "fecha": "2027-03-13",
+      "nombre": "X Subbética Trail",
+      "localidad": "Luque",
+      "provincia": "Córdoba",
+      "modalidad": "TRAIL",
+      "distancia": "",
+      "hora": "",
+      "fuente": "https://deportime.es/events/x-subbetica-trail/",
+      "fuente_nombre": "DeporTime — ficha de la X Subbética Trail 2027 (cartel cotejado)",
+      "tipo_fuente": "cronometraje"
+    }
+  ]
+}
