@@ -42,8 +42,13 @@ class SanSilvestreCanonera2026(unittest.TestCase):
         race=matches[0]
         self.assertFalse(same_event(race,{**race,"fecha":"2025-12-27",
                                           "nombre":"II San Silvestre Cañonera"}))
+        # Una URL específica idéntica identifica la prueba incluso si otro
+        # lector se equivoca de municipio: para comparar eventos distintos,
+        # usar también enlaces diferentes.
         self.assertFalse(same_event(race,{**race,"localidad":"Sevilla",
-                                          "provincia":"Sevilla"}))
+                                          "provincia":"Sevilla",
+                                          "fuente":"https://www.cruzandolameta.es/pruebas/otra-prueba/",
+                                          "enlace":"https://www.cruzandolameta.es/pruebas/otra-prueba/"}))
         self.assertFalse(same_event(race,{**race,"modalidad":"OCR",
                                           "fecha":"2027-05-01"}))
         merged=combine([],rows,slugify,km_parse)
