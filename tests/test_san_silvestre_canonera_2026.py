@@ -42,7 +42,8 @@ class SanSilvestreCanonera2026(unittest.TestCase):
         race=matches[0]
         self.assertFalse(same_event(race,{**race,"fecha":"2025-12-27",
                                           "nombre":"II San Silvestre Cañonera"}))
-        self.assertFalse(same_event(race,{**race,"localidad":"Granada"}))
+        self.assertFalse(same_event(race,{**race,"localidad":"Sevilla",
+                                          "provincia":"Sevilla"}))
         self.assertFalse(same_event(race,{**race,"modalidad":"OCR",
                                           "fecha":"2027-05-01"}))
         merged=combine([],rows,slugify,km_parse)
