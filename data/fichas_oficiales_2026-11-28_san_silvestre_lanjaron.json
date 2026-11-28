@@ -1,0 +1,18 @@
+{
+  "revision": "2026-11-28",
+  "criterio": "Cotejo editorial puntual de la III San Silvestre Cañonera 2026 a partir del cartel municipal publicado por el Ayuntamiento de Lanjarón y aportado por el responsable en la conversación el 28/11/2026, contrastado con la ficha pública específica de la prueba de Cruzando la Meta (https://www.cruzandolameta.es/pruebas/iii-san-silvestre-canonera/) y la plataforma de inscripciones Inscrik (https://inscrik.com/evento/iii-san-silvestre-canonera/). Se confirma el 27/12/2026, Lanjarón (Granada), salida adultos 12:00 y 1,4 km (1400 m). Existe carrera infantil a las 11:30, sin distancia verificable; por ello la ficha única refleja la prueba adulta como distancia y hora principales, sin atribuirles esos valores a la infantil. Inscripciones figuraban disponibles el día de consulta, pero no se fija ese estado porque cambia. La publicación no autoriza consultar directamente fuentes nuevas ni hacer captura periódica, no copia cartel, reglamento, textos promocionales ni datos de inscritos. No confundir con II edición 2025 ni con La Última Fortaleza OCR de Lanjarón 2027.",
+  "carreras": [
+    {
+      "fecha": "2026-12-27",
+      "nombre": "III San Silvestre Cañonera",
+      "localidad": "Lanjarón",
+      "provincia": "Granada",
+      "modalidad": "RUNNING",
+      "distancia": "1,4 km",
+      "hora": "12:00",
+      "fuente": "https://www.cruzandolameta.es/pruebas/iii-san-silvestre-canonera/",
+      "fuente_nombre": "Cruzando la Meta — inscripción III San Silvestre Cañonera 2026 (Ayuntamiento de Lanjarón)",
+      "tipo_fuente": "cronometraje"
+    }
+  ]
+}
